@@ -96,7 +96,7 @@ class Mixtape_Environment implements Mixtape_Hookable {
     }
 
     private function get_domain_model_class( $thing ) {
-        $thing = $this->ensure_class_string( $thing );
+        $thing = $this->force_string( $thing );
 
         $this->get_field_declarations( $thing );
 
@@ -131,49 +131,33 @@ class Mixtape_Environment implements Mixtape_Hookable {
     }
 
     /**
-     * @param $type_class string the sensei domain model class
-     * @param $data_store Sensei_Domain_Models_Data_Store the data store instance
-     * @return $this
+     * @param string|object $key
+     * @return Mixtape_Interfaces_Data_Store
+     * @throws Mixtape_Exception
      */
-    public function set_data_store_for_domain_model( $type_class, $data_store ) {
-        return $this->set_data_store( $type_class, $data_store );
-    }
-
-    /**
-     * @param $type_class string
-     * @return Sensei_Domain_Models_Data_Store
-     * @throws Sensei_Domain_Models_Exception
-     */
-    public function get_data_store_for_domain_model( $type_class ) {
-        $type_class = $this->ensure_class_string( $type_class );
-        if (!isset( $this->data_stores[$type_class] ) ) {
-            throw new Mixtape_Exception( 'No datastore set for class ' . $type_class );
+    public function get_data_store( $key ) {
+        $key = $this->force_string( $key );
+        if (!isset( $this->data_stores[$key] ) ) {
+            throw new Mixtape_Exception( 'No datastore set for ' . $key );
         }
-        return $this->get_data_store( $type_class );
+        return $this->data_stores[ $key ];
     }
 
     /**
-     * @param $name string
-     * @param $data_store_instance Sensei_Domain_Models_Data_Store
+     * @param $name string the name
+     * @param $data_store_instance Mixtape_Interfaces_Data_Store
      * @return $this
      */
-    public function set_data_store($name, $data_store_instance ) {
+    public function set_data_store( $name, $data_store_instance ) {
         $this->data_stores[$name] = $data_store_instance;
         return $this;
     }
 
     /**
-     * @param $name
-     * @return null|Mixtape_Interfaces_Data_Store
+     * @param object|string $thing
+     * @return string
      */
-    public function get_data_store( $name ) {
-        if ( isset( $this->data_stores[ $name ] ) ) {
-            return $this->data_stores[ $name ];
-        }
-        return null;
-    }
-
-    private function ensure_class_string( $thing ) {
+    private function force_string( $thing ) {
         if ( ! is_string( $thing ) ) {
             return get_class( $thing );
         }
@@ -182,6 +166,7 @@ class Mixtape_Environment implements Mixtape_Hookable {
 
     /**
      * @param $bundle Mixtape_Rest_Api_Controller_Bundle
+     * @return $this Mixtape_Environment
      */
     public function add_rest_bundle( $bundle ) {
         $key = $bundle->get_api_prefix();
@@ -189,8 +174,12 @@ class Mixtape_Environment implements Mixtape_Hookable {
         return $this;
     }
 
+    /**
+     * Run hooks
+     * @return $this
+     */
     public function hook() {
-        if (false === $this->started) {
+        if ( false === $this->started ) {
             $this->started = true;
             foreach ($this->rest_api_bundles as $k => $bundle ) {
                 $bundle->hook();
