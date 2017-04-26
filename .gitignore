@@ -144,3 +144,5 @@ Temporary Items
 # </genignore linux>
 
 
+generated/*
+!generated/.gitkeep
