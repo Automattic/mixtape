@@ -173,21 +173,23 @@ class Mixtape_Environment implements Mixtape_Hookable {
      * @return $this Mixtape_Environment
      */
     public function add_rest_bundle( $bundle ) {
-        $key = $bundle->get_api_prefix();
+        $key = $bundle->get_bundle_prefix();
         $this->rest_api_bundles[ $key ] = $bundle;
         return $this;
     }
 
     /**
-     * Run hooks
+     * Start things up
      * @return $this
      */
-    public function hook() {
+    public function start() {
         if ( false === $this->started ) {
-            $this->started = true;
+            do_action( 'mixtape_environment_before_start', $this );
             foreach ($this->rest_api_bundles as $k => $bundle ) {
-                $bundle->hook();
+                $bundle->start();
             }
+            $this->started = true;
+            do_action( 'mixtape_environment_after_start', $this );
         }
 
         return $this;

@@ -14,7 +14,7 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Hookable {
     /**
      * @var string|null the prefix of this bundle
      */
-    protected $api_prefix = null;
+    protected $bundle_prefix = null;
     /**
      * @var array collection of Mixtape_Rest_Api_Controller subclasses
      */
@@ -26,8 +26,8 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Hookable {
     public function __construct() {
     }
 
-    public function hook() {
-        if ( null === $this->api_prefix ) {
+    public function start() {
+        if ( null === $this->bundle_prefix ) {
             throw new Mixtape_Exception( 'api_prefix should be defined' );
         }
         add_action( 'rest_api_init', array( $this, 'register' ) );
@@ -42,9 +42,12 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Hookable {
         if ( !$this->can_use_rest_api() ) {
             return;
         }
-        $rest_api_prefix = str_replace('/', '_', $this->api_prefix );
+        $rest_api_prefix = str_replace('/', '_', $this->bundle_prefix );
         /**
-         * add/remove endpoints for third parties
+         * add/remove endpoints. Useful for extensions
+         * @param $endpoints array an array of Mixtape_Rest_Api_Controller
+         * @param $bundle Mixtape_Rest_Api_Controller_Bundle the bundle instance
+         * @return array
          */
         $this->endpoints = (array)apply_filters( 'mixtape_rest_api_get_endpoints', $this->get_endpoints(), $this );
 
@@ -68,7 +71,7 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Hookable {
         return true;
     }
 
-    public function get_api_prefix() {
-        return $this->api_prefix;
+    public function get_bundle_prefix() {
+        return $this->bundle_prefix;
     }
 }
