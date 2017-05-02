@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Represents a collection of Mixtape_Rest_Api_Controller instances, sharing a common prefix
  * @package rest-api
  */
-class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Hookable {
+class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Interfaces_Rest_Api_Controller_Bundle {
 
     /**
      * @var string|null the prefix of this bundle
@@ -63,11 +63,11 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Hookable {
         return null;
     }
 
-    protected function get_endpoints() {
+    public function get_endpoints() {
         return array();
     }
 
-    protected function can_use_rest_api() {
+    public function can_use_rest_api() {
         return true;
     }
 

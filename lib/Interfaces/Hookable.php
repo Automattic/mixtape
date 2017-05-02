@@ -1,5 +1,5 @@
 <?php
 
-interface Mixtape_Hookable {
+interface Mixtape_Interfaces_Hookable {
     public function start();
 }

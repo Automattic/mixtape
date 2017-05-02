@@ -227,6 +227,7 @@ if ( ! class_exists( 'Mixtape' ) ) {
                 ->load_class( 'Interfaces_Hookable' )
                 ->load_class( 'Interfaces_Data_Store' )
                 ->load_class( 'Interfaces_Model_Collection' )
+                ->load_class( 'Interfaces_Rest_Api_Controller_Bundle' )
                 ->load_class( 'Exception' )
                 ->load_class( 'Environment' )
                 ->load_class( 'Rest_Api_Controller' )
