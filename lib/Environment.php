@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class Mixtape_Environment implements Mixtape_Hookable {
+class Mixtape_Environment {
 
     protected $data_stores;
     protected $rest_api_bundles;
@@ -13,14 +13,14 @@ class Mixtape_Environment implements Mixtape_Hookable {
     /**
      * @var Mixtape
      */
-    private $mix_tape;
+    private $main;
 
     /**
      * Mixtape_Environment constructor.
      * @param $mixtape Mixtape
      */
-    public function __construct( $mix_tape) {
-        $this->mix_tape = $mix_tape;
+    public function __construct( $main) {
+        $this->main = $main;
         $this->started = false;
         $this->field_declarations_by_model = array();
         $this->factories = array();
@@ -40,7 +40,7 @@ class Mixtape_Environment implements Mixtape_Hookable {
 
     /**
      * @param $request
-     * @return Sensei_Domain_Models_Course
+     * @return Mixtape_Model
      */
     public function new_from_request( $klass, $request )
     {
@@ -59,10 +59,10 @@ class Mixtape_Environment implements Mixtape_Hookable {
 
     public function all( $klass ) {
         $results = array();
-        foreach ($this->get_entities( $klass ) as $entity) {
-            $results[] = $this->create_object($klass, $entity);
+        foreach ( $this->get_entities( $klass ) as $entity ) {
+            $results[] = $this->create_object( $klass, $entity );
         }
-        return new Sensei_Domain_Models_Model_Collection($results);
+        return new Mixtape_Model_Collection( $results );
     }
 
     public function find_one_by_id( $klass, $id) {
@@ -111,7 +111,7 @@ class Mixtape_Environment implements Mixtape_Hookable {
     }
 
     public function get_field_declarations( $klass, $filter_by_type=null ) {
-        $super = $this->mix_tape->prefixed_class_name( 'Model' );
+        $super = $this->main->class_loader()->prefixed_class_name( 'Model' );
         if ( !is_subclass_of( $klass, $super ) ) {
             throw new Mixtape_Exception( $klass . ' is not a subclass of ' . $super );
         }
@@ -185,7 +185,7 @@ class Mixtape_Environment implements Mixtape_Hookable {
     public function start() {
         if ( false === $this->started ) {
             do_action( 'mixtape_environment_before_start', $this );
-            foreach ($this->rest_api_bundles as $k => $bundle ) {
+            foreach ( $this->rest_api_bundles as $k => $bundle ) {
                 $bundle->start();
             }
             $this->started = true;
