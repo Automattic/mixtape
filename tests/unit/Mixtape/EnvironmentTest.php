@@ -7,10 +7,7 @@ class Mixtape_EnvironmentTest extends MixtapeTestCase {
         $this->mixtape = Mixtape::create()->load();
         $this->assertClassExists( 'Mixtape_Environment' );
         $env = $this->mixtape->environment();
-        $this->assertInstanceOf( $env, 'Mixtape_Environment' );
-    }
-
-    function test() {
-
+        $this->assertNotNull( $env );
+        $this->assertInstanceOf( 'Mixtape_Environment', $env );
     }
 }

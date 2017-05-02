@@ -152,6 +152,10 @@ if ( ! class_exists( 'Mixtape' ) ) {
             return $this;
         }
 
+        public function prefixed_class_name( $class_name ) {
+            return $this->class_loader->prefixed_class_name( $class_name );
+        }
+
         private function get_default_prefix_class_path( $name ) {
             return path_join( $this->lib_dir, $this->class_loader->class_name_to_relative_path( $name ) );
         }
