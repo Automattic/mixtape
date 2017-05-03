@@ -27,6 +27,8 @@ class Mixtape_Unit_Tests_Bootstrap {
         tests_add_filter( 'muplugins_loaded', array( $this, 'load_mixtape' ) );
         // install Mixtape
         tests_add_filter( 'setup_theme', array( $this, 'install_mixtape' ) );
+        // register some Mixtape cpts
+        tests_add_filter( 'init', array( $this, 'register_mixtape_test_cpts' ) );
         // load the WP testing environment
         require_once( $this->wp_tests_dir . '/includes/bootstrap.php' );
 
@@ -41,6 +43,30 @@ class Mixtape_Unit_Tests_Bootstrap {
         // new capabilities after install, in the past we reinited this, but in wp > 4.7 its deprecated.
         // see https://core.trac.wordpress.org/ticket/28374
         $GLOBALS['wp_roles'] = new WP_Roles();
+    }
+
+    public function register_mixtape_test_cpts() {
+        // register some post types for using with our tests
+        register_post_type( 'mixtape_casette',
+            array(
+                'labels' => array(
+                    'name' => __( 'Casettes' ),
+                    'singular_name' => __( 'Casette' )
+                ),
+                'public' => true,
+                'has_archive' => true,
+            )
+        );
+        register_post_type( 'mixtape_casette_song',
+            array(
+                'labels' => array(
+                    'name' => __( 'Casette Songs' ),
+                    'singular_name' => __( 'Casette Song' )
+                ),
+                'public' => true,
+                'has_archive' => true,
+            )
+        );
     }
 
     public function includes() {
