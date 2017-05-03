@@ -230,6 +230,10 @@ if ( ! class_exists( 'Mixtape' ) ) {
                 ->load_class( 'Interfaces_Rest_Api_Controller_Bundle' )
                 ->load_class( 'Exception' )
                 ->load_class( 'Environment' )
+                ->load_class( 'Model_Field_Types' )
+                ->load_class( 'Model_Field_Declaration' )
+                ->load_class( 'Model_Field_DeclarationBuilder' )
+                ->load_class( 'Model' )
                 ->load_class( 'Rest_Api_Controller' )
                 ->load_class( 'Rest_Api_Controller_Bundle' );
             return $this;

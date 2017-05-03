@@ -169,7 +169,7 @@ class Mixtape_Environment {
     }
 
     /**
-     * @param $bundle Mixtape_Rest_Api_Controller_Bundle
+     * @param $bundle Mixtape_Interfaces_Rest_Api_Controller_Bundle
      * @return $this Mixtape_Environment
      */
     public function add_rest_bundle( $bundle ) {

@@ -122,7 +122,7 @@ class Mixtape_Model_Field_Declaration {
         return $value;
     }
 
-    public function suppports_output_type( $type ) {
+    public function supports_output_type( $type ) {
         return in_array( $type, $this->supported_outputs, true );
     }
 
