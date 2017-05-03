@@ -20,7 +20,7 @@ class Mixtape_EnvironmentTest extends MixtapeTestCase {
 
     function test_set_data_store() {
         $data_store = $this
-            ->getMockBuilder(Mixtape_Interfaces_Data_Store::class)
+            ->getMockBuilder( Mixtape_Interfaces_Data_Store::class )
             ->getMock();
         $data_store_key = 'Foo';
         $this->mixtape
@@ -41,12 +41,12 @@ class Mixtape_EnvironmentTest extends MixtapeTestCase {
         $this->mixtape->environment()->get_data_store('Bar');
     }
 
-    function test_add_bundle_adds_bundle() {
+    function test_start_calls_start_in_added_bundles() {
         $a_bundle = $this
-            ->getMockBuilder(Mixtape_Interfaces_Interfaces_Rest_Api_Controller_Bundle::class)
-            ->setMethods( array( 'get_bundle_prefix', 'start' ) )
+            ->getMockBuilder( Mixtape_Interfaces_Rest_Api_Controller_Bundle::class )
+            ->setMethods( array( 'get_bundle_prefix', 'start', 'register', 'get_endpoints' ) )
             ->getMock();
-        // Configure the stub.
+
         $a_bundle->expects($this->once())
             ->method('get_bundle_prefix')
             ->willReturn('/foo/v1');

@@ -45,6 +45,7 @@ class Mixtape_Unit_Tests_Bootstrap {
 
     public function includes() {
         require_once( $this->tests_dir . '/unit-testing-classes/MixtapeTestCase.php' );
+        require_once( $this->tests_dir . '/unit-testing-classes/MixtapeModelTestCase.php' );
     }
 
     /**
