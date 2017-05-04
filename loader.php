@@ -218,7 +218,7 @@ if ( ! class_exists( 'Mixtape' ) ) {
         }
 
         /**
-         * Load all Mixtape classes at once.
+         * Load all Mixtape classes
          * @return $this
          * @throws Exception
          */
@@ -226,13 +226,19 @@ if ( ! class_exists( 'Mixtape' ) ) {
             $this->class_loader()
                 ->load_class( 'Interfaces_Hookable' )
                 ->load_class( 'Interfaces_Data_Store' )
+                ->load_class( 'Interfaces_Model' )
                 ->load_class( 'Interfaces_Model_Collection' )
+                ->load_class( 'Interfaces_Model_Delegate' )
                 ->load_class( 'Interfaces_Rest_Api_Controller_Bundle' )
                 ->load_class( 'Exception' )
                 ->load_class( 'Environment' )
+                ->load_class( 'Data_Store_Nil' )
                 ->load_class( 'Model_Field_Types' )
                 ->load_class( 'Model_Field_Declaration' )
                 ->load_class( 'Model_Field_DeclarationBuilder' )
+                ->load_class( 'Model_Delegate' )
+                ->load_class( 'Model_Definition' )
+                ->load_class( 'Model_Definition_Builder' )
                 ->load_class( 'Model' )
                 ->load_class( 'Rest_Api_Controller' )
                 ->load_class( 'Rest_Api_Controller_Bundle' );
@@ -252,17 +258,12 @@ if ( ! class_exists( 'Mixtape' ) ) {
          */
         public function environment() {
             if ( null === $this->environment ) {
-                $this->environment = $this->create_instance_of( 'Environment', array( $this ) );
+                $full_class_name = $this->class_loader()->prefixed_class_name( 'Environment' );
+                $reflection = new ReflectionClass( $full_class_name );
+                $this->environment = $reflection->newInstanceArgs( array( $this ) );
             }
             return $this->environment;
         }
-
-        public function create_instance_of( $class_name, $args = array() ) {
-            $full_class_name = $this->class_loader()->prefixed_class_name( $class_name );
-            $reflection = new ReflectionClass( $full_class_name );
-            return $reflection->newInstanceArgs( $args );
-        }
-
     }
 }
 

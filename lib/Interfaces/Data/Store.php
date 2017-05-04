@@ -16,7 +16,7 @@ interface Mixtape_Interfaces_Data_Store {
 
 
     /**
-     * @param $id the id of the entity
+     * @param int $id the id of the entity
      * @return Mixtape_Model
      */
     public function get_entity( $id );

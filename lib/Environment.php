@@ -9,6 +9,7 @@ class Mixtape_Environment {
     protected $data_stores;
     protected $rest_api_bundles;
     protected $field_declarations_by_model;
+    protected $model_definitions;
     private $started;
     /**
      * @var Mixtape
@@ -19,13 +20,14 @@ class Mixtape_Environment {
      * Mixtape_Environment constructor.
      * @param $mixtape Mixtape
      */
-    public function __construct( $main) {
+    public function __construct( $main ) {
         $this->main = $main;
         $this->started = false;
         $this->field_declarations_by_model = array();
         $this->factories = array();
         $this->data_stores = array();
         $this->rest_api_bundles = array();
+        $this->model_definitions = array();
     }
 
     public function get_factory( $klass ) {
@@ -36,6 +38,42 @@ class Mixtape_Environment {
         }
 
         return $this->factories[$klass];
+    }
+
+    public function create_model_definition( $model_class_name = '' ) {
+        return new Mixtape_Model_Definition_Builder( $this, $model_class_name );
+    }
+
+    /**
+     * @param Mixtape_Interfaces_Model_Delegate $delegate
+     * @param null|Mixtape_Data_Store_Nil $data_store
+     * @return $this
+     * @throws Mixtape_Exception
+     */
+    public function define_model($delegate, $data_store = null ) {
+        $interface = $this->get_main()->class_loader()->prefixed_class_name( 'Interfaces_Model_Delegate' );
+        if ( !is_a( $delegate, $interface ) ) {
+            throw new Mixtape_Exception('add_model_definition requires ' . $interface);
+        }
+        $definition = new Mixtape_Model_Definition( $this, $delegate, $data_store );
+        $key = $definition->get_model_class();
+        $this->model_definitions[$key] = $definition;
+        return $this;
+    }
+
+    /**
+     * @param $class
+     * @return Mixtape_Model_Definition the definition
+     * @throws Mixtape_Exception
+     */
+    public function model($class ) {
+        if ( !class_exists( $class ) ) {
+            throw new Mixtape_Exception( $class . ': does not exist' );
+        }
+        if ( !isset( $this->model_definitions[$class] ) ) {
+            throw new Mixtape_Exception( $class . ' definition does not exist' );
+        }
+        return $this->model_definitions[$class];
     }
 
     /**
@@ -193,5 +231,9 @@ class Mixtape_Environment {
         }
 
         return $this;
+    }
+
+    public function get_main() {
+        return $this->main;
     }
 }
