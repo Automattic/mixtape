@@ -18,12 +18,14 @@
     <testsuites>
         <testsuite name="Mixtape Test Suite">
             <directory suffix=".php">./tests/</directory>
+            <exclude>./tests/unit-testing-classes</exclude>
         </testsuite>
     </testsuites>
     <filter>
         <blacklist>
             <directory suffix=".php">./apigen/</directory>
             <directory suffix=".php">./tests/</directory>
+            <directory suffix=".php">./tests/unit-testing-classes</directory>
             <directory suffix=".php">./tmp/</directory>
         </blacklist>
     </filter>

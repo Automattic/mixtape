@@ -14,5 +14,9 @@ class MixtapeModelTestCase extends MixtapeTestCase {
         parent::setUp();
         $this->mixtape = Mixtape::create()->load();
         $this->environment = $this->mixtape->environment();
+        if ( !class_exists( 'Casette' ) ) {
+            // include our test classes
+            include_once 'Casette.php';
+        }
     }
 }
