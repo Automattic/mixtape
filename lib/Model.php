@@ -40,32 +40,15 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         $this->fields = $this->definition->get_field_declarations();
         $this->data = array();
 
-        if ( is_array( $data ) ) {
-            $model_data = $data;
-        } else {
-            $model_data = $this->get_data_array_from_entity( $data );
+        if ( !is_array( $data ) ) {
+            throw new Mixtape_Exception( '$data shoud be array' );
         }
 
-        $this->raw_data = $model_data;
+        $this->raw_data = $data;
 
-        $post_array_keys = array_keys( $model_data );
+        $post_array_keys = array_keys( $data );
         foreach ( $this->fields as $key => $field_declaration ) {
-            // eager load anything that is not a meta or derived field
-            if ( false === $field_declaration->is_field() ) {
-                continue;
-            }
-            $this->add_data_for_key( $field_declaration, $post_array_keys, $model_data, $key);
-        }
-    }
-
-    protected function get_data_array_from_entity( $entity ) {
-        if ( is_numeric( $entity  ) ) {
-            $data_store = $this->definition->get_data_store();
-            return $data_store->get_entity( $entity );
-        } else if ( is_a( $entity, 'WP_Post' ) ) {
-            return $entity->to_array();
-        } else {
-            throw new Mixtape_Exception('does not understand entity');
+            $this->add_data_for_key( $field_declaration, $post_array_keys, $data, $key);
         }
     }
 
@@ -79,7 +62,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
     
     public function set( $field, $value ) {
-        if (!isset( $this->fields[$field] ) ) {
+        if ( !isset( $this->fields[$field] ) ) {
             return $this;
         }
 
@@ -90,50 +73,45 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
 
     /**
-     * @param $other WP_REST_Request
-     * @return Mixtape_Model
-     */
-    public function merge_updates_from_request( $request, $updating = false ) {
-        $fields = $this->definition->get_field_declarations();
-        $field_data = array();
-        foreach ( $fields as $field ) {
-            if ( $field->is_derived_field() ) {
-                continue;
-            }
-            if ( isset( $request[$field->name] ) && !( $updating && $field->primary ) ) {
-                $field_data[ $field->name ] = $request[$field->name];
-                $this->set( $field->name, $request[$field->name] );
-            }
-        }
-        return $this;
-    }
-
-
-    /**
-     * @param $field_declaration Mixtape_Model_Field_Declaration
-     * @param $post_array_keys array
-     * @param $model_data array
-     * @param $key string
+     * @param Mixtape_Model_Field_Declaration $field_declaration
+     * @param array $post_array_keys
+     * @param array $model_data
+     * @param string $key
+     * @return Mixtape_Model $this
      */
     protected function add_data_for_key( $field_declaration, $post_array_keys, $model_data, $key ) {
-        $map_from = $field_declaration->get_name_to_map_from();
-        if (in_array($map_from, $post_array_keys)) {
-            $this->set( $key, $model_data[$map_from] );
-        } else if (in_array($key, $post_array_keys)) {
-            $this->set( $key, $model_data[$key] );
-        } else {
-            $this->set( $key, $field_declaration->get_default_value() );
+        if ( $field_declaration->is_derived_field() ) {
+            // we lazy-load derived field values
+            return $this;
         }
+
+        if (in_array( $key, $post_array_keys ) ) {
+            // simplest case: we got a $key for this, so just map it
+            return $this->set( $key, $model_data[$key] );
+        }
+
+        if ( $field_declaration->is_meta_field() ) {
+            // if we got here, we got a meta_field with a mapping. Lazy-loaded too
+            return $this;
+        }
+
+        $map_from = $field_declaration->get_name_to_map_from();
+        if (in_array( $map_from, $post_array_keys ) ) {
+            return $this->set( $key, $model_data[$map_from] );
+        }
+
+        // no mapping provided for this in the entity array, just set it to a default
+        return $this->set( $key, $field_declaration->get_default_value() );
     }
 
     /**
-     * @param Sensei_Domain_Models_Field_Declaration $field_declaration
+     * @param Mixtape_Model_Field_Declaration $field_declaration
      */
     protected function load_field_value_if_missing( $field_declaration ) {
         $field_name = $field_declaration->name;
         if ( !isset( $this->data[ $field_name ] ) ) {
             if ( $field_declaration->is_meta_field() ) {
-                $value = $this->get_data_store()->get_meta_field_value( $this, $field_declaration );
+                $value = $this->definition->get_data_store()->get_meta_field_value( $this, $field_declaration );
                 $this->set( $field_name, $value );
             } else if ( $field_declaration->is_derived_field() ) {
                 $map_from = $field_declaration->get_name_to_map_from();
@@ -146,38 +124,20 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         }
     }
 
-    public function upsert() {
-        $fields = $this->map_field_types_for_upserting( Mixtape_Model_Field_Types::FIELD );
-        $meta_fields = $this->map_field_types_for_upserting( Mixtape_Model_Field_Types::META );
-        return $this->get_data_store()->upsert( $this, $fields, $meta_fields );
-    }
-
-    public function delete() {
-        return $this->get_data_store()->delete( $this );
-    }
-
     public function get_data_transfer_object_field_mappings() {
         $mappings = array();
-        foreach ( $this->get_field_declarations() as $field_declaration ) {
+        foreach ( $this->definition->get_field_declarations() as $field_declaration ) {
+            /** @var Mixtape_Model_Field_Declaration $field_declaration */
             if ( !$field_declaration->suppports_output_type( 'json' ) ) {
                 continue;
             }
-            $mappings[$field_declaration->json_name] = $field_declaration->name;
+            $mappings[$field_declaration->get_data_transfer_name()] = $field_declaration->get_name();
         }
         return $mappings;
     }
 
-    private function map_field_types_for_upserting( $field_type ) {
-        $field_values_to_insert = array();
-        foreach ( $this->get_field_declarations( $field_type ) as $field_declaration ) {
-            $what_to_map_to = $field_declaration->get_name_to_map_from();
-            $field_values_to_insert[$what_to_map_to] = $this->get( $field_declaration->name );
-        }
-        return $field_values_to_insert;
-    }
-
     public function get_id() {
-        return $this->delegate->call( 'get_id', $this );
+        return $this->delegate->get_id( $this );
     }
 
     public function validate() {
@@ -196,6 +156,14 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
 
     /**
+     * @param $error_data array
+     * @return WP_Error
+     */
+    protected function validation_error( $error_data ) {
+        return new WP_Error( 'validation-error', 'validation-error', $error_data );
+    }
+
+    /**
      * @param $field_declaration Sensei_Domain_Models_Field_Declaration
      * @return bool|WP_Error
      */
@@ -203,19 +171,19 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         if ( $field_declaration->is_derived_field() ) {
             return true;
         }
-        $value = $this->get( $field_declaration->name );
-        if ( $field_declaration->required && empty( $value ) ) {
+        $value = $this->get( $field_declaration->get_name() );
+        if ( $field_declaration->is_required() && empty( $value ) ) {
             return new WP_Error(
                 'required-field-empty',
-                sprintf( __( '%s cannot be empty', 'woothemes-sensei' ), $field_declaration->name )
+                sprintf( __( '%s cannot be empty', 'woothemes-sensei' ), $field_declaration->get_name() )
             );
-        } else if ( !$field_declaration->required && ! empty( $value ) ) {
-            foreach ( $field_declaration->validations as $method_name ) {
-                $result = $this->delegate->call( $method_name, $this, array( $value ) );
+        } else if ( !$field_declaration->is_required() && ! empty( $value ) ) {
+            foreach ( $field_declaration->get_validations() as $validation ) {
+                $result = $this->delegate->call( $validation, $this, array( $value ) );
                 if ( is_wp_error( $result ) ) {
                     $result->add_data(array(
                         'reason' => $result->get_error_messages(),
-                        'field' => $field_declaration->name,
+                        'field' => $field_declaration->get_name(),
                         'value' => $value ) );
                     return $result;
                 }
@@ -224,27 +192,6 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         return true;
     }
 
-    function get_field_declarations( $filter_by_type=null ) {
-        return $this->definition->get_field_declarations( $filter_by_type );
-    }
-
-    protected function as_bool($value ) {
-        return (bool)$value;
-    }
-
-    protected function as_uint($value ) {
-        return absint( $value );
-    }
-
-    protected function as_nullable_uint( $value ) {
-        return ( empty( $value ) && !is_numeric( $value ) ) ? null : $this->as_uint( $value );
-    }
-
-    /**
-     * @param $data
-     * @param $field_declaration Sensei_Domain_Models_Field_Declaration
-     * @return mixed|null
-     */
     private function prepare_value( $field_declaration ) {
         $value = $this->data[ $field_declaration->name ];
 
@@ -253,14 +200,5 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         }
 
         return $value;
-    }
-
-    /**
-     * @return Mixtape_Interfaces_Data_Store
-     * @throws Mixtape_Exception
-     */
-    protected function get_data_store()
-    {
-        return $this->definition->get_data_store();
     }
 }

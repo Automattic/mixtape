@@ -233,12 +233,12 @@ if ( ! class_exists( 'Mixtape' ) ) {
                 ->load_class( 'Exception' )
                 ->load_class( 'Environment' )
                 ->load_class( 'Data_Store_Nil' )
+                ->load_class( 'Data_Store_Cpt' )
                 ->load_class( 'Model_Field_Types' )
                 ->load_class( 'Model_Field_Declaration' )
                 ->load_class( 'Model_Field_DeclarationBuilder' )
                 ->load_class( 'Model_Delegate' )
                 ->load_class( 'Model_Definition' )
-                ->load_class( 'Model_Definition_Builder' )
                 ->load_class( 'Model' )
                 ->load_class( 'Rest_Api_Controller' )
                 ->load_class( 'Rest_Api_Controller_Bundle' );

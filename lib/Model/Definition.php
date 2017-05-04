@@ -29,6 +29,7 @@ class Mixtape_Model_Definition {
         $this->delegate = $delegate;
         $this->model_class = get_class( $delegate );
         $this->data_store = $data_store;
+        $this->data_store->set_definition( $this );
     }
 
     function get_model_class() {
@@ -45,9 +46,9 @@ class Mixtape_Model_Definition {
 
     public function get_field_declarations( $filter_by_type=null ) {
         $delegate = $this->get_delegate();
-        $interface = $this->environment->get_main()->class_loader()->prefixed_class_name( 'Interfaces_Model_Delegate' );
+        $interface = $this->get_environment()->get_main()->class_loader()->prefixed_class_name( 'Interfaces_Model_Delegate' );
 
-        if ( !class_implements( $delegate, $interface ) ) {
+        if ( !is_a( $delegate, $interface ) ) {
             throw new Mixtape_Exception( $this->get_model_class() . ' is not a subclass of ' . $interface );
         }
 
@@ -68,22 +69,39 @@ class Mixtape_Model_Definition {
         return $filtered;
     }
 
-    public function create_instance($entity ) {
-        return new Mixtape_Model( $this, $entity );
+    public function create_instance( $entity ) {
+        if (is_array( $entity ) ) {
+            return new Mixtape_Model( $this, $entity );
+        }
+        if ( is_numeric( $entity  ) ) {
+            return $this->get_data_store()->get_entity( $entity );
+        }
+        if ( is_a( $entity, 'WP_Post' ) ) {
+            return $entity->to_array();
+        }
+        throw new Mixtape_Exception('does not understand entity');
     }
 
     /**
-     * @param $declared_field_builders array of Mixtape_Model_Field_Declaration_Builder
-     * @return array
+     * @param Mixtape_Model $model
+     * @param WP_REST_Request $request
+     * @param bool $updating
+     * @return Mixtape_Model
+     * @throws Mixtape_Exception
+     * @internal param WP_REST_Request $other
      */
-    private function initialize_field_map( $declared_field_builders ) {
-        $fields = array(
-        );
-        foreach ( $declared_field_builders as $field_builder ) {
-            $field = $field_builder->build();
-            $fields[$field->name] = $field;
+    public function merge_updates_from_request( $model, $request, $updating = false ) {
+        $fields = $this->get_field_declarations();
+        foreach ( $fields as $field ) {
+            /** @var Mixtape_Model_Field_Declaration $field */
+            if ( $field->is_derived_field() ) {
+                continue;
+            }
+            if ( isset( $request[$field->get_name()] ) && !( $updating && $field->is_primary() ) ) {
+                $model->set( $field->get_name(), $request[$field->get_name()] );
+            }
         }
-        return $fields;
+        return $model;
     }
 
     function field() {
@@ -102,14 +120,12 @@ class Mixtape_Model_Definition {
         return $this->delegate;
     }
 
-
     /**
      * @param WP_REST_Request $request
      * @return Mixtape_Model
      * @internal Mixtape_Model_Field_Declaration $field
      */
-    public function new_from_request( $request )
-    {
+    public function new_from_request( $request ) {
         $fields = $this->get_field_declarations();
         $field_data = array();
         foreach ($fields as $field) {
@@ -124,32 +140,25 @@ class Mixtape_Model_Definition {
     }
 
     public function all() {
-        $results = array();
-        foreach ($this->get_entities() as $entity) {
-            $results[] = $this->create_instance($entity);
-        }
-        return new Mixtape_Model_Collection( $results );
+        return $this->get_data_store()->get_entities();
     }
 
     public function find_one_by_id( $id) {
         $entity = $this->get_data_store()->get_entity( $id );
-        return !empty( $entity ) ? $this->create_instance( $entity ) : null;
+        return !empty( $entity ) ? $entity : null;
     }
 
     /**
-     * @param $id the unique_id
-     * @throws Mixtape_Exception
-     * return Mixtape_Model|null
-     */
-    public function get_entity( $id) {
-        return $this->get_data_store()->get_entity( $id );
-    }
-
-    /**
-     * @throws Mixtape_Exception
+     * @param $declared_field_builders array of Mixtape_Model_Field_Declaration_Builder
      * @return array
      */
-    public function get_entities() {
-        return $this->get_data_store()->get_entities();
+    private function initialize_field_map( $declared_field_builders ) {
+        $fields = array(
+        );
+        foreach ( $declared_field_builders as $field_builder ) {
+            $field = $field_builder->build();
+            $fields[$field->name] = $field;
+        }
+        return $fields;
     }
 }

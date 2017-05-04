@@ -116,7 +116,7 @@ class Mixtape_Model_Field_Declaration {
         }
 
         if ( self::ARRAY_VALUE === $this->value_type ) {
-            return (array)$value;
+            return is_array($value) ? $value : (array)$value;
         }
 
         return $value;
@@ -134,5 +134,86 @@ class Mixtape_Model_Field_Declaration {
             'context' => array( 'view', 'edit' )
         );
         return $schema;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_before_output() {
+        return $this->before_output;
+    }
+
+    /**
+     * @return null
+     */
+    public function get_map_from() {
+        return $this->map_from;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_type() {
+        return $this->type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_name() {
+        return $this->name;
+    }
+
+    /**
+     * @return null
+     */
+    public function is_primary() {
+        return $this->primary;
+    }
+
+    /**
+     * @return null
+     */
+    public function is_required() {
+        return $this->required;
+    }
+
+    /**
+     * @return null
+     */
+    public function get_supported_outputs() {
+        return $this->supported_outputs;
+    }
+
+    /**
+     * @return null
+     */
+    public function get_description()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @return null
+     */
+    public function get_data_transfer_name()
+    {
+        return $this->json_name;
+    }
+
+    /**
+     * @return null
+     */
+    public function get_validations()
+    {
+        return $this->validations;
+    }
+
+    public function get_before_return() {
+        return $this->before_return;
+    }
+
+    public function suppports_output_type($string) {
+        return in_array($string, $this->get_supported_outputs());
     }
 }

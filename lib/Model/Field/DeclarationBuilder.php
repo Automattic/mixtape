@@ -65,7 +65,7 @@ class Mixtape_Model_Field_DeclarationBuilder {
         return $this->set( 'value_type', $value_type );
     }
 
-    public function with_json_name( $json_name ) {
+    public function with_data_transfer_name($json_name ) {
         return $this->set( 'json_name', $json_name );
     }
 

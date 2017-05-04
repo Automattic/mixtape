@@ -18,29 +18,6 @@ class Mixtape_EnvironmentTest extends MixtapeTestCase {
         $this->assertInstanceOf( 'Mixtape_Environment', $env );
     }
 
-    function test_set_data_store() {
-        $data_store = $this
-            ->getMockBuilder( Mixtape_Interfaces_Data_Store::class )
-            ->getMock();
-        $data_store_key = 'Foo';
-        $this->mixtape
-            ->environment()
-            ->set_data_store( $data_store_key, $data_store);
-        $ref = $this->mixtape
-            ->environment()
-            ->get_data_store( $data_store_key );
-        $this->assertNotNull( $ref );
-        $this->assertInstanceOf( Mixtape_Interfaces_Data_Store::class, $ref );
-        $this->assertSame( $data_store, $ref );
-    }
-
-    /**
-     * @expectedException Mixtape_Exception
-     */
-    function test_get_data_store_throws_if_key_not_exists() {
-        $this->mixtape->environment()->get_data_store('Bar');
-    }
-
     function test_start_calls_start_in_added_bundles() {
         $a_bundle = $this
             ->getMockBuilder( Mixtape_Interfaces_Rest_Api_Controller_Bundle::class )

@@ -37,10 +37,14 @@ interface Mixtape_Interfaces_Data_Store {
     public function delete( $model, $args = array() );
 
     /**
-     * @param $entity Mixtape_Model
+     * @param $model Mixtape_Model
      * @return mixed
      */
-    public function upsert( $entity, $fields, $meta_fields = array() );
+    public function upsert($model );
 
-    public function is_nil();
+    /**
+     * @param Mixtape_Model_Definition $definition
+     * @return Mixtape_Interfaces_Data_Store $this
+     */
+    public function set_definition( $definition );
 }

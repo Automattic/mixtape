@@ -9,31 +9,34 @@ class Mixtape_ModelTest extends MixtapeModelTestCase {
         $this->assertClassExists( 'Mixtape_Model' );
     }
 
-
-    function test_constructor_with_array() {
-//        $data_store = $this->getMockBuilder()
-//        $casette_factory = $this->environment->get_factory(Casette::class);
-//        $casette_id = $this->create_a_casette( 1 );
-//        $def = $this
-//            ->environment
-//            ->define_model( Casette::class )
-//            ->set_data_store( new Mixtape_Data_Store_Nil() );
-//        $this
-//            ->environment
-//            ->add_model_definition( $def );
-//        $casette = new Casette( array('ID' => 1, 'title' => 'Awesome Mix Vol 1') );
-//        $this->assertEquals( $casette->get_value_for( 'id' ), 1 );
+    function test_get() {
+        $tape = $this->create_awesome_mix( 1 );
+        $this->assertEquals( $tape->get( 'id' ), 1 );
+        $this->assertEquals( $tape->get( 'title' ), 'Awesome Mix Vol 1' );
     }
 
-    function create_a_casette( $vol ) {
-        $args = array(
-            'post_content' => 'Awesome Mix Vol ' . $vol,
-            'post_name' => 'awesome-mix-vol-' . $vol ,
-            'post_title' => 'Awesome Mix Vol ' . $vol,
-            'post_status' => 'publish',
-            'post_type' => 'mixtape_casette'
-        );
+    function test_get_with_meta_fields() {
+        $tape = $this->create_awesome_mix( 1 );
+        $this->assertEquals( $tape->get( 'songs' ), array( 1, 2, 3 ) );
+    }
 
-        return wp_insert_post( $args );
+    function test_with_derived_fields() {
+        $tape = $this->create_awesome_mix( 1 );
+        $this->assertEquals( $tape->get( 'ratings' ), array( 1 ) );
+    }
+
+    function create_awesome_mix( $vol ) {
+        return $this->create_casette( array(
+            'id' => $vol,
+            'title' => 'Awesome Mix Vol ' . $vol,
+            'songs' => array( 1, 2, 3 )
+        ) );
+    }
+
+    function create_casette( $props ) {
+        return $this->mixtape->environment()
+            ->define_model( new Casette(), new Mixtape_Data_Store_Nil() )
+            ->model( Casette::class )
+            ->create_instance( $props );
     }
 }

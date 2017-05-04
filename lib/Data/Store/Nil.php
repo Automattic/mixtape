@@ -18,7 +18,7 @@ class Mixtape_Data_Store_Nil implements Mixtape_Interfaces_Data_Store {
      * @return Mixtape_Model
      */
     public function get_entity( $id ) {
-        return Mixtape_Model::get_nil();
+        return null;
     }
 
     /**
@@ -26,7 +26,7 @@ class Mixtape_Data_Store_Nil implements Mixtape_Interfaces_Data_Store {
      * @param $field_declaration Mixtape_Model_Field_Declaration
      * @return mixed
      */
-    public function get_meta_field_value($model, $field_declaration) {
+    public function get_meta_field_value( $model, $field_declaration ) {
         return '';
     }
 
@@ -40,14 +40,13 @@ class Mixtape_Data_Store_Nil implements Mixtape_Interfaces_Data_Store {
     }
 
     /**
-     * @param $entity Mixtape_Model
+     * @param $model Mixtape_Model
      * @return mixed
      */
-    public function upsert($entity, $fields, $meta_fields = array()) {
+    public function upsert( $model ) {
         return 0;
     }
 
-    public function is_nil() {
-        return true;
+    public function set_definition( $definition ) {
     }
 }
