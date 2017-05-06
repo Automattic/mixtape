@@ -10,22 +10,29 @@ class Mixtape_Model_Delegate implements Mixtape_Interfaces_Model_Delegate {
         return $model->get( 'id' );
     }
 
-    public function call( $method, $model, $args = array() ) {
-        if ( !method_exists( $this, $method ) ) {
+    public function call($method, $args = array()) {
+        if ( is_callable( $method ) ) {
+            return $this->perform_call( $method, $args );
+        }
+        if ( ! method_exists( $this, $method ) ) {
             throw new Mixtape_Exception( $method . ' does not exist' );
         }
-        return call_user_func_array( array( $this, $method ), array_merge( array( $model ), $args ) );
+        return $this->perform_call( array( $this, $method ), $args );
     }
 
-    function as_bool( $model, $value ) {
+    private function perform_call( $callable, $args ) {
+        return call_user_func_array( $callable, $args );
+    }
+
+    function as_bool( $model, $key, $value ) {
         return (bool)$value;
     }
 
-    function as_uint( $model,  $value ) {
+    function as_uint( $model,  $key, $value ) {
         return absint( $value );
     }
 
-    function as_nullable_uint( $model, $value ) {
-        return ( empty( $value ) && !is_numeric( $value ) ) ? null : $this->as_uint( $model, $value );
+    function as_nullable_uint( $model, $key, $value ) {
+        return ( empty( $value ) && !is_numeric( $value ) ) ? null : $this->as_uint( $model, $key, $value );
     }
 }

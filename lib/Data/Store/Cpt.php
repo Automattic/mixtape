@@ -58,7 +58,30 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      */
     public function get_entity( $id ) {
         $post = get_post( absint( $id ) );
-        return !empty( $post ) && $post->post_type === $this->post_type ? $this->definition->create_instance( $post->to_array() ) : null;
+        if ( empty( $post ) || $post->post_type !== $this->post_type ) {
+            return null;
+        }
+        $post_arr = $post->to_array();
+        $raw_data = array();
+        $post_array_keys = array_keys( $post_arr );
+        $field_declarations = $this->definition->get_field_declarations( Mixtape_Model_Field_Types::FIELD );
+        foreach ( $field_declarations as $declaration ) {
+            /** @var Mixtape_Model_Field_Declaration $declaration */
+            $key = $declaration->get_name();
+            $mapping = $declaration->get_name_to_map_from();
+            $value = null;
+            if ( in_array( $key, $post_array_keys ) ) {
+                // simplest case: we got a $key for this, so just map it
+                $value = $this->deserialize_value( $declaration, $post_arr[$key] );
+            } else if (in_array( $mapping, $post_array_keys ) ) {
+                $value = $this->deserialize_value( $declaration, $post_arr[$mapping] );
+            } else {
+                $value = $declaration->get_default_value();
+            }
+            $raw_data[$key] = $declaration->cast_value( $value );
+        }
+
+        return $this->definition->create_instance( $raw_data );
     }
 
     /**
@@ -68,7 +91,11 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      */
     public function get_meta_field_value( $model, $field_declaration ) {
         $map_from = $field_declaration->get_name_to_map_from();
-        return get_post_meta( $model->get_id(), $map_from, true );
+        $value = get_post_meta( $model->get_id(), $map_from, true );
+        if ( empty( $value ) ) {
+            return $field_declaration->get_default_value();
+        }
+        return $this->deserialize_value( $field_declaration, $value );
     }
 
     /**
@@ -82,6 +109,8 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
         $args = wp_parse_args( $args, array(
             'force_delete' => false,
         ) );
+
+        do_action( 'mixtape_data_store_delete_model_before', $model, $id );
 
         if ( $args['force_delete'] ) {
             wp_delete_post( $model->get_id() );
@@ -99,17 +128,47 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      * @return mixed|WP_Error
      */
     public function upsert( $model ) {
+        $updating = !empty( $model->get_id() );
         $fields = $this->map_field_types_for_upserting( $model, Mixtape_Model_Field_Types::FIELD );
         $meta_fields = $this->map_field_types_for_upserting( $model, Mixtape_Model_Field_Types::META );
         if ( ! isset( $fields['post_type'] ) ) {
             $fields['post_type'] = $this->post_type;
         }
-        $fields['meta_input'] = $meta_fields;
+        if (isset( $fields['ID'] ) && empty( $fields['ID'] ) ) {
+            // ID of 0 is not acceptable
+            unset( $fields['ID'] );
+        }
+
+        do_action( 'mixtape_data_store_model_upsert_before', $model );
+
         $id_or_error = wp_insert_post( $fields, true );
         if ( is_wp_error( $id_or_error ) ) {
+            do_action( 'mixtape_data_store_model_upsert_error', $model );
             return $id_or_error;
         }
         $model->set( 'id', absint( $id_or_error ) );
+        foreach ( $meta_fields as $meta_key => $meta_value ) {
+            if ( $updating ) {
+                $id_or_bool = update_post_meta( $id_or_error, $meta_key, $meta_value );
+            } else {
+                $id_or_bool = add_post_meta( $id_or_error, $meta_key, $meta_value );
+            }
+
+            if ( false === $id_or_bool ) {
+                do_action( 'mixtape_data_store_model_upsert_error', $model );
+                // Something was wrong with this update/create. TODO: Should we stop mid create/update?
+                return new WP_Error(
+                    'mixtape-error-creating-meta',
+                    'There was an error updating/creating an entity field',
+                    array(
+                        'field_key' => $meta_key,
+                        'field_value' => $meta_value
+                    )
+                );
+            }
+        }
+
+        do_action( 'mixtape_data_store_model_upsert_after', $model );
 
         return absint( $id_or_error );
     }
@@ -123,9 +182,21 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
         $field_values_to_insert = array();
         foreach ( $this->definition->get_field_declarations( $field_type ) as $field_declaration ) {
             /** @var Mixtape_Model_Field_Declaration $field_declaration */
+            $serializer = $field_declaration->get_serializer();
             $what_to_map_to = $field_declaration->get_name_to_map_from();
-            $field_values_to_insert[$what_to_map_to] = $model->get( $field_declaration->get_name() );
+            $key = $field_declaration->get_name();
+            $value = $model->get( $key );
+            if ( isset( $serializer ) && !empty( $serializer ) ) {
+                $value = $this->model_delegate->call( $serializer, array( $value ) );
+            }
+            $field_values_to_insert[$what_to_map_to] = $value;
         }
+
         return $field_values_to_insert;
+    }
+
+    private function deserialize_value( $field_declaration, $value ) {
+        $deserializer = $field_declaration->get_deserializer();
+        return $deserializer ? $this->model_delegate->call( $deserializer, array( $value ) ) : $value;
     }
 }

@@ -76,9 +76,6 @@ class Mixtape_Model_Definition {
         if ( is_numeric( $entity  ) ) {
             return $this->get_data_store()->get_entity( $entity );
         }
-        if ( is_a( $entity, 'WP_Post' ) ) {
-            return $entity->to_array();
-        }
         throw new Mixtape_Exception('does not understand entity');
     }
 
@@ -104,16 +101,23 @@ class Mixtape_Model_Definition {
         return $model;
     }
 
-    function field() {
-        return new Mixtape_Model_Field_DeclarationBuilder();
+    function field( $name = null, $description = null ) {
+        $builder = new Mixtape_Model_Field_DeclarationBuilder();
+        if ( ! empty( $name ) ) {
+            $builder->named( $name );
+        }
+        if ( ! empty( $description ) ) {
+            $builder->with_description( $description );
+        }
+        return $builder;
     }
 
-    function meta_field() {
-        return $this->field()->of_type( Mixtape_Model_Field_Types::META );
+    function meta_field( $name = null, $description = null ) {
+        return $this->field( $name, $description )->with_field_type( Mixtape_Model_Field_Types::META );
     }
 
-    function derived_field() {
-        return $this->field()->of_type( Mixtape_Model_Field_Types::DERIVED );
+    function derived_field( $name = null, $description = null ) {
+        return $this->field( $name, $description )->with_field_type( Mixtape_Model_Field_Types::DERIVED );
     }
 
     public function get_delegate() {

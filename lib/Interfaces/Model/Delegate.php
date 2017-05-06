@@ -7,5 +7,5 @@ interface Mixtape_Interfaces_Model_Delegate {
      */
     public function declare_fields( $definition );
 
-    public function call( $method, $model, $args = array() );
+    public function call($method, $args = array());
 }

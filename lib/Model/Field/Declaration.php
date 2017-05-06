@@ -30,24 +30,28 @@ class Mixtape_Model_Field_Declaration {
     public $validations;
     private $default_value;
     private $value_type;
+    private $on_serialize;
 
     private $accepted_field_types = array(
         Mixtape_Model_Field_Types::FIELD,
         Mixtape_Model_Field_Types::META,
         Mixtape_Model_Field_Types::DERIVED
     );
+    private $on_deserialize;
 
     public function __construct( $args ) {
-        if ( !isset( $args['name'] ) ) {
-            throw new Mixtape_Exception( 'every field declaration should have a name' );
+        if ( !isset( $args['name'] ) || empty( $args['name'] ) || ! is_string( $args['name'] ) ) {
+            throw new Mixtape_Exception( 'every field declaration should have a (non-empty) name string' );
         }
-        if ( !isset( $args['type'] ) || !in_array( $args['type'], $this->accepted_field_types ) ) {
+        if ( !isset( $args['type'] ) || !in_array( $args['type'], $this->accepted_field_types, true ) ) {
             throw new Mixtape_Exception( 'every field should have a type (one of ' . implode( ',', $this->accepted_field_types ) . ')' );
         }
         $this->name              = $args['name'];
         $this->type              = $args['type'];
         $this->map_from          = $this->value_or_default( $args, 'map_from' );
         $this->before_return     = $this->value_or_default( $args, 'before_return' );
+        $this->on_serialize      = $this->value_or_default( $args, 'on_serialize' );
+        $this->on_deserialize    = $this->value_or_default( $args, 'on_deserialize' );
         $this->primary           = $this->value_or_default( $args, 'primary', false );
         $this->required          = $this->value_or_default( $args, 'required', false );
         $this->supported_outputs = $this->value_or_default( $args, 'supported_outputs', array( 'json' ) );
@@ -213,7 +217,15 @@ class Mixtape_Model_Field_Declaration {
         return $this->before_return;
     }
 
+    public function get_serializer() {
+        return $this->on_serialize;
+    }
+
+    public function get_deserializer() {
+        return $this->on_deserialize;
+    }
+
     public function suppports_output_type($string) {
-        return in_array($string, $this->get_supported_outputs());
+        return in_array( $string, $this->get_supported_outputs() );
     }
 }

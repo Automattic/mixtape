@@ -16,6 +16,8 @@ class Mixtape_Model_Field_DeclarationBuilder {
             'required'          => false,
             'map_from'          => null,
             'before_return'     => null,
+            'on_serialize'      => null,
+            'on_deserialize'    => null,
             'value_type'        => 'any',
             'default_value'     => null,
             'json_name'         => null,
@@ -28,15 +30,15 @@ class Mixtape_Model_Field_DeclarationBuilder {
         return new Mixtape_Model_Field_Declaration( $this->args );
     }
 
-    public function with_default_value( $default_value ) {
+    public function with_default($default_value ) {
         return $this->set( 'default_value', $default_value );
     }
 
-    public function with_name( $name ) {
+    public function named($name ) {
         return $this->set( 'name', $name );
     }
 
-    public function of_type( $type ) {
+    public function with_field_type($type ) {
         return $this->set( 'type', $type );
     }
 
@@ -44,11 +46,19 @@ class Mixtape_Model_Field_DeclarationBuilder {
         return $this->set( 'map_from', $mapped_from );
     }
 
-    public function with_before_return( $before_return ) {
+    public function with_sanitize($before_return ) {
         return $this->set( 'before_return', $before_return );
     }
 
-    public function required( $required ) {
+    public function with_serializer( $before_save ) {
+        return $this->set( 'on_serialize', $before_save );
+    }
+
+    public function with_deserializer( $before_save ) {
+        return $this->set( 'on_deserialize', $before_save );
+    }
+
+    public function required( $required = true ) {
         return $this->set( 'required', $required );
 
     }
@@ -61,11 +71,11 @@ class Mixtape_Model_Field_DeclarationBuilder {
         return $this->with_supported_outputs( array() );
     }
 
-    public function with_value_type( $value_type ) {
+    public function of_type($value_type ) {
         return $this->set( 'value_type', $value_type );
     }
 
-    public function with_data_transfer_name($json_name ) {
+    public function dto_name($json_name ) {
         return $this->set( 'json_name', $json_name );
     }
 

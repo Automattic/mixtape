@@ -45,24 +45,42 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         }
 
         $this->raw_data = $data;
+        $data_keys = array_keys($data);
 
-        $post_array_keys = array_keys( $data );
-        foreach ( $this->fields as $key => $field_declaration ) {
-            $this->add_data_for_key( $field_declaration, $post_array_keys, $data, $key);
+
+        foreach ( $data_keys as $key ) {
+            $this->set( $key, $this->raw_data[$key] );
         }
     }
 
-    public function get( $field_name ) {
-        if ( !isset( $this->fields[$field_name] ) ) {
-            return null;
+    public function get( $field_name, $args = array() ) {
+        if ( ! $this->has( $field_name ) ) {
+            throw new Mixtape_Exception( 'Field' . $field_name . ' not declared' );
         }
         $field_declaration = $this->fields[$field_name];
-        $this->load_field_value_if_missing( $field_declaration );
-        return $this->prepare_value( $field_declaration );
+        $field_name = $field_declaration->get_name();
+        if ( ! isset( $this->data[ $field_name ] ) ) {
+            if ( $field_declaration->is_meta_field() ) {
+                $value = $this->definition
+                    ->get_data_store()
+                    ->get_meta_field_value( $this, $field_declaration );
+                $this->set( $field_name, $value );
+            } else if ( $field_declaration->is_derived_field() ) {
+                $map_from = $field_declaration->get_name_to_map_from();
+                $value = $this->delegate->call( $map_from, array( $this ) );
+                $this->set( $field_name, $value );
+            } else {
+                // load the default value for the field
+                $this->set( $field_name, $field_declaration->get_default_value() );
+            }
+        }
+
+        return $this->prepare_value( $field_declaration, $args );
     }
     
     public function set( $field, $value ) {
-        if ( !isset( $this->fields[$field] ) ) {
+        if ( ! $this->has( $field ) ) {
+            // N.B.: could also throw
             return $this;
         }
 
@@ -73,55 +91,19 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
 
     /**
-     * @param Mixtape_Model_Field_Declaration $field_declaration
-     * @param array $post_array_keys
-     * @param array $model_data
-     * @param string $key
-     * @return Mixtape_Model $this
+     * Check if this model has a field
+     * @param string $field
+     * @return bool
      */
-    protected function add_data_for_key( $field_declaration, $post_array_keys, $model_data, $key ) {
-        if ( $field_declaration->is_derived_field() ) {
-            // we lazy-load derived field values
-            return $this;
-        }
-
-        if (in_array( $key, $post_array_keys ) ) {
-            // simplest case: we got a $key for this, so just map it
-            return $this->set( $key, $model_data[$key] );
-        }
-
-        if ( $field_declaration->is_meta_field() ) {
-            // if we got here, we got a meta_field with a mapping. Lazy-loaded too
-            return $this;
-        }
-
-        $map_from = $field_declaration->get_name_to_map_from();
-        if (in_array( $map_from, $post_array_keys ) ) {
-            return $this->set( $key, $model_data[$map_from] );
-        }
-
-        // no mapping provided for this in the entity array, just set it to a default
-        return $this->set( $key, $field_declaration->get_default_value() );
+    public function has($field) {
+        return isset( $this->fields[$field] );
     }
 
     /**
      * @param Mixtape_Model_Field_Declaration $field_declaration
      */
     protected function load_field_value_if_missing( $field_declaration ) {
-        $field_name = $field_declaration->name;
-        if ( !isset( $this->data[ $field_name ] ) ) {
-            if ( $field_declaration->is_meta_field() ) {
-                $value = $this->definition->get_data_store()->get_meta_field_value( $this, $field_declaration );
-                $this->set( $field_name, $value );
-            } else if ( $field_declaration->is_derived_field() ) {
-                $map_from = $field_declaration->get_name_to_map_from();
-                $value = $this->delegate->call( $map_from, $this );
-                $this->set( $field_name, $value );
-            } else {
-                // load the default value for the field
-                $this->set( $field_name, $field_declaration->get_default_value() );
-            }
-        }
+
     }
 
     public function get_data_transfer_object_field_mappings() {
@@ -179,7 +161,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
             );
         } else if ( !$field_declaration->is_required() && ! empty( $value ) ) {
             foreach ( $field_declaration->get_validations() as $validation ) {
-                $result = $this->delegate->call( $validation, $this, array( $value ) );
+                $result = $this->delegate->call( $validation, array( $this, $value ) );
                 if ( is_wp_error( $result ) ) {
                     $result->add_data(array(
                         'reason' => $result->get_error_messages(),
@@ -192,11 +174,16 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         return true;
     }
 
-    private function prepare_value( $field_declaration ) {
-        $value = $this->data[ $field_declaration->name ];
-
-        if ( isset( $field_declaration->before_return ) && !empty( $field_declaration->before_return ) ) {
-            return $this->delegate->call( $field_declaration->before_return, $this, array( $value ) );
+    /**
+     * @param Mixtape_Model_Field_Declaration $field_declaration
+     * @return mixed
+     */
+    private function prepare_value( $field_declaration, $args = array() ) {
+        $key = $field_declaration->get_name();
+        $value = $this->data[ $key ];
+        $before_return = $field_declaration->get_before_return();
+        if ( isset( $before_return ) && !empty( $before_return ) ) {
+            $value = $this->delegate->call( $before_return, array( $this, $key, $value ) );
         }
 
         return $value;
