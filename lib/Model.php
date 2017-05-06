@@ -54,11 +54,9 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
 
     public function get( $field_name, $args = array() ) {
-        if ( ! $this->has( $field_name ) ) {
-            throw new Mixtape_Exception( 'Field' . $field_name . ' not declared' );
-        }
+        $this->throw_if_field_unknown( $field_name );
         $field_declaration = $this->fields[$field_name];
-        $field_name = $field_declaration->get_name();
+
         if ( ! isset( $this->data[ $field_name ] ) ) {
             if ( $field_declaration->is_meta_field() ) {
                 $value = $this->definition
@@ -75,13 +73,13 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
             }
         }
 
-        return $this->prepare_value( $field_declaration, $args );
+        $prepared_value = $this->prepare_value( $field_declaration, $args );
+
+        return $prepared_value;
     }
     
     public function set( $field, $value ) {
-        if ( ! $this->has( $field ) ) {
-            throw new Mixtape_Exception( 'Field ' . $field . 'is not defined' );
-        }
+        $this->throw_if_field_unknown( $field );
 
         $field_declaration = $this->fields[$field];
         $val = $field_declaration->cast_value( $value );
@@ -186,5 +184,11 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         }
 
         return $value;
+    }
+
+    private function throw_if_field_unknown( $field ) {
+        if ( ! $this->has( $field ) ) {
+            throw new Mixtape_Exception( 'Field ' . $field . 'is not defined' );
+        }
     }
 }
