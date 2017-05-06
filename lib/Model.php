@@ -8,17 +8,17 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     /**
      * @var array
      */
-    protected $data;
+    private $data;
 
     /**
      * @var array|int|null|WP_Comment|WP_Post|WP_User
      */
-    protected $raw_data;
+    private $raw_data;
 
     /**
      * @var array the model fields Mixtape_Model_Field_Declaration
      */
-    protected $fields;
+    private $fields;
     /**
      * @var Mixtape_Model_Definition
      */
@@ -94,13 +94,6 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
      */
     public function has($field) {
         return isset( $this->fields[$field] );
-    }
-
-    /**
-     * @param Mixtape_Model_Field_Declaration $field_declaration
-     */
-    protected function load_field_value_if_missing( $field_declaration ) {
-
     }
 
     public function get_data_transfer_object_field_mappings() {

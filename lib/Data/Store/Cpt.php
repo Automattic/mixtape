@@ -17,13 +17,19 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      * @var string
      */
     private $post_type;
+    /**
+     * Load all of the cpt including meta in one go
+     * @var bool
+     */
+    private $eager_load;
 
     /**
      * Mixtape_Data_Store_Cpt constructor.
      * @param string $post_type
      */
-    public function __construct( $post_type = null ) {
+    public function __construct( $post_type = null, $args = array() ) {
         $this->post_type = empty( $post_type ) ? 'post' : $post_type;
+        $this->eager_load = isset( $args['eager_load'] ) ? (bool)$args['eager_load'] : true;
     }
 
     /**
@@ -47,7 +53,7 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
         $posts = $query->get_posts();
         $collection = array();
         foreach ( $posts as $post ) {
-            $collection[] = $this->definition->create_instance( $post );
+            $collection[] = $this->create_from_post( $post );
         }
         return new Mixtape_Model_Collection( $collection );
     }
@@ -61,10 +67,38 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
         if ( empty( $post ) || $post->post_type !== $this->post_type ) {
             return null;
         }
+
+        return $this->create_from_post( $post );
+    }
+
+    /**
+     * @param WP_Post $post
+     * @return Mixtape_Model
+     * @throws Mixtape_Exception
+     */
+    private function create_from_post( $post ) {
         $post_arr = $post->to_array();
-        $raw_data = array();
-        $post_array_keys = array_keys( $post_arr );
         $field_declarations = $this->definition->get_field_declarations( Mixtape_Model_Field_Types::FIELD );
+        $raw_data = $this->map_data( $post_arr, $field_declarations );
+
+        if ( $this->eager_load ) {
+            $meta = get_post_meta( $post->ID );
+
+            $flattened_meta = array();
+            foreach ($meta as $key => $value_arr ) {
+                $flattened_meta[$key] = $value_arr[0];
+            }
+            $meta_field_declarations = $this->definition->get_field_declarations( Mixtape_Model_Field_Types::META );
+            $raw_meta_data = $this->map_data( $flattened_meta, $meta_field_declarations );
+            $raw_data = array_merge($raw_data, $raw_meta_data );
+        }
+
+        return $this->definition->create_instance( $raw_data );
+    }
+
+    private function map_data( $data, $field_declarations ) {
+        $raw_data = array();
+        $post_array_keys = array_keys( $data );
         foreach ( $field_declarations as $declaration ) {
             /** @var Mixtape_Model_Field_Declaration $declaration */
             $key = $declaration->get_name();
@@ -72,16 +106,15 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
             $value = null;
             if ( in_array( $key, $post_array_keys ) ) {
                 // simplest case: we got a $key for this, so just map it
-                $value = $this->deserialize_value( $declaration, $post_arr[$key] );
+                $value = $this->deserialize_value( $declaration, $data[$key] );
             } else if (in_array( $mapping, $post_array_keys ) ) {
-                $value = $this->deserialize_value( $declaration, $post_arr[$mapping] );
+                $value = $this->deserialize_value( $declaration, $data[$mapping] );
             } else {
                 $value = $declaration->get_default_value();
             }
             $raw_data[$key] = $declaration->cast_value( $value );
         }
-
-        return $this->definition->create_instance( $raw_data );
+        return $raw_data;
     }
 
     /**
