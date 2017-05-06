@@ -26,6 +26,14 @@ class Mixtape_ModelTest extends MixtapeModelTestCase {
         $this->assertEquals( array( 1 ), $tape->get( 'ratings' ) );
     }
 
+    /**
+     * @expectedException Mixtape_Exception
+     */
+    function test_set_throws_if_field_unknown() {
+        $tape = $this->create_awesome_mix( 1 );
+        $tape->set( 'foobar', 1 );
+    }
+
     function create_awesome_mix( $vol ) {
         return $this->create_casette( array(
             'id' => $vol,

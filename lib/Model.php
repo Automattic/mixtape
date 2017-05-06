@@ -80,8 +80,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     
     public function set( $field, $value ) {
         if ( ! $this->has( $field ) ) {
-            // N.B.: could also throw
-            return $this;
+            throw new Mixtape_Exception( 'Field ' . $field . 'is not defined' );
         }
 
         $field_declaration = $this->fields[$field];
