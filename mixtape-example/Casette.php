@@ -6,48 +6,42 @@ class DoingItWrongDelegate extends Mixtape_Model_Delegate {
 class Casette extends Mixtape_Model_Delegate {
     public function declare_fields( $def ) {
             return array(
-                $def->field()
-                    ->with_name( 'id' )
+                $def->field( 'id' )
                     ->map_from( 'ID' )
-                    ->with_value_type('integer')
+                    ->of_type('integer')
                     ->with_description( 'Unique identifier for the object.' )
-                    ->with_before_return( 'as_uint' ),
-                $def->field()
-                    ->with_name( 'title' )
+                    ->with_sanitize( 'as_uint' ),
+
+                $def->field( 'title', 'The casette title.' )
                     ->map_from( 'post_title' )
-                    ->with_value_type('string')
-                    ->with_description( 'The casette title.' )
-                    ->required( true ),
-                $def->field()
-                    ->with_name( 'author' )
+                    ->of_type('string')
+                    ->required(),
+
+                $def->field( 'author', __( 'The author identifier.', 'casette' ) )
                     ->map_from( 'post_author' )
-                    ->with_value_type('integer')
+                    ->of_type('integer')
                     ->with_validations( 'validate_author' )
-                    ->with_description( __( 'The author identifier.', 'casette' ) )
-                    ->with_default_value( 0 )
-                    ->with_data_transfer_name( 'authorID' )
-                    ->with_before_return( 'as_uint' ),
-                $def->field()
-                    ->with_name( 'status' )
-                    ->with_value_type('string')
+                    ->with_default( 0 )
+                    ->dto_name( 'authorID' )
+                    ->with_sanitize( 'as_uint' ),
+
+                $def->field( 'status', 'The casette status.' )
+                    ->of_type('string')
                     ->with_validations( 'validate_status' )
-                    ->with_default_value('draft')
-                    ->with_description( 'The casette status.' )
+                    ->with_default('draft')
                     ->map_from( 'post_status' ),
 
-                $def->derived_field()
-                    ->with_name( 'ratings' )
+                $def->derived_field( 'ratings', 'The casette ratings' )
                     ->map_from( 'get_ratings' )
-                    ->with_description( 'The casette ratings' )
-                    ->with_data_transfer_name( 'the_ratings' ),
+                    ->dto_name( 'the_ratings' ),
 
-                $def->meta_field()
-                    ->with_name( 'songs' )
+                $def->meta_field( 'songs', 'The casette songs' )
                     ->map_from( '_casette_song_ids' )
-                    ->with_value_type( 'array' )
-                    ->with_default_value( null )
-                    ->with_description( 'The casette songs' )
-                    ->with_data_transfer_name( 'song_ids' ),
+                    ->of_type( 'array' )
+                    ->with_default( array() )
+                    ->with_deserializer( 'song_before_return' )
+                    ->with_serializer( 'song_before_save' )
+                    ->dto_name( 'song_ids' ),
             );
     }
 
@@ -81,21 +75,29 @@ class Casette extends Mixtape_Model_Delegate {
     private function get_author( $author_id ) {
        return get_user_by( 'id', $author_id );
     }
+
+    function song_before_return( $value ) {
+        return array_map( 'absint', explode(',', $value ) );
+    }
+
+    function song_before_save( $value ) {
+        return implode(',', $value );
+    }
 }
 
 class Song extends Mixtape_Model_Delegate {
     public function declare_fields( $def ) {
         return array(
             $def->field()
-                ->with_name( 'id' )
+                ->named( 'id' )
                 ->map_from( 'ID' )
-                ->with_value_type('integer')
+                ->of_type('integer')
                 ->with_description( 'Unique identifier for the object.' )
-                ->with_before_return( 'as_uint' ),
+                ->with_sanitize( 'as_uint' ),
             $def->field()
-                ->with_name( 'title' )
+                ->named( 'title' )
                 ->map_from( 'post_title' )
-                ->with_value_type('string')
+                ->of_type('string')
                 ->with_description( 'The song title.' )
                 ->required( true ),
         );

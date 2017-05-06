@@ -14,6 +14,7 @@ class Mixtape_Unit_Tests_Bootstrap {
     public $tests_dir;
 
     public $mixtape_dir;
+    private $mixtape_example_dir;
 
     public function __construct() {
         ini_set( 'display_errors','on' );
@@ -21,6 +22,7 @@ class Mixtape_Unit_Tests_Bootstrap {
         $this->tests_dir    = dirname( __FILE__ );
         $this->mixtape_dir   = dirname( $this->tests_dir );
         $this->wp_tests_dir = getenv( 'WP_TESTS_DIR' ) ? getenv( 'WP_TESTS_DIR' ) : '/tmp/wordpress-tests-lib';
+        $this->mixtape_example_dir = dirname( $this->tests_dir ) . DIRECTORY_SEPARATOR .  'mixtape-example';
         // load test function so tests_add_filter() is available
         require_once( $this->wp_tests_dir . '/includes/functions.php' );
         // load Mixtape
@@ -47,31 +49,17 @@ class Mixtape_Unit_Tests_Bootstrap {
 
     public function register_mixtape_test_cpts() {
         // register some post types for using with our tests
-        register_post_type( 'mixtape_casette',
-            array(
-                'labels' => array(
-                    'name' => __( 'Casettes' ),
-                    'singular_name' => __( 'Casette' )
-                ),
-                'public' => true,
-                'has_archive' => true,
-            )
-        );
-        register_post_type( 'mixtape_casette_song',
-            array(
-                'labels' => array(
-                    'name' => __( 'Casette Songs' ),
-                    'singular_name' => __( 'Casette Song' )
-                ),
-                'public' => true,
-                'has_archive' => true,
-            )
-        );
+        include_once( path_join( $this->mixtape_example_dir, 'CasettePostTypes.php' ) );
+        CasettePostTypes::register();
     }
 
     public function includes() {
-        require_once( $this->tests_dir . '/unit-testing-classes/MixtapeTestCase.php' );
-        require_once( $this->tests_dir . '/unit-testing-classes/MixtapeModelTestCase.php' );
+        require_once( $this->tests_dir . DIRECTORY_SEPARATOR . 'unit-testing-classes/MixtapeTestCase.php' );
+        require_once( $this->tests_dir . DIRECTORY_SEPARATOR . 'unit-testing-classes/MixtapeModelTestCase.php' );
+    }
+
+    public function include_example_classes() {
+        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
     }
 
     /**

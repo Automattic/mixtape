@@ -5,24 +5,25 @@ class Mixtape_ModelTest extends MixtapeModelTestCase {
         parent::setUp();
 
     }
+
     function test_exists() {
         $this->assertClassExists( 'Mixtape_Model' );
     }
 
     function test_get() {
         $tape = $this->create_awesome_mix( 1 );
-        $this->assertEquals( $tape->get( 'id' ), 1 );
-        $this->assertEquals( $tape->get( 'title' ), 'Awesome Mix Vol 1' );
+        $this->assertEquals( 1, $tape->get( 'id' ) );
+        $this->assertEquals( 'Awesome Mix Vol 1', $tape->get( 'title' ) );
     }
 
     function test_get_with_meta_fields() {
         $tape = $this->create_awesome_mix( 1 );
-        $this->assertEquals( $tape->get( 'songs' ), array( 1, 2, 3 ) );
+        $this->assertEquals( array( 1, 2, 3 ), $tape->get( 'songs' ) );
     }
 
     function test_with_derived_fields() {
         $tape = $this->create_awesome_mix( 1 );
-        $this->assertEquals( $tape->get( 'ratings' ), array( 1 ) );
+        $this->assertEquals( array( 1 ), $tape->get( 'ratings' ) );
     }
 
     function create_awesome_mix( $vol ) {

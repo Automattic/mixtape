@@ -29,9 +29,9 @@ class Mixtape_Model_Field_DeclarationTest extends MixtapeModelTestCase {
     function test_field_declarations() {
 
         $sum_declaration = (new Mixtape_Model_Field_DeclarationBuilder())
-            ->of_type(Mixtape_Model_Field_Types::FIELD)
-            ->with_name( 'sum' )
-            ->with_value_type( Mixtape_Model_Field_Declaration::INT_VALUE )
+            ->with_field_type(Mixtape_Model_Field_Types::FIELD)
+            ->named( 'sum' )
+            ->of_type( Mixtape_Model_Field_Declaration::INT_VALUE )
             ->build();
         $this->assertTrue( $sum_declaration->is_field() );
         $this->assertEquals( $sum_declaration->get_default_value(), 0 );
@@ -40,10 +40,10 @@ class Mixtape_Model_Field_DeclarationTest extends MixtapeModelTestCase {
         $this->assertSame( $sum_declaration->cast_value( 0.1 ), 0);
 
         $first_name_declaration = (new Mixtape_Model_Field_DeclarationBuilder())
-            ->of_type( Mixtape_Model_Field_Types::FIELD )
-            ->with_name( 'first_name' )
-            ->with_value_type( Mixtape_Model_Field_Declaration::STRING_VALUE )
-            ->with_default_value( 'Foobar' )
+            ->with_field_type( Mixtape_Model_Field_Types::FIELD )
+            ->named( 'first_name' )
+            ->of_type( Mixtape_Model_Field_Declaration::STRING_VALUE )
+            ->with_default( 'Foobar' )
             ->map_from( 'firstName' )
             ->required(true)
             ->build();
@@ -54,8 +54,8 @@ class Mixtape_Model_Field_DeclarationTest extends MixtapeModelTestCase {
         $this->assertSame($first_name_declaration->cast_value(0), '0');
 
         $derived_declaration = (new Mixtape_Model_Field_DeclarationBuilder())
-            ->of_type( Mixtape_Model_Field_Types::DERIVED )
-            ->with_name( 'derived' )
+            ->with_field_type( Mixtape_Model_Field_Types::DERIVED )
+            ->named( 'derived' )
             ->build();
         $this->assertTrue( $derived_declaration->is_derived_field() );
         $this->assertEquals( $derived_declaration->get_default_value(), null );
