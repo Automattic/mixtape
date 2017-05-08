@@ -14,7 +14,7 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      */
     private $definition;
     /**
-     * @var string
+     * @var string the post type name
      */
     private $post_type;
     /**
@@ -29,7 +29,7 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      */
     public function __construct( $post_type = null, $args = array() ) {
         $this->post_type = empty( $post_type ) ? 'post' : $post_type;
-        $this->eager_load = isset( $args['eager_load'] ) ? (bool)$args['eager_load'] : true;
+        $this->eager_load = isset( $args[ 'eager_load' ] ) ? (bool)$args['eager_load'] : true;
     }
 
     /**
@@ -132,7 +132,7 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
     }
 
     /**
-     * @param $model Mixtape_Model
+     * @param Mixtape_Model $model
      * @param array $args
      * @return mixed
      */
@@ -162,8 +162,8 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      */
     public function upsert( $model ) {
         $updating = !empty( $model->get_id() );
-        $fields = $this->map_field_types_for_upserting( $model, Mixtape_Model_Field_Types::FIELD );
-        $meta_fields = $this->map_field_types_for_upserting( $model, Mixtape_Model_Field_Types::META );
+        $fields = $this->prepare_for_upsert( $model, Mixtape_Model_Field_Types::FIELD );
+        $meta_fields = $this->prepare_for_upsert( $model, Mixtape_Model_Field_Types::META );
         if ( ! isset( $fields['post_type'] ) ) {
             $fields['post_type'] = $this->post_type;
         }
@@ -211,7 +211,7 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      * @param $field_type
      * @return array
      */
-    private function map_field_types_for_upserting( $model, $field_type ) {
+    private function prepare_for_upsert( $model, $field_type ) {
         $field_values_to_insert = array();
         foreach ( $this->definition->get_field_declarations( $field_type ) as $field_declaration ) {
             /** @var Mixtape_Model_Field_Declaration $field_declaration */
