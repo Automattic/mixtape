@@ -11,7 +11,7 @@ class Mixtape_Rest_Api_Controller extends WP_REST_Controller {
     const HTTP_NOT_FOUND = 404;
 
     /**
-     * @var Mixtape_Rest_Api_Controller_Bundle
+     * @var Mixtape_Rest_Api_Controller_Bundle the bundle this belongs to
      */
     protected $controller_bundle;
     /**
@@ -20,19 +20,35 @@ class Mixtape_Rest_Api_Controller extends WP_REST_Controller {
     protected $base = null;
 
     /**
-     * Sensei_REST_API_Controller constructor.
+     * @var null|Mixtape_Environment optional, an enviromnent
+     */
+    protected $environment = null;
+
+    /**
+     * Mixtape_Rest_Api_Controller constructor.
      * @param $controller_bundle Mixtape_Rest_Api_Controller_Bundle
+     * @param null|Mixtape_Environment $environment
      * @throws Mixtape_Exception
      */
-    public function __construct( $controller_bundle = null ) {
+    public function __construct( $controller_bundle = null, $environment = null ) {
         $this->controller_bundle = $controller_bundle;
         if ( empty( $this->base ) ) {
             throw new Mixtape_Exception( 'Need to put a string with a backslash in $base' );
         }
+        $this->set_environment( $environment );
     }
 
     public function set_controller_bundle( $controller_bundle ) {
         $this->controller_bundle = $controller_bundle;
+    }
+
+    /**
+     * @param Mixtape_Environment|null $environment
+     * @return Mixtape_Rest_Api_Controller
+     */
+    public function set_environment( $environment ) {
+        $this->environment = $environment;
+        return $this;
     }
 
     protected function add_links( $model ) {
