@@ -85,7 +85,6 @@ class Mixtape_Model_Definition {
      * @param bool $updating
      * @return Mixtape_Model
      * @throws Mixtape_Exception
-     * @internal param WP_REST_Request $other
      */
     public function merge_updates_from_request( $model, $request, $updating = false ) {
         $fields = $this->get_field_declarations();
@@ -127,7 +126,6 @@ class Mixtape_Model_Definition {
     /**
      * @param WP_REST_Request $request
      * @return Mixtape_Model
-     * @internal Mixtape_Model_Field_Declaration $field
      */
     public function new_from_request( $request ) {
         $fields = $this->get_field_declarations();
@@ -141,6 +139,18 @@ class Mixtape_Model_Definition {
         }
 
         return $this->create_instance( $field_data );
+    }
+
+    public function get_data_transfer_object_field_mappings() {
+        $mappings = array();
+        foreach ( $this->get_field_declarations() as $field_declaration ) {
+            /** @var Mixtape_Model_Field_Declaration $field_declaration */
+            if ( !$field_declaration->suppports_output_type( 'json' ) ) {
+                continue;
+            }
+            $mappings[$field_declaration->get_data_transfer_name()] = $field_declaration->get_name();
+        }
+        return $mappings;
     }
 
     public function all() {

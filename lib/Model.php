@@ -96,18 +96,6 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         return isset( $this->fields[$field] );
     }
 
-    public function get_data_transfer_object_field_mappings() {
-        $mappings = array();
-        foreach ( $this->definition->get_field_declarations() as $field_declaration ) {
-            /** @var Mixtape_Model_Field_Declaration $field_declaration */
-            if ( !$field_declaration->suppports_output_type( 'json' ) ) {
-                continue;
-            }
-            $mappings[$field_declaration->get_data_transfer_name()] = $field_declaration->get_name();
-        }
-        return $mappings;
-    }
-
     public function get_id() {
         return $this->delegate->get_id( $this );
     }
