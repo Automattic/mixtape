@@ -18,7 +18,7 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Interfaces_Rest_Api_
     /**
      * @var array collection of Mixtape_Rest_Api_Controller subclasses
      */
-    private $endpoints = array();
+    protected $endpoints = array();
 
     /**
      * Mixtape_Rest_Api_Controller_Bundle constructor.
