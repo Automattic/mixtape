@@ -18,67 +18,21 @@ class Mixtape_Rest_Api_Controller extends WP_REST_Controller {
      * @var string the endpoint base
      */
     protected $base = null;
-    /**
-     * @var string the domain model class this endpoint serves
-     */
-    protected $domain_model_class = null;
-    /**
-     * @var Sensei_Domain_Models_Factory
-     */
-    protected $factory = null;
 
     /**
      * Sensei_REST_API_Controller constructor.
      * @param $controller_bundle Mixtape_Rest_Api_Controller_Bundle
      * @throws Mixtape_Exception
      */
-    public function __construct( $controller_bundle ) {
+    public function __construct( $controller_bundle = null ) {
         $this->controller_bundle = $controller_bundle;
         if ( empty( $this->base ) ) {
             throw new Mixtape_Exception( 'Need to put a string with a backslash in $base' );
         }
-        if ( !empty( $this->domain_model_class ) ) {
-            $this->factory = Sensei_Domain_Models_Registry::get_instance()
-                ->get_factory( $this->domain_model_class );
-        }
     }
 
-    /**
-     * @param $entity array|Sensei_Domain_Models_Model_Collection|Sensei_Domain_Models_Model_Abstract
-     * @return array
-     */
-    protected function prepare_data_transfer_object( $entity ) {
-        if ( is_array( $entity ) ) {
-            return $entity;
-        }
-
-        if ( is_a( $entity, 'Sensei_Domain_Models_Model_Collection' ) ) {
-            $results = array();
-            foreach ( $entity->get_items() as $model ) {
-                $results[] = $this->model_to_data_transfer_object( $model );
-            }
-            return $results;
-        }
-
-        if ( is_a( $entity, 'Sensei_Domain_Models_Model_Abstract' ) ) {
-            return $this->model_to_data_transfer_object( $entity );
-        }
-
-        return $entity;
-    }
-
-    /**
-     * @param $model Sensei_Domain_Models_Model_Abstract
-     * @return array
-     */
-    protected function model_to_data_transfer_object($model ) {
-        $result = array();
-        foreach ($model->get_data_transfer_object_field_mappings() as $mapping_name => $field_name ) {
-            $value = $model->__get( $field_name );
-            $result[$mapping_name] = $value;
-        }
-        $result['_links'] = $this->add_links( $model );
-        return $result;
+    public function set_controller_bundle( $controller_bundle ) {
+        $this->controller_bundle = $controller_bundle;
     }
 
     protected function add_links( $model ) {
@@ -86,7 +40,7 @@ class Mixtape_Rest_Api_Controller extends WP_REST_Controller {
     }
 
     public function register() {
-        throw new Sensei_Domain_Models_Exception( 'override me' );
+        throw new Mixtape_Exception( 'override me' );
     }
 
     protected function succeed( $data ) {
