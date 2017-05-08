@@ -108,11 +108,11 @@ class Song extends Mixtape_Model_Delegate {
     }
 }
 
-class CasetteApiEndpointCasettes extends Mixtape_Rest_Api_Controller {
+class CasetteApiEndpointVersion extends Mixtape_Rest_Api_Controller {
     /**
      * @var string the endpoint base
      */
-    protected $base = '/casettes';
+    protected $base = '/version';
 
     public function register() {
         register_rest_route( $this->controller_bundle->get_bundle_prefix(),  $this->base, array(
@@ -126,7 +126,7 @@ class CasetteApiEndpointCasettes extends Mixtape_Rest_Api_Controller {
     }
 
     public function get_items( $request ) {
-        return new WP_REST_Response( array( 'casettes' => '1' ), 200 );
+        return new WP_REST_Response( array( 'mixtape-example-version' => '0.1.0' ), 200 );
     }
 
     public function get_items_permissions_check( $request ) {
@@ -144,7 +144,7 @@ class CasetteApiBundleV1 extends Mixtape_Rest_Api_Controller_Bundle {
      */
     public function get_endpoints() {
         return array(
-            new CasetteApiEndpointCasettes( $this ),
+            new CasetteApiEndpointVersion( $this ),
         );
     }
 }

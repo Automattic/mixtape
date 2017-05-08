@@ -23,15 +23,25 @@ function run_plugin() {
         CasettePostTypes::register();
 
         $mixtape_path = dirname( $base_path );
+        $generated_path = path_join( $base_path, 'inc' );
         include_once ( path_join( $mixtape_path, 'loader.php' ) );
-        $mixtape = Mixtape::create()->load(); //load it before defining our classes
+        $mixtape = Mixtape::create( array(
+//            'prefix' => 'Mixtape',
+//            'base_dir' => untrailingslashit( dirname( __FILE__ ) ),
+//            'prefix_dir' => $generated_path,
+//            'is_debugging' => false,
+        ) )->load(); //load it before defining our classes
         include_once ( path_join( $base_path, 'Casette.php' ) );
 
-        $mixtape
-            ->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_Cpt( 'mixtape_casette' ) )
-            ->add_rest_bundle( new CasetteApiBundleV1() )
-            ->start();
+        $env = $mixtape->environment();
+        $env->define_model( new Casette(), new Mixtape_Data_Store_Cpt( 'mixtape_casette' ) );
+        $bundle = $env
+            ->define_bundle('mixtape-example/v1')
+            ->add_endpoint( $env->crud( $env->model_definition( 'Casette' ), '/casettes' ) )
+            ->add_endpoint( $env->endpoint( CasetteApiEndpointVersion::class ) );
+        $env->add_rest_bundle( $bundle );
+
+        $mixtape->environment()->start();
 
     });
 }
