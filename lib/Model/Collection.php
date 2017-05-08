@@ -19,6 +19,6 @@ class Mixtape_Model_Collection implements Mixtape_Interfaces_Model_Collection {
     }
 
     public function get_items() {
-        return new ArrayIterator( $this->models );
+        return $this->models;
     }
 }
