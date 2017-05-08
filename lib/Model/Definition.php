@@ -22,14 +22,17 @@ class Mixtape_Model_Definition {
      * @var Mixtape_Model_Delegate
      */
     private $delegate;
+    /**
+     * @var strings
+     */
+    private $name;
 
     function __construct( $environment, $delegate, $data_store ) {
         $this->field_declarations = null;
         $this->environment = $environment;
         $this->delegate = $delegate;
         $this->model_class = get_class( $delegate );
-        $this->data_store = $data_store;
-        $this->data_store->set_definition( $this );
+        $this->set_data_store( $data_store );
     }
 
     function get_model_class() {
@@ -38,6 +41,12 @@ class Mixtape_Model_Definition {
 
     function get_data_store() {
         return $this->data_store;
+    }
+
+    function set_data_store( $data_store ) {
+        $this->data_store = $data_store;
+        $this->data_store->set_definition( $this );
+        return $this;
     }
 
     function get_environment() {
@@ -130,11 +139,10 @@ class Mixtape_Model_Definition {
     public function new_from_request( $request ) {
         $fields = $this->get_field_declarations();
         $field_data = array();
+        /** @var Mixtape_Model_Field_Declaration $field */
         foreach ($fields as $field) {
-            if (isset($request[$field->name])) {
-                $field_data[$field->name] = $request[$field->name];
-            } else {
-                $field_data[$field->name] = $field->get_default_value();
+            if (isset( $request[$field->get_data_transfer_name()])) {
+                $field_data[$field->get_name()] = $request[$field->get_data_transfer_name()];
             }
         }
 
@@ -174,5 +182,9 @@ class Mixtape_Model_Definition {
             $fields[$field->name] = $field;
         }
         return $fields;
+    }
+
+    public function get_name() {
+        return $this->name;
     }
 }
