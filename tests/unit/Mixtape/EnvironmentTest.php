@@ -40,4 +40,14 @@ class Mixtape_EnvironmentTest extends MixtapeTestCase {
         $class_name = $this->mixtape->environment()->full_class_name('Environment');
         $this->assertEquals( 'Mixtape_Environment', $class_name );
     }
+
+    function test_endpoint_returns_builder() {
+        $b = $this->mixtape->environment()->endpoint( 'Foo' );
+        $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_Builder', $b );
+    }
+
+    function test_crud_returns_builder() {
+        $b = $this->mixtape->environment()->crud( null, null );
+        $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_CRUD_Builder', $b );
+    }
 }

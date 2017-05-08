@@ -227,6 +227,7 @@ if ( ! class_exists( 'Mixtape' ) ) {
                 ->load_class( 'Interfaces_Hookable' )
                 ->load_class( 'Interfaces_Data_Store' )
                 ->load_class( 'Interfaces_Model' )
+                ->load_class( 'Interfaces_Builder' )
                 ->load_class( 'Interfaces_Model_Collection' )
                 ->load_class( 'Interfaces_Model_Delegate' )
                 ->load_class( 'Interfaces_Rest_Api_Controller_Bundle' )
@@ -240,8 +241,14 @@ if ( ! class_exists( 'Mixtape' ) ) {
                 ->load_class( 'Model_Delegate' )
                 ->load_class( 'Model_Definition' )
                 ->load_class( 'Model' )
+                ->load_class( 'Model_Collection' )
                 ->load_class( 'Rest_Api_Controller' )
-                ->load_class( 'Rest_Api_Controller_Bundle' );
+                ->load_class( 'Rest_Api_Controller_Builder' )
+                ->load_class( 'Rest_Api_Controller_CRUD' )
+                ->load_class( 'Rest_Api_Controller_CRUD_Builder' )
+                ->load_class( 'Rest_Api_Controller_Bundle' )
+                ->load_class( 'Rest_Api_Controller_Bundle_Definition' )
+                ->load_class( 'Rest_Api_Controller_Bundle_Builder' );
             return $this;
         }
 
