@@ -35,4 +35,9 @@ class Mixtape_EnvironmentTest extends MixtapeTestCase {
             ->add_rest_bundle( $a_bundle );
         $this->mixtape->environment()->start();
     }
+
+    function test_full_class_name() {
+        $class_name = $this->mixtape->environment()->full_class_name('Environment');
+        $this->assertEquals( 'Mixtape_Environment', $class_name );
+    }
 }

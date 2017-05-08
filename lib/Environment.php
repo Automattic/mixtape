@@ -95,4 +95,8 @@ class Mixtape_Environment {
     public function get_main() {
         return $this->main;
     }
+
+    public function full_class_name( $partial_name ) {
+        return $this->get_main()->class_loader()->prefixed_class_name( $partial_name );
+    }
 }

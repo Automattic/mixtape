@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
 DB_NAME=${DB_NAME-'mixtape_test'}
 DB_USER=${DB_USER-'root'}
@@ -79,8 +79,12 @@ install_db() {
 		fi
 	fi
 
-	# create database
-	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+	if ! mysql -u$DB_USER -p$DB_PASS $DB_NAME -e 'SELECT 1' 2>&1 > /dev/null; then
+	    # create database
+    	mysqladmin create $DB_NAME --user="$DB_NAME" --password="$DB_PASS"$EXTRA
+	fi
+
+    echo 'Database Created';
 }
 
 install_wp
