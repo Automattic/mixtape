@@ -1,9 +1,9 @@
 <?php
 
-class DoingItWrongDelegate extends Mixtape_Model_Delegate {
+class DoingItWrongDeclaration extends Mixtape_Model_Declaration {
 }
 
-class Casette extends Mixtape_Model_Delegate {
+class Casette extends Mixtape_Model_Declaration {
     public function declare_fields( $def ) {
             return array(
                 $def->field( 'id' )
@@ -85,7 +85,7 @@ class Casette extends Mixtape_Model_Delegate {
     }
 }
 
-class Song extends Mixtape_Model_Delegate {
+class Song extends Mixtape_Model_Declaration {
     public function declare_fields( $def ) {
         return array(
             $def->field()

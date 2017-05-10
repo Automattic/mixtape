@@ -16,6 +16,7 @@ class Mixtape_Model_Field_DeclarationBuilder {
             'required'          => false,
             'map_from'          => null,
             'before_return'     => null,
+            'sanitize'          => null,
             'on_serialize'      => null,
             'on_deserialize'    => null,
             'value_type'        => 'any',
@@ -46,8 +47,8 @@ class Mixtape_Model_Field_DeclarationBuilder {
         return $this->set( 'map_from', $mapped_from );
     }
 
-    public function with_sanitize($before_return ) {
-        return $this->set( 'before_return', $before_return );
+    public function with_sanitize($sanitize ) {
+        return $this->set( 'sanitize', $sanitize );
     }
 
     public function with_serializer( $before_save ) {

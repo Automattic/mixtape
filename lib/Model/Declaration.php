@@ -1,6 +1,6 @@
 <?php
 
-class Mixtape_Model_Delegate implements Mixtape_Interfaces_Model_Delegate {
+class Mixtape_Model_Declaration implements Mixtape_Interfaces_Model_Declaration {
 
     public function declare_fields( $definition ) {
         throw new Mixtape_Exception('implement me');
@@ -10,7 +10,7 @@ class Mixtape_Model_Delegate implements Mixtape_Interfaces_Model_Delegate {
         return $model->get( 'id' );
     }
 
-    public function call($method, $args = array()) {
+    public function call( $method, $args = array()) {
         if ( is_callable( $method ) ) {
             return $this->perform_call( $method, $args );
         }
@@ -24,15 +24,15 @@ class Mixtape_Model_Delegate implements Mixtape_Interfaces_Model_Delegate {
         return call_user_func_array( $callable, $args );
     }
 
-    function as_bool( $model, $key, $value ) {
-        return (bool)$value;
+    function as_bool( $value ) {
+        return (!empty( $value ) && 'false' !== $value ) ? (bool)$value : false;
     }
 
-    function as_uint( $model,  $key, $value ) {
+    function as_uint( $value ) {
         return absint( $value );
     }
 
-    function as_nullable_uint( $model, $key, $value ) {
-        return ( empty( $value ) && !is_numeric( $value ) ) ? null : $this->as_uint( $model, $key, $value );
+    function as_nullable_uint( $value ) {
+        return ( empty( $value ) && !is_numeric( $value ) ) ? null : $this->as_uint( $value );
     }
 }

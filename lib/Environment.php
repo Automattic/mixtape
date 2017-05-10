@@ -31,10 +31,11 @@ class Mixtape_Environment {
         $this->started = false;
         $this->rest_api_bundles = array();
         $this->model_definitions = array();
+        $this->internal_hook = new WP_Hook();
     }
 
     /**
-     * @param Mixtape_Interfaces_Model_Delegate $delegate
+     * @param Mixtape_Interfaces_Model_Declaration $delegate
      * @param null|Mixtape_Interfaces_Data_Store $data_store
      * @return $this
      * @throws Mixtape_Exception
@@ -43,7 +44,7 @@ class Mixtape_Environment {
         if ( ! $data_store ) {
             $data_store = new Mixtape_Data_Store_Nil();
         }
-        $interface = $this->get_main()->class_loader()->prefixed_class_name( 'Interfaces_Model_Delegate' );
+        $interface = $this->full_class_name( 'Interfaces_Model_Declaration' );
         if ( !is_a( $delegate, $interface ) ) {
             throw new Mixtape_Exception('add_model_definition requires ' . $interface);
         }
@@ -122,7 +123,7 @@ class Mixtape_Environment {
      * @param Mixtape_Model_Definition $model_definition
      * @return Mixtape_Rest_Api_Controller_CRUD_Builder
      */
-    public function crud($model_definition, $base ) {
+    public function crud( $model_definition, $base ) {
         $builder = new Mixtape_Rest_Api_Controller_CRUD_Builder();
         return $builder->with_model_definition( $model_definition )->with_base( $base );
     }

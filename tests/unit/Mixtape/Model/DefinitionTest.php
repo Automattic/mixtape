@@ -46,7 +46,7 @@ class Mixtape_Model_DefinitionTest extends MixtapeModelTestCase {
     function test_find_one_by_id_from_cpt_entity_return_null_when_id_not_in_db() {
         $casette_definition = $this->mixtape
             ->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_Cpt( 'mixtape_cassette' ) )
+            ->define_model( new Casette(), new Mixtape_Data_Store_CustomPostType( 'mixtape_cassette' ) )
             ->model_definition( Casette::class );
         $model = $casette_definition->find_one_by_id( -1 );
         $this->assertNull( $model );
@@ -55,7 +55,7 @@ class Mixtape_Model_DefinitionTest extends MixtapeModelTestCase {
     function test_find_one_by_id_from_cpt_entity_return_model() {
         $casette_definition = $this->mixtape
             ->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_Cpt( 'mixtape_cassette' ) )
+            ->define_model( new Casette(), new Mixtape_Data_Store_CustomPostType( 'mixtape_cassette' ) )
             ->model_definition( Casette::class );
 
         $casette_to_insert = $casette_definition->create_instance( array(

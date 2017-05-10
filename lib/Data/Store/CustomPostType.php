@@ -4,15 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
-    /**
-     * @var Mixtape_Interfaces_Model_Delegate
-     */
-    private $model_delegate;
-    /**
-     * @var Mixtape_Model_Definition
-     */
-    private $definition;
+class Mixtape_Data_Store_CustomPostType
+    extends Mixtape_Data_Store_Abstract
+    implements Mixtape_Interfaces_Data_Store {
     /**
      * @var string the post type name
      */
@@ -30,16 +24,6 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
     public function __construct( $post_type = null, $args = array() ) {
         $this->post_type = empty( $post_type ) ? 'post' : $post_type;
         $this->eager_load = isset( $args[ 'eager_load' ] ) ? (bool)$args['eager_load'] : true;
-    }
-
-    /**
-     * @param Mixtape_Model_Definition $definition
-     * @return Mixtape_Interfaces_Data_Store $this
-     */
-    public function set_definition( $definition ) {
-        $this->definition = $definition;
-        $this->model_delegate = $definition->get_delegate();
-        return $this;
     }
 
     /**
@@ -78,8 +62,8 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      */
     private function create_from_post( $post ) {
         $post_arr = $post->to_array();
-        $field_declarations = $this->definition->get_field_declarations( Mixtape_Model_Field_Types::FIELD );
-        $raw_data = $this->map_data( $post_arr, $field_declarations );
+        $field_declarations = $this->get_definition()->get_field_declarations( Mixtape_Model_Field_Types::FIELD );
+        $raw_data = $this->get_data_mapper()->raw_data_to_model_data( $post_arr, $field_declarations );
 
         if ( $this->eager_load ) {
             $meta = get_post_meta( $post->ID );
@@ -88,33 +72,12 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
             foreach ($meta as $key => $value_arr ) {
                 $flattened_meta[$key] = $value_arr[0];
             }
-            $meta_field_declarations = $this->definition->get_field_declarations( Mixtape_Model_Field_Types::META );
-            $raw_meta_data = $this->map_data( $flattened_meta, $meta_field_declarations );
+            $meta_field_declarations = $this->get_definition()->get_field_declarations( Mixtape_Model_Field_Types::META );
+            $raw_meta_data = $this->get_data_mapper()->raw_data_to_model_data( $flattened_meta, $meta_field_declarations );
             $raw_data = array_merge($raw_data, $raw_meta_data );
         }
 
-        return $this->definition->create_instance( $raw_data );
-    }
-
-    private function map_data( $data, $field_declarations ) {
-        $raw_data = array();
-        $post_array_keys = array_keys( $data );
-        foreach ( $field_declarations as $declaration ) {
-            /** @var Mixtape_Model_Field_Declaration $declaration */
-            $key = $declaration->get_name();
-            $mapping = $declaration->get_name_to_map_from();
-            $value = null;
-            if ( in_array( $key, $post_array_keys ) ) {
-                // simplest case: we got a $key for this, so just map it
-                $value = $this->deserialize_value( $declaration, $data[$key] );
-            } else if (in_array( $mapping, $post_array_keys ) ) {
-                $value = $this->deserialize_value( $declaration, $data[$mapping] );
-            } else {
-                $value = $declaration->get_default_value();
-            }
-            $raw_data[$key] = $declaration->cast_value( $value );
-        }
-        return $raw_data;
+        return $this->get_definition()->create_instance( $raw_data );
     }
 
     /**
@@ -123,12 +86,12 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      * @return mixed
      */
     public function get_meta_field_value( $model, $field_declaration ) {
-        $map_from = $field_declaration->get_name_to_map_from();
+        $map_from = $field_declaration->get_map_from();
         $value = get_post_meta( $model->get_id(), $map_from, true );
         if ( empty( $value ) ) {
             return $field_declaration->get_default_value();
         }
-        return $this->deserialize_value( $field_declaration, $value );
+        return $this->get_serializer()->deserialize( $field_declaration, $value );
     }
 
     /**
@@ -161,14 +124,14 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
      * @return mixed|WP_Error
      */
     public function upsert( $model ) {
-        $updating = !empty( $model->get_id() );
-        $fields = $this->prepare_for_upsert( $model, Mixtape_Model_Field_Types::FIELD );
-        $meta_fields = $this->prepare_for_upsert( $model, Mixtape_Model_Field_Types::META );
+        $updating = ! empty( $model->get_id() );
+        $fields = $this->get_data_mapper()->model_to_data( $model, Mixtape_Model_Field_Types::FIELD );
+        $meta_fields = $this->get_data_mapper()->model_to_data( $model, Mixtape_Model_Field_Types::META );
         if ( ! isset( $fields['post_type'] ) ) {
             $fields['post_type'] = $this->post_type;
         }
         if (isset( $fields['ID'] ) && empty( $fields['ID'] ) ) {
-            // ID of 0 is not acceptable
+            // ID of 0 is not acceptable on CPTs, so remove it
             unset( $fields['ID'] );
         }
 
@@ -204,32 +167,5 @@ class Mixtape_Data_Store_Cpt implements Mixtape_Interfaces_Data_Store {
         do_action( 'mixtape_data_store_model_upsert_after', $model );
 
         return absint( $id_or_error );
-    }
-
-    /**
-     * @param Mixtape_Model $model
-     * @param $field_type
-     * @return array
-     */
-    private function prepare_for_upsert( $model, $field_type ) {
-        $field_values_to_insert = array();
-        foreach ( $this->definition->get_field_declarations( $field_type ) as $field_declaration ) {
-            /** @var Mixtape_Model_Field_Declaration $field_declaration */
-            $serializer = $field_declaration->get_serializer();
-            $what_to_map_to = $field_declaration->get_name_to_map_from();
-            $key = $field_declaration->get_name();
-            $value = $model->get( $key );
-            if ( isset( $serializer ) && !empty( $serializer ) ) {
-                $value = $this->model_delegate->call( $serializer, array( $value ) );
-            }
-            $field_values_to_insert[$what_to_map_to] = $value;
-        }
-
-        return $field_values_to_insert;
-    }
-
-    private function deserialize_value( $field_declaration, $value ) {
-        $deserializer = $field_declaration->get_deserializer();
-        return $deserializer ? $this->model_delegate->call( $deserializer, array( $value ) ) : $value;
     }
 }

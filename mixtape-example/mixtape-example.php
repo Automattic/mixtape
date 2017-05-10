@@ -34,7 +34,7 @@ function run_plugin() {
         include_once ( path_join( $base_path, 'Casette.php' ) );
 
         $env = $mixtape->environment();
-        $env->define_model( new Casette(), new Mixtape_Data_Store_Cpt( 'mixtape_casette' ) );
+        $env->define_model( new Casette(), new Mixtape_Data_Store_CustomPostType( 'mixtape_casette' ) );
         $bundle = $env
             ->define_bundle('mixtape-example/v1')
             ->add_endpoint( $env->crud( $env->model_definition( 'Casette' ), '/casettes' ) )

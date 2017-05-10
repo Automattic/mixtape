@@ -51,10 +51,6 @@ class Mixtape_Rest_Api_Controller extends WP_REST_Controller {
         return $this;
     }
 
-    protected function add_links( $model ) {
-        return array();
-    }
-
     public function register() {
         throw new Mixtape_Exception( 'override me' );
     }

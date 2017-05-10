@@ -1,6 +1,6 @@
 <?php
 
-interface Mixtape_Interfaces_Model_Delegate {
+interface Mixtape_Interfaces_Model_Declaration {
     /**
      * @param Mixtape_Model_Definition $definition
      * @return array

@@ -71,7 +71,8 @@ class Mixtape_Rest_Api_Controller_CRUDTest extends MixtapeModelTestCase {
         $response = $this->rest_server->dispatch( $request );
 
         $this->assertNotNull( $response );
-        $this->assertEquals( 201, $response->get_status() );
+        // used to be 201 but turns out the correct thing on update is to HTTP 200
+        $this->assertEquals( Mixtape_Rest_Api_Controller::HTTP_SUCCESS, $response->get_status() );
         $data = $response->get_data();
         $this->assertTrue( isset($data['id'] ) );
         $this->assertEquals( 3, $data['id'] );

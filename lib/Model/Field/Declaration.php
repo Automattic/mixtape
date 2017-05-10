@@ -30,6 +30,10 @@ class Mixtape_Model_Field_Declaration {
     public $validations;
     private $default_value;
     private $value_type;
+
+    public function get_value_type() {
+        return $this->value_type;
+    }
     private $on_serialize;
 
     private $accepted_field_types = array(
@@ -38,6 +42,7 @@ class Mixtape_Model_Field_Declaration {
         Mixtape_Model_Field_Types::DERIVED
     );
     private $on_deserialize;
+    private $sanitize;
 
     public function __construct( $args ) {
         if ( !isset( $args['name'] ) || empty( $args['name'] ) || ! is_string( $args['name'] ) ) {
@@ -50,6 +55,7 @@ class Mixtape_Model_Field_Declaration {
         $this->type              = $args['type'];
         $this->map_from          = $this->value_or_default( $args, 'map_from' );
         $this->before_return     = $this->value_or_default( $args, 'before_return' );
+        $this->sanitize          = $this->value_or_default( $args, 'sanitize' );
         $this->on_serialize      = $this->value_or_default( $args, 'on_serialize' );
         $this->on_deserialize    = $this->value_or_default( $args, 'on_deserialize' );
         $this->primary           = $this->value_or_default( $args, 'primary', false );
@@ -60,6 +66,11 @@ class Mixtape_Model_Field_Declaration {
         $this->default_value     = $this->value_or_default( $args, 'default_value' );
         $this->description       = $this->value_or_default( $args, 'description', '' );
         $this->validations       = $this->value_or_default( $args, 'validations', array() );
+    }
+
+
+    public function get_sanitize() {
+        return $this->sanitize;
     }
 
     private function value_or_default( $args, $name, $default = null ) {
@@ -76,14 +87,6 @@ class Mixtape_Model_Field_Declaration {
 
     public function is_field() {
         return $this->type === Mixtape_Model_Field_Types::FIELD;
-    }
-
-    public function get_name_to_map_from() {
-        if ( isset( $this->map_from ) && !empty( $this->map_from ) ) {
-            return $this->map_from;
-        }
-
-        return $this->name;
     }
 
     public function get_default_value() {
@@ -107,6 +110,10 @@ class Mixtape_Model_Field_Declaration {
             return null;
         }
 
+        if ( self::BOOLEAN_VALUE === $this->value_type ) {
+            return false;
+        }
+
         return null;
     }
 
@@ -115,12 +122,16 @@ class Mixtape_Model_Field_Declaration {
             return intval( $value, 10 );
         }
 
+        if ( self::INT_VALUE === $this->value_type ) {
+            return intval( $value, 10 );
+        }
+
         if ( self::STRING_VALUE === $this->value_type ) {
-            return '' . $value;
+            return (string)$value;
         }
 
         if ( self::ARRAY_VALUE === $this->value_type ) {
-            return is_array($value) ? $value : (array)$value;
+            return is_array( $value ) ? $value : (array)$value;
         }
 
         return $value;
@@ -132,11 +143,14 @@ class Mixtape_Model_Field_Declaration {
 
     public function as_item_schema_property() {
         $schema = array(
-            'description' => $this->description,
-            'type' => $this->value_type,
-            'required' => $this->required,
+            'description' => $this->get_description(),
+            'type' => $this->get_value_type(),
+            'required' => $this->is_required(),
             'context' => array( 'view', 'edit' )
         );
+        if ( $this->get_value_type() === 'uint' ) {
+            $schema['minimum'] = 0;
+        }
         return $schema;
     }
 
@@ -151,7 +165,11 @@ class Mixtape_Model_Field_Declaration {
      * @return null
      */
     public function get_map_from() {
-        return $this->map_from;
+        if ( isset( $this->map_from ) && !empty( $this->map_from ) ) {
+            return $this->map_from;
+        }
+
+        return $this->name;
     }
 
     /**
@@ -190,26 +208,27 @@ class Mixtape_Model_Field_Declaration {
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function get_description()
-    {
-        return $this->description;
+    public function get_description() {
+        if (isset( $this->description ) && !empty( $this->description ) ) {
+            return $this->description;
+        }
+        $name = ucfirst( str_replace('_', ' ', $this->get_name() ) );
+        return $name;
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function get_data_transfer_name()
-    {
-        return $this->json_name;
+    public function get_data_transfer_name() {
+        return isset( $this->json_name ) ? $this->json_name : $this->get_name();
     }
 
     /**
-     * @return null
+     * @return array
      */
-    public function get_validations()
-    {
+    public function get_validations() {
         return $this->validations;
     }
 

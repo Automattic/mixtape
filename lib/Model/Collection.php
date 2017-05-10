@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Mixtape_Model_Collection implements Mixtape_Interfaces_Model_Collection {
     /**
-     * @var array
+     * @var array the models
      */
     private $models;
 
@@ -19,6 +19,6 @@ class Mixtape_Model_Collection implements Mixtape_Interfaces_Model_Collection {
     }
 
     public function get_items() {
-        return $this->models;
+        return new ArrayIterator( $this->models );
     }
 }

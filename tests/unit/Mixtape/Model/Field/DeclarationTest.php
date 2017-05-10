@@ -35,7 +35,7 @@ class Mixtape_Model_Field_DeclarationTest extends MixtapeModelTestCase {
             ->build();
         $this->assertTrue( $sum_declaration->is_field() );
         $this->assertEquals( $sum_declaration->get_default_value(), 0 );
-        $this->assertEquals( $sum_declaration->get_name_to_map_from(), $sum_declaration->name );
+        $this->assertEquals( $sum_declaration->get_map_from(), $sum_declaration->name );
         $this->assertSame( $sum_declaration->cast_value('0'), 0);
         $this->assertSame( $sum_declaration->cast_value( 0.1 ), 0);
 
@@ -50,7 +50,7 @@ class Mixtape_Model_Field_DeclarationTest extends MixtapeModelTestCase {
         $this->assertTrue( $first_name_declaration->is_field() );
         $this->assertTrue( $first_name_declaration->required );
         $this->assertEquals( $first_name_declaration->get_default_value(), 'Foobar' );
-        $this->assertNotEquals( $first_name_declaration->get_name_to_map_from(), $first_name_declaration->name );
+        $this->assertNotEquals( $first_name_declaration->get_map_from(), $first_name_declaration->name );
         $this->assertSame($first_name_declaration->cast_value(0), '0');
 
         $derived_declaration = (new Mixtape_Model_Field_DeclarationBuilder())

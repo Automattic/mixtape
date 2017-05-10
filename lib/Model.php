@@ -24,7 +24,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
      */
     private $definition;
     /**
-     * @var Mixtape_Interfaces_Model_Delegate
+     * @var Mixtape_Interfaces_Model_Declaration
      */
     private $delegate;
 
@@ -64,7 +64,8 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
                     ->get_meta_field_value( $this, $field_declaration );
                 $this->set( $field_name, $value );
             } else if ( $field_declaration->is_derived_field() ) {
-                $map_from = $field_declaration->get_name_to_map_from();
+                /** @var Mixtape_Model_Field_Declaration $field_declaration */
+                $map_from = $field_declaration->get_map_from();
                 $value = $this->delegate->call( $map_from, array( $this ) );
                 $this->set( $field_name, $value );
             } else {

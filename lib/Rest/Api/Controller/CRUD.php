@@ -4,36 +4,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 } // Exit if accessed directly
 
-class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller {
-    /**
-     * @var Mixtape_Model_Definition
-     */
-    private $model_definition;
-    /**
-     * @var Mixtape_Model_Delegate
-     */
-    private $model_delegate;
-    /**
-     * @var Mixtape_Interfaces_Data_Store
-     */
-    private $model_data_store;
-
-    /**
-     * Mixtape_Rest_Api_Controller_CRUD constructor.
-     * @param Mixtape_Rest_Api_Controller_Bundle $api
-     * @param Mixtape_Model_Definition $model_definition
-     */
-    public function __construct( $api, $base, $model_definition ) {
-        $this->base = $base;
-        $environment = $model_definition->get_environment();
-        parent::__construct( $api, $environment );
-        $this->model_definition = $model_definition;
-        $this->model_delegate = $this->model_definition->get_delegate();
-        $this->model_data_store = $this->model_definition->get_data_store();
-    }
+class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller_ModelBase {
 
     public function register() {
         $prefix = $this->controller_bundle->get_bundle_prefix();
+
         register_rest_route( $prefix, $this->base, array(
             array(
                 'methods'             => WP_REST_Server::READABLE,
@@ -85,43 +60,10 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller {
         return $this->succeed( $this->prepare_dto( $model ) );
     }
 
-    /**
-     * @param $entity array|Mixtape_Model_Collection|Mixtape_Model
-     * @return array
-     */
-    protected function prepare_dto( $entity ) {
-        if ( is_array( $entity ) ) {
-            return $entity;
-        }
-
-        if ( is_a( $entity, 'Mixtape_Model_Collection' ) ) {
-            $results = array();
-            foreach ( $entity->get_items() as $model ) {
-                $results[] = $this->model_to_dto( $model );
-            }
-            return $results;
-        }
-
-        if ( is_a( $entity, 'Mixtape_Model' ) ) {
-            return $this->model_to_dto( $entity );
-        }
-
-        return $entity;
+    public function get_item($request) {
+        return $this->get_items($request);
     }
 
-    /**
-     * @param Mixtape_Model $model
-     * @return array
-     */
-    protected function model_to_dto( $model ) {
-        $result = array();
-        foreach ($this->model_definition->get_data_transfer_object_field_mappings() as $mapping_name => $field_name ) {
-            $value = $model->get( $field_name );
-            $result[$mapping_name] = $value;
-        }
-        $result['_links'] = $this->add_links( $model );
-        return $result;
-    }
 
     /**
      * @param WP_REST_Request $request
@@ -136,7 +78,7 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller {
      * @param WP_REST_Request $request
      * @return WP_REST_Response
      */
-    public function update_item($request) {
+    public function update_item( $request ) {
         $is_update = true;
         return $this->create_or_update( $request, $is_update );
     }
@@ -161,7 +103,7 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller {
         if ( $is_update && $model_to_update ) {
             $model = $this->model_definition->merge_updates_from_request( $model_to_update, $request, $is_update );
         } else {
-            $model = $this->prepare_item_for_database( $request );
+            $model = $model = $this->get_model_definition()->new_from_request( $request );
         }
 
         if ( is_wp_error( $model ) ) {
@@ -180,7 +122,9 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller {
             return $this->fail_with( $id_or_error );
         }
 
-        return $this->created( $this->prepare_dto( array('id' => absint( $id_or_error ) ) ) );
+        $dto = $this->prepare_dto( array( 'id' => absint( $id_or_error ) ) );
+
+        return $is_update ? $this->succeed( $dto ) : $this->created( $dto );
     }
 
     public function delete_item( $request ) {
@@ -197,46 +141,13 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller {
     }
 
     /**
-     * Prepare the item for create or update operation.
-     *
-     * @param WP_REST_Request $request Request object.
-     * @return WP_Error|object $prepared_item
+     * @param Mixtape_Model $model
+     * @return array
      */
-    protected function prepare_item_for_database( $request ) {
-        return $this->model_definition->new_from_request( $request) ;
-    }
-
-    /**
-     * @param WP_REST_Request $request
-     * @return bool
-     */
-    public function get_items_permissions_check( $request ) {
-        return $this->admin_permissions_check( $request );
-    }
-
-    /**
-     * @param WP_REST_Request $request
-     * @return bool
-     */
-    public function create_item_permissions_check( $request ) {
-        return $this->admin_permissions_check( $request );
-    }
-
-    /**
-     * @param WP_REST_Request $request
-     * @return bool
-     */
-    public function delete_item_permissions_check( $request ) {
-        return $this->admin_permissions_check( $request );
-    }
-
-    /**
-     * @param WP_REST_Request $request
-     * @return bool
-     */
-    private function admin_permissions_check( $request ) {
-        // we are only going to allow admins to access the rest api for now
-        return true;
+    protected function model_to_dto($model) {
+        $result = parent::model_to_dto( $model );
+        $result['_links'] = $this->add_links($model);
+        return $result;
     }
 
     /**
@@ -244,50 +155,29 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller {
      * @return array
      */
     protected function add_links( $model ) {
-        $base_url = rest_url() . '/' . $this->controller_bundle->get_bundle_prefix() . '/' . $this->base . '/';
-        return array(
-            'self' => array(
-                array(
-                    'href' => esc_url( $base_url . $model->get_id() )
-                )
-            ),
+        $base_url = rest_url() . $this->controller_bundle->get_bundle_prefix() . $this->base . '/';
+
+        $result = array(
             'collection' => array(
                 array(
-                    'href' => esc_url( $base_url . '/courses/' )
-                )
-            ),
-            'author' => array(
-                array(
-                    'href' => esc_url( rest_url() . 'wp/v2/users/' . $model->get( 'author' ) )
+                    'href' => esc_url( $base_url )
                 )
             )
         );
-    }
-
-    protected function get_base_url() {
-        return rest_url( $this->controller_bundle->get_bundle_prefix(), $this->base );
-    }
-
-    /**
-     * Retrieves the item's schema, conforming to JSON Schema.
-     * @access public
-     *
-     * @return array Item schema data.
-     */
-    public function get_item_schema() {
-        $fields = $this->model_definition->get_field_declarations();
-        $properties = array();
-        foreach ( $fields as $field_declaration ) {
-            /** @var Mixtape_Model_Field_Declaration $field_declaration */
-            $properties[$field_declaration->get_data_transfer_name()] = $field_declaration->as_item_schema_property();
+        if ($model->get_id()) {
+            $result['self'] = array(
+                array(
+                    'href' => esc_url( $base_url . $model->get_id() )
+                )
+            );
         }
-        $schema = array(
-            '$schema'    => 'http://json-schema.org/schema#',
-            'title'      => 'course',
-            'type'       => 'object',
-            'properties' => (array)apply_filters( 'mixtape_rest_api_schema_properties', $properties, $this->model_definition )
-        );
-
-        return $this->add_additional_fields_schema( $schema );
+        if ( $model->has( 'author' ) ) {
+            $result['author'] = array(
+                array(
+                    'href' => esc_url( rest_url() . 'wp/v2/users/' . $model->get( 'author' ) )
+                )
+            );
+        }
+        return $result;
     }
 }
