@@ -1,10 +1,5 @@
 <?php
 
-/**
- * Sensei Unit Tests Bootstrap
- *
- * @since 1.9
- */
 class Mixtape_Unit_Tests_Bootstrap {
     /** @var \Mixtape_Unit_Tests_Bootstrap instance */
     protected static $instance = null;
@@ -74,4 +69,3 @@ class Mixtape_Unit_Tests_Bootstrap {
     }
 }
 Mixtape_Unit_Tests_Bootstrap::instance();
-

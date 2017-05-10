@@ -125,7 +125,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
 
     /**
-     * @param $field_declaration Sensei_Domain_Models_Field_Declaration
+     * @param $field_declaration Mixtape_Model_Field_Declaration
      * @return bool|WP_Error
      */
     protected function run_field_validations( $field_declaration ) {
@@ -136,7 +136,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         if ( $field_declaration->is_required() && empty( $value ) ) {
             return new WP_Error(
                 'required-field-empty',
-                sprintf( __( '%s cannot be empty', 'woothemes-sensei' ), $field_declaration->get_name() )
+                sprintf( __( '%s cannot be empty', 'mixtape' ), $field_declaration->get_name() )
             );
         } else if ( !$field_declaration->is_required() && ! empty( $value ) ) {
             foreach ( $field_declaration->get_validations() as $validation ) {
