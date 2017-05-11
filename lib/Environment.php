@@ -18,20 +18,19 @@ class Mixtape_Environment {
      */
     private $started;
     /**
-     * @var Mixtape
+     * @var Mixtape_Bootstrap
      */
-    private $main;
+    private $bootstrap;
 
     /**
      * Mixtape_Environment constructor.
-     * @param $mixtape Mixtape
+     * @param Mixtape_Bootstrap $bootstrap
      */
-    public function __construct( $main ) {
-        $this->main = $main;
+    public function __construct( $bootstrap ) {
+        $this->bootstrap = $bootstrap;
         $this->started = false;
         $this->rest_api_bundles = array();
         $this->model_definitions = array();
-        $this->internal_hook = new WP_Hook();
     }
 
     /**
@@ -55,15 +54,15 @@ class Mixtape_Environment {
     }
 
     /**
-     * @param $class
+     * @param string $class the class name
      * @return Mixtape_Model_Definition the definition
      * @throws Mixtape_Exception
      */
-    public function model_definition($class ) {
-        if ( !class_exists( $class ) ) {
-            throw new Mixtape_Exception( $class . ': does not exist' );
+    public function model_definition( $class ) {
+        if ( ! class_exists( $class ) ) {
+            throw new Mixtape_Exception( $class . ' does not exist' );
         }
-        if ( !isset( $this->model_definitions[$class] ) ) {
+        if ( ! isset( $this->model_definitions[$class] ) ) {
             throw new Mixtape_Exception( $class . ' definition does not exist' );
         }
         return $this->model_definitions[$class];
@@ -99,12 +98,12 @@ class Mixtape_Environment {
         return $this;
     }
 
-    public function get_main() {
-        return $this->main;
+    public function get_bootstrap() {
+        return $this->bootstrap;
     }
 
     public function full_class_name( $partial_name ) {
-        return $this->get_main()->class_loader()->prefixed_class_name( $partial_name );
+        return $this->get_bootstrap()->class_loader()->prefixed_class_name( $partial_name );
     }
 
     /**

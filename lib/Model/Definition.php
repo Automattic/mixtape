@@ -60,7 +60,7 @@ class Mixtape_Model_Definition {
 
     public function get_field_declarations( $filter_by_type=null ) {
         $delegate = $this->get_delegate();
-        $interface = $this->get_environment()->get_main()->class_loader()->prefixed_class_name( 'Interfaces_Model_Declaration' );
+        $interface = $this->get_environment()->get_bootstrap()->class_loader()->prefixed_class_name( 'Interfaces_Model_Declaration' );
 
         if ( !is_a( $delegate, $interface ) ) {
             throw new Mixtape_Exception( $this->get_model_class() . ' is not a subclass of ' . $interface );
