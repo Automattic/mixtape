@@ -1,6 +1,6 @@
 <?php
 
-class Mixtape_Model_Field_DeclarationTest extends MixtapeModelTestCase {
+class Mixtape_Model_Field_DeclarationTest extends Mixtape_Testing_Model_TestCase {
     function test_exists() {
         $this->assertClassExists( 'Mixtape_Model_Field_Declaration' );
     }

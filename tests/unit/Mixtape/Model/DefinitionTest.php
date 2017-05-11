@@ -1,9 +1,6 @@
 <?php
 
-class Mixtape_Model_DefinitionTest extends MixtapeModelTestCase {
-    function setUp() {
-        parent::setUp();
-    }
+class Mixtape_Model_DefinitionTest extends Mixtape_Testing_Model_TestCase {
 
     function test_exists() {
         $this->assertClassExists( 'Mixtape_Model_Definition' );

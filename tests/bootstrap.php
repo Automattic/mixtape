@@ -24,7 +24,7 @@ class Mixtape_Unit_Tests_Bootstrap {
         tests_add_filter( 'muplugins_loaded', array( $this, 'load_mixtape' ) );
         // install Mixtape
         tests_add_filter( 'setup_theme', array( $this, 'install_mixtape' ) );
-        // register some Mixtape cpts
+        // register our Test Custom Post Types
         tests_add_filter( 'init', array( $this, 'register_mixtape_test_cpts' ) );
         // load the WP testing environment
         require_once( $this->wp_tests_dir . '/includes/bootstrap.php' );
@@ -33,7 +33,7 @@ class Mixtape_Unit_Tests_Bootstrap {
     }
 
     public function load_mixtape() {
-        require_once( $this->mixtape_dir . '/loader.php' );
+        require_once( $this->mixtape_dir . '/lib/Bootstrap.php' );
     }
 
     public function install_mixtape() {
@@ -49,8 +49,8 @@ class Mixtape_Unit_Tests_Bootstrap {
     }
 
     public function includes() {
-        require_once( $this->tests_dir . DIRECTORY_SEPARATOR . 'unit-testing-classes/MixtapeTestCase.php' );
-        require_once( $this->tests_dir . DIRECTORY_SEPARATOR . 'unit-testing-classes/MixtapeModelTestCase.php' );
+        Mixtape_Bootstrap::create()->load()->load_testing_classes();
+        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
     }
 
     public function include_example_classes() {

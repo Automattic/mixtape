@@ -1,10 +1,9 @@
 <?php
 
-class Mixtape_ExceptionTest extends MixtapeTestCase {
-    private $mixtape;
+class Mixtape_ExceptionTest extends Mixtape_Testing_TestCase {
 
     function test_exists() {
-        $this->mixtape = Mixtape::create()->load();
+        Mixtape_Bootstrap::create()->load();
         $this->assertClassExists( 'Mixtape_Exception' );
     }
 }

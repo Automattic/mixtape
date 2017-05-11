@@ -1,23 +1,10 @@
 <?php
 
-class Mixtape_Rest_Api_Controller_CRUDTest extends MixtapeModelTestCase {
+class Mixtape_Rest_Api_Controller_CRUDTest extends Mixtape_Testing_Controller_TestCase {
     /**
      * @var array
      */
     private $casettes;
-    /**
-     * @var WP_REST_Server
-     */
-    private $rest_server;
-
-    function setUp() {
-        parent::setUp();
-        $env = $this->mixtape->environment();
-        $env->define_model( new Casette() );
-        /** @var WP_REST_Server $wp_rest_server */
-        global $wp_rest_server;
-        $this->rest_server = $wp_rest_server = new WP_REST_Server;
-    }
 
     function test_exists() {
         $this->assertClassExists( 'Mixtape_Rest_Api_Controller_CRUD' );

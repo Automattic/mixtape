@@ -1,19 +1,19 @@
 <?php
 
-class Mixtape_EnvironmentTest extends MixtapeTestCase {
+class Mixtape_EnvironmentTest extends Mixtape_Testing_TestCase {
     /**
-     * @var Mixtape
+     * @var Mixtape_Bootstrap
      */
-    private $mixtape;
+    private $bootstrap;
 
     function setUp() {
         parent::setUp();
-        $this->mixtape = Mixtape::create()->load();
+        $this->bootstrap = Mixtape_Bootstrap::create()->load();
     }
 
     function test_exists() {
         $this->assertClassExists( 'Mixtape_Environment' );
-        $env = $this->mixtape->environment();
+        $env = $this->bootstrap->environment();
         $this->assertNotNull( $env );
         $this->assertInstanceOf( 'Mixtape_Environment', $env );
     }
@@ -30,24 +30,24 @@ class Mixtape_EnvironmentTest extends MixtapeTestCase {
         $a_bundle->expects($this->once())
             ->method('start');
 
-        $this->mixtape
+        $this->bootstrap
             ->environment()
             ->add_rest_bundle( $a_bundle );
-        $this->mixtape->environment()->start();
+        $this->bootstrap->environment()->start();
     }
 
     function test_full_class_name() {
-        $class_name = $this->mixtape->environment()->full_class_name('Environment');
+        $class_name = $this->bootstrap->environment()->full_class_name('Environment');
         $this->assertEquals( 'Mixtape_Environment', $class_name );
     }
 
     function test_endpoint_returns_builder() {
-        $b = $this->mixtape->environment()->endpoint( 'Foo' );
+        $b = $this->bootstrap->environment()->endpoint( 'Foo' );
         $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_Builder', $b );
     }
 
     function test_crud_returns_builder() {
-        $b = $this->mixtape->environment()->crud( null, null );
+        $b = $this->bootstrap->environment()->crud( null, null );
         $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_CRUD_Builder', $b );
     }
 }

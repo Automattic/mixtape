@@ -1,6 +1,6 @@
 <?php
 
-class Mixtape_ModelTest extends MixtapeModelTestCase {
+class Mixtape_ModelTest extends Mixtape_Testing_Model_TestCase {
     function setUp() {
         parent::setUp();
 
