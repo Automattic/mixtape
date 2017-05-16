@@ -30,13 +30,14 @@ class Mixtape_Model_Field_Declaration {
     public $validations;
     private $default_value;
     private $value_type;
+    private $choices;
 
     public function get_value_type() {
         return $this->value_type;
     }
     private $on_serialize;
 
-    private $accepted_field_types = array(
+    private $accepted_data_store_hints = array(
         Mixtape_Model_Field_Types::FIELD,
         Mixtape_Model_Field_Types::META,
         Mixtape_Model_Field_Types::DERIVED
@@ -48,8 +49,8 @@ class Mixtape_Model_Field_Declaration {
         if ( !isset( $args['name'] ) || empty( $args['name'] ) || ! is_string( $args['name'] ) ) {
             throw new Mixtape_Exception( 'every field declaration should have a (non-empty) name string' );
         }
-        if ( !isset( $args['type'] ) || !in_array( $args['type'], $this->accepted_field_types, true ) ) {
-            throw new Mixtape_Exception( 'every field should have a type (one of ' . implode( ',', $this->accepted_field_types ) . ')' );
+        if ( !isset( $args['type'] ) || !in_array( $args['type'], $this->accepted_data_store_hints, true ) ) {
+            throw new Mixtape_Exception( 'every field should have a type (one of ' . implode( ',', $this->accepted_data_store_hints ) . ')' );
         }
         $this->name              = $args['name'];
         $this->type              = $args['type'];
@@ -65,9 +66,16 @@ class Mixtape_Model_Field_Declaration {
         $this->value_type        = $this->value_or_default( $args, 'value_type', 'any' );
         $this->default_value     = $this->value_or_default( $args, 'default_value' );
         $this->description       = $this->value_or_default( $args, 'description', '' );
+        $this->choices           = $this->value_or_default( $args, 'choices' );
         $this->validations       = $this->value_or_default( $args, 'validations', array() );
     }
 
+    /**
+     * @return null|array()
+     */
+    public function get_choices() {
+        return $this->choices;
+    }
 
     public function get_sanitize() {
         return $this->sanitize;
@@ -144,12 +152,14 @@ class Mixtape_Model_Field_Declaration {
     public function as_item_schema_property() {
         $schema = array(
             'description' => $this->get_description(),
-            'type' => $this->get_value_type(),
-            'required' => $this->is_required(),
-            'context' => array( 'view', 'edit' )
+            'type'        => $this->get_value_type(),
+            'context'     => array( 'view', 'edit' )
         );
         if ( $this->get_value_type() === 'uint' ) {
             $schema['minimum'] = 0;
+        }
+        if ( null !== $this->get_choices() ) {
+            $schema['oneOf'] = (array)$this->get_choices();
         }
         return $schema;
     }

@@ -21,14 +21,6 @@ interface Mixtape_Interfaces_Data_Store {
      */
     public function get_entity( $id );
 
-
-    /**
-     * @param $entity Mixtape_Model
-     * @param $field_declaration Mixtape_Model_Field_Declaration
-     * @return mixed
-     */
-    public function get_meta_field_value( $model, $field_declaration );
-
     /**
      * @param $model Mixtape_Model
      * @param array $args

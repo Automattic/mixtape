@@ -45,18 +45,27 @@ class Mixtape_Rest_Api_Controller_ModelBase extends Mixtape_Rest_Api_Controller 
      * @return array Item schema data.
      */
     public function get_item_schema() {
-        $fields = $this->get_model_definition()->get_field_declarations();
+        $model_definition = $this->get_model_definition();
+        $fields = $model_definition->get_field_declarations();
         $properties = array();
+        $required = array();
         foreach ($fields as $field_declaration) {
             /** @var Mixtape_Model_Field_Declaration $field_declaration */
             $properties[$field_declaration->get_data_transfer_name()] = $field_declaration->as_item_schema_property();
+            if ( $field_declaration->is_required() ) {
+                $required[] = $field_declaration->get_data_transfer_name();
+            }
         }
         $schema = array(
             '$schema' => 'http://json-schema.org/schema#',
-            'title' => 'course',
+            'title' => $model_definition->get_name(),
             'type' => 'object',
             'properties' => (array)apply_filters( 'mixtape_rest_api_schema_properties', $properties, $this->get_model_definition() )
         );
+
+        if ( ! empty( $required ) ) {
+            $schema['required'] = $required;
+        }
 
         return $this->add_additional_fields_schema( $schema );
     }

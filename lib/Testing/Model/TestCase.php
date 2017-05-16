@@ -6,7 +6,7 @@ class Mixtape_Testing_Model_TestCase extends Mixtape_Testing_TestCase {
      */
     protected $environment;
     /**
-     * @var Mixtape
+     * @var Mixtape_Bootstrap
      */
     protected $mixtape;
 

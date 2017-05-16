@@ -2,10 +2,18 @@
 
 interface Mixtape_Interfaces_Model {
     /**
-     * Get this model's primary identifier
+     * Get this model's unique identifier
      * @return mixed a unique identifier
      */
     public function get_id();
+
+
+    /**
+     * Set this model's unique identifier
+     * @param mixed $new_id
+     * @return Mixtape_Model $model this model
+     */
+    public function set_id( $new_id );
 
     /**
      * Get a field for this model

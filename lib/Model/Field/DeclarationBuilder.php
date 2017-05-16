@@ -25,6 +25,7 @@ class Mixtape_Model_Field_DeclarationBuilder {
             'supported_outputs' => array( 'json' ),
             'description'       => null,
             'validations'       => array(),
+            'choices'           => null,
         );
     }
     public function build() {
@@ -91,5 +92,9 @@ class Mixtape_Model_Field_DeclarationBuilder {
     private function set( $name, $value ) {
         $this->args[$name] = $value;
         return $this;
+    }
+
+    public function choices( $choices ) {
+        return $this->set( 'choices', is_array( $choices ) ? $choices : array( $choices ) );
     }
 }

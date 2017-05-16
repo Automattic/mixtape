@@ -61,37 +61,18 @@ class Mixtape_Data_Store_CustomPostType
      * @throws Mixtape_Exception
      */
     private function create_from_post( $post ) {
-        $post_arr = $post->to_array();
-        $field_declarations = $this->get_definition()->get_field_declarations( Mixtape_Model_Field_Types::FIELD );
-        $raw_data = $this->get_data_mapper()->raw_data_to_model_data( $post_arr, $field_declarations );
+        $field_declarations = $this->get_definition()->get_field_declarations();
+        $raw_post_data = $post->to_array();
+        $raw_meta_data = get_post_meta( $post->ID ); // assumes we are only ever adding one postmeta per key
 
-        if ( $this->eager_load ) {
-            $meta = get_post_meta( $post->ID );
-
-            $flattened_meta = array();
-            foreach ($meta as $key => $value_arr ) {
-                $flattened_meta[$key] = $value_arr[0];
-            }
-            $meta_field_declarations = $this->get_definition()->get_field_declarations( Mixtape_Model_Field_Types::META );
-            $raw_meta_data = $this->get_data_mapper()->raw_data_to_model_data( $flattened_meta, $meta_field_declarations );
-            $raw_data = array_merge($raw_data, $raw_meta_data );
+        $flattened_meta = array();
+        foreach ( $raw_meta_data as $key => $value_arr ) {
+            $flattened_meta[$key] = $value_arr[0];
         }
+        $merged_data = array_merge( $raw_post_data, $flattened_meta );
+        $raw_data = $this->get_data_mapper()->raw_data_to_model_data( $merged_data, $field_declarations );
 
         return $this->get_definition()->create_instance( $raw_data );
-    }
-
-    /**
-     * @param Mixtape_Model $model
-     * @param Mixtape_Model_Field_Declaration $field_declaration
-     * @return mixed
-     */
-    public function get_meta_field_value( $model, $field_declaration ) {
-        $map_from = $field_declaration->get_map_from();
-        $value = get_post_meta( $model->get_id(), $map_from, true );
-        if ( empty( $value ) ) {
-            return $field_declaration->get_default_value();
-        }
-        return $this->get_serializer()->deserialize( $field_declaration, $value );
     }
 
     /**
@@ -99,7 +80,7 @@ class Mixtape_Data_Store_CustomPostType
      * @param array $args
      * @return mixed
      */
-    public function delete($model, $args = array()) {
+    public function delete( $model, $args = array() ) {
         $id = $model->get_id();
 
         $args = wp_parse_args( $args, array(
@@ -109,14 +90,20 @@ class Mixtape_Data_Store_CustomPostType
         do_action( 'mixtape_data_store_delete_model_before', $model, $id );
 
         if ( $args['force_delete'] ) {
-            wp_delete_post( $model->get_id() );
+            $result = wp_delete_post( $model->get_id() );
             $model->set( 'id', 0 );
             do_action( 'mixtape_data_store_delete_model', $model, $id );
         } else {
-            wp_trash_post( $model->get_id() );
+            $result = wp_trash_post( $model->get_id() );
             $model->set( 'status', 'trash' );
             do_action( 'mixtape_data_store_trash_model', $model, $id );
         }
+
+        if (false === $result) {
+            do_action( 'mixtape_data_store_delete_model_fail', $model, $id );
+            return new WP_Error( 'delete-failed', 'delete-failed' );
+        }
+        return $result;
     }
 
     /**

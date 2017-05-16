@@ -6,8 +6,16 @@ class Mixtape_Model_Declaration implements Mixtape_Interfaces_Model_Declaration 
         throw new Mixtape_Exception('implement me');
     }
 
+    /**
+     * @param Mixtape_Model $model
+     * @return mixed|null
+     */
     public function get_id( $model ) {
         return $model->get( 'id' );
+    }
+
+    public function set_id( $model, $new_id ) {
+        return $model->set( 'id', $new_id );
     }
 
     public function call( $method, $args = array()) {

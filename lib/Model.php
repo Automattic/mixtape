@@ -30,7 +30,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     /**
      * @var Mixtape_Interfaces_Model_Declaration
      */
-    private $delegate;
+    private $declaration;
 
     /**
      * Mixtape_Model constructor.
@@ -40,17 +40,16 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
      */
     function __construct( $definition, $data = array() ) {
         $this->definition = $definition;
-        $this->delegate = $this->definition->get_delegate();
+        $this->declaration = $this->definition->get_delegate();
         $this->fields = $this->definition->get_field_declarations();
         $this->data = array();
 
         if ( !is_array( $data ) ) {
-            throw new Mixtape_Exception( '$data shoud be array' );
+            throw new Mixtape_Exception( '$data shoud be an array' );
         }
 
         $this->raw_data = $data;
-        $data_keys = array_keys($data);
-
+        $data_keys = array_keys( $data );
 
         foreach ( $data_keys as $key ) {
             $this->set( $key, $this->raw_data[$key] );
@@ -62,15 +61,10 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         $field_declaration = $this->fields[$field_name];
 
         if ( ! isset( $this->data[ $field_name ] ) ) {
-            if ( $field_declaration->is_meta_field() ) {
-                $value = $this->definition
-                    ->get_data_store()
-                    ->get_meta_field_value( $this, $field_declaration );
-                $this->set( $field_name, $value );
-            } else if ( $field_declaration->is_derived_field() ) {
+            if ( $field_declaration->is_derived_field() ) {
                 /** @var Mixtape_Model_Field_Declaration $field_declaration */
                 $map_from = $field_declaration->get_map_from();
-                $value = $this->delegate->call( $map_from, array( $this ) );
+                $value = $this->declaration->call( $map_from, array( $this ) );
                 $this->set( $field_name, $value );
             } else {
                 // load the default value for the field
@@ -102,7 +96,11 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
 
     public function get_id() {
-        return $this->delegate->get_id( $this );
+        return $this->declaration->get_id( $this );
+    }
+
+    public function set_id( $id ) {
+        return $this->declaration->set_id( $this, $id );
     }
 
     public function validate() {
@@ -144,7 +142,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
             );
         } else if ( !$field_declaration->is_required() && ! empty( $value ) ) {
             foreach ( $field_declaration->get_validations() as $validation ) {
-                $result = $this->delegate->call( $validation, array( $this, $value ) );
+                $result = $this->declaration->call( $validation, array( $this, $value ) );
                 if ( is_wp_error( $result ) ) {
                     $result->add_data(array(
                         'reason' => $result->get_error_messages(),
@@ -166,7 +164,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         $value = $this->data[ $key ];
         $before_return = $field_declaration->get_before_return();
         if ( isset( $before_return ) && !empty( $before_return ) ) {
-            $value = $this->delegate->call( $before_return, array( $this, $key, $value ) );
+            $value = $this->declaration->call( $before_return, array( $this, $key, $value ) );
         }
 
         return $value;

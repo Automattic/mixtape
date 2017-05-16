@@ -38,6 +38,7 @@ class Mixtape_Model_Definition {
         $this->model_class = get_class( $delegate );
         $this->sanitizer = new Mixtape_Model_Field_Sanitizer();
         $this->set_data_store( $data_store );
+        $this->name = strtolower( $this->model_class );
     }
 
     function get_model_class() {
@@ -60,13 +61,13 @@ class Mixtape_Model_Definition {
 
     public function get_field_declarations( $filter_by_type=null ) {
         $delegate = $this->get_delegate();
-        $interface = $this->get_environment()->get_bootstrap()->class_loader()->prefixed_class_name( 'Interfaces_Model_Declaration' );
+        $interface = $this->get_environment()->full_class_name( 'Interfaces_Model_Declaration' );
 
         if ( !is_a( $delegate, $interface ) ) {
             throw new Mixtape_Exception( $this->get_model_class() . ' is not a subclass of ' . $interface );
         }
 
-        if ( null ===$this->field_declarations ) {
+        if ( null === $this->field_declarations ) {
             $fields = $delegate->declare_fields( $this );
 
             $this->field_declarations = $this->initialize_field_map( $fields );
@@ -87,7 +88,7 @@ class Mixtape_Model_Definition {
         if (is_array( $entity ) ) {
             return new Mixtape_Model( $this, $entity );
         }
-        throw new Mixtape_Exception('does not understand entity');
+        throw new Mixtape_Exception( 'does not understand entity' );
     }
 
     /**
