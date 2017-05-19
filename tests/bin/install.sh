@@ -81,7 +81,7 @@ install_db() {
 
 	if ! mysql -u$DB_USER -p$DB_PASS $DB_NAME -e 'SELECT 1' 2>&1 > /dev/null; then
 	    # create database
-    	mysqladmin create $DB_NAME --user="$DB_NAME" --password="$DB_PASS"$EXTRA
+    	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
 	fi
 
     echo 'Database Created';

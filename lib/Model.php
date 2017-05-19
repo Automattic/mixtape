@@ -162,8 +162,9 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
                 sprintf( __( '%s cannot be empty', 'mixtape' ), $field_declaration->get_name() )
             );
         } else if ( !$field_declaration->is_required() && ! empty( $value ) ) {
+            $validation_data = new Mixtape_Model_ValidationData( $value, $this, $field_declaration );
             foreach ( $field_declaration->get_validations() as $validation ) {
-                $result = $this->declaration->call( $validation, array( $this, $value ) );
+                $result = $this->declaration->call( $validation, array( $validation_data ) );
                 if ( is_wp_error( $result ) ) {
                     $result->add_data(array(
                         'reason' => $result->get_error_messages(),

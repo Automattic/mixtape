@@ -5,10 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 } // Exit if accessed directly
 
 class Mixtape_Rest_Api_Controller extends WP_REST_Controller {
-    const HTTP_CREATED   = 201;
-    const HTTP_SUCCESS   = 200;
-    const BAD_REQUEST    = 400;
-    const HTTP_NOT_FOUND = 404;
+    const HTTP_CREATED     = 201;
+    const HTTP_SUCCESS     = 200;
+    const HTTP_BAD_REQUEST = 400;
+    const HTTP_NOT_FOUND   = 404;
 
     /**
      * @var Mixtape_Rest_Api_Controller_Bundle the bundle this belongs to
@@ -64,7 +64,7 @@ class Mixtape_Rest_Api_Controller extends WP_REST_Controller {
     }
 
     protected function fail_with( $data ) {
-        return new WP_REST_Response( $data, self::BAD_REQUEST );
+        return new WP_REST_Response( $data, self::HTTP_BAD_REQUEST );
     }
 
     protected function not_found( $message ) {

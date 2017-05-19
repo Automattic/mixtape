@@ -55,7 +55,8 @@ class CasetteSettings extends Mixtape_Model_Declaration_Settings {
     }
 }
 
-class Casette extends Mixtape_Model_Declaration {
+class Casette extends Mixtape_Model_Declaration
+    implements Mixtape_Interfaces_Rest_Api_Permissions_Provider {
     public function declare_fields( $d ) {
             return array(
                 $d->field( 'id' )
@@ -106,7 +107,8 @@ class Casette extends Mixtape_Model_Declaration {
         return 'mixtape_casette';
     }
 
-    protected function validate_author( $model, $author_id ) {
+    protected function validate_author( $validation_data ) {
+        $author_id = $validation_data->get_value();
         $author = $this->get_author( $author_id );
         if ( null === $author ) {
             return new WP_Error( 'invalid-author-id', __( 'Invalid author id', 'casette' ) );
@@ -114,7 +116,9 @@ class Casette extends Mixtape_Model_Declaration {
         return true;
     }
 
-    protected function validate_status( $model, $status ) {
+    protected function validate_status( $validation_data ) {
+        $model = $validation_data->get_model();
+        $status = $validation_data->get_value();
         if ('publish' === $status ) {
             $author_id = $model->get( 'author' );
             if ( empty( $author_id ) ) {
@@ -135,6 +139,14 @@ class Casette extends Mixtape_Model_Declaration {
 
     function song_before_save( $value ) {
         return implode(',', $value );
+    }
+
+    /**
+     * @param WP_REST_Request $request
+     * @return bool
+     */
+    public function permissions_check($request, $action) {
+        return true;
     }
 }
 

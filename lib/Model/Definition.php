@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class Mixtape_Model_Definition {
+class Mixtape_Model_Definition implements Mixtape_Interfaces_Rest_Api_Permissions_Provider {
 
     /**
      * @var Mixtape_Environment
@@ -30,23 +30,35 @@ class Mixtape_Model_Definition {
      * @var string
      */
     private $name;
+    /**
+     * @var Mixtape_Interfaces_Rest_Api_Permissions_Provider
+     */
+    private $permissions_provider;
 
     /**
      * Mixtape_Model_Definition constructor.
      * @param Mixtape_Environment $environment
      * @param Mixtape_Interfaces_Model_Declaration $model_declaration
      * @param Mixtape_Interfaces_Data_Store|Mixtape_Data_Store_Builder $data_store
+     * @param Mixtape_Interfaces_Rest_Api_Permissions_Provider $permissions_provider
+     * @throws Mixtape_Exception
      */
-    function __construct( $environment, $model_declaration, $data_store ) {
-        Mixtape_Expect::that( $environment !== null      , '$environment cannot be null' );
-        Mixtape_Expect::that( $model_declaration !== null, '$model_declaration cannot be null' );
-        Mixtape_Expect::that( $data_store !== null       , '$data_store cannot be null' );
+    function __construct( $environment, $model_declaration, $data_store, $permissions_provider ) {
+        Mixtape_Expect::that( $environment !== null         , '$environment cannot be null' );
+        Mixtape_Expect::that( $model_declaration !== null   , '$model_declaration cannot be null' );
+        Mixtape_Expect::that( $data_store !== null          , '$data_store cannot be null' );
+        Mixtape_Expect::that( $permissions_provider !== null, '$permissions_provider cannot be null' );
+        // fail if provided with inappropriate types
+        Mixtape_Expect::is_a( $environment, 'Mixtape_Environment' );
+        Mixtape_Expect::is_a( $model_declaration, 'Mixtape_Interfaces_Model_Declaration' );
+        Mixtape_Expect::is_a( $permissions_provider, 'Mixtape_Interfaces_Rest_Api_Permissions_Provider' );
 
-        $this->field_declarations = null;
-        $this->environment        = $environment;
-        $this->model_declaration  = $model_declaration;
-        $this->model_class        = get_class( $model_declaration );
-        $this->name               = strtolower( $this->model_class );
+        $this->field_declarations   = null;
+        $this->environment          = $environment;
+        $this->model_declaration    = $model_declaration;
+        $this->model_class          = get_class( $model_declaration );
+        $this->permissions_provider = $permissions_provider;
+        $this->name                 = strtolower( $this->model_class );
         $this->set_data_store( $data_store );
     }
 
@@ -70,6 +82,8 @@ class Mixtape_Model_Definition {
         } else {
             $this->data_store = $data_store;
         }
+        // at this point we should have a data store
+        Mixtape_Expect::is_a( $this->data_store, 'Mixtape_Interfaces_Data_Store' );
 
         return $this;
     }
@@ -172,7 +186,7 @@ class Mixtape_Model_Definition {
      * @return bool
      */
     public function permissions_check( $request, $action ) {
-        return true;
+        return $this->permissions_provider->permissions_check( $request, $action );
     }
 
     private function map_request_data( $request, $updating = false ) {

@@ -18,6 +18,9 @@ class Mixtape_EnvironmentTest extends Mixtape_Testing_TestCase {
         $this->assertInstanceOf( 'Mixtape_Environment', $env );
     }
 
+    /**
+     * @covers Mixtape_Environment::start
+     */
     function test_start_calls_start_in_added_bundles() {
         $a_bundle = $this
             ->getMockBuilder( Mixtape_Interfaces_Rest_Api_Controller_Bundle::class )
@@ -36,6 +39,9 @@ class Mixtape_EnvironmentTest extends Mixtape_Testing_TestCase {
         $this->bootstrap->environment()->start();
     }
 
+    /**
+     * @covers Mixtape_Environment::full_class_name
+     */
     function test_full_class_name() {
         $class_name = $this->bootstrap->environment()->full_class_name('Environment');
         $this->assertEquals( 'Mixtape_Environment', $class_name );
@@ -49,5 +55,55 @@ class Mixtape_EnvironmentTest extends Mixtape_Testing_TestCase {
     function test_crud_returns_builder() {
         $b = $this->bootstrap->environment()->define()->rest_api('zzz')->endpoint()->crud();
         $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_Builder', $b );
+    }
+
+    /**
+     * @covers Mixtape_Environment::define
+     */
+    function test_define_return_fluid_define() {
+        $define = $this->bootstrap->environment()->define();
+        $this->assertInstanceOf( Mixtape_FluentInterface_Define::class, $define );
+    }
+
+    /**
+     * @covers Mixtape_Environment::get
+     */
+    function test_get_return_fluid_get() {
+        $define = $this->bootstrap->environment()->get();
+        $this->assertInstanceOf( Mixtape_FluentInterface_Get::class, $define );
+    }
+
+    /**
+     * @expectedException Mixtape_Exception
+     * @covers Mixtape_Environment::push_builder
+     */
+    function test_push_builder_throws_when_no_valid_class() {
+        $this->bootstrap->environment()->push_builder( 'models', new stdClass());
+    }
+
+    /**
+     * @expectedException Mixtape_Exception
+     * @covers Mixtape_Environment::model_definition
+     */
+    function test_model_definition_throw_if_unknown_class() {
+        $this->bootstrap->environment()->model_definition( 'Foo' );
+        ///
+    }
+
+    /**
+     * @expectedException Mixtape_Exception
+     * @covers Mixtape_Environment::model_definition
+     */
+    function test_model_definition_throw_if_no_definition() {
+        $this->bootstrap->environment()->model_definition( Mixtape_Model_Declaration_Settings::class );
+    }
+
+    /**
+     * @covers Mixtape_Environment::model_definition
+     */
+    function test_model_definition_return_definition() {
+        $this->bootstrap->environment()->define()->model( Mixtape_Model_Declaration_Settings::class );
+        $d = $this->bootstrap->environment()->model_definition( Mixtape_Model_Declaration_Settings::class );
+        $this->assertInstanceOf( Mixtape_Model_Definition::class, $d );
     }
 }
