@@ -23,13 +23,13 @@ class Mixtape_Rest_Api_Controller_ModelBase extends Mixtape_Rest_Api_Controller 
      * @param Mixtape_Rest_Api_Controller_Bundle $controller_bundle
      * @param Mixtape_Model_Definition $model_definition
      */
-    public function __construct($controller_bundle, $base, $model_definition)
+    public function __construct( $controller_bundle, $base, $model_definition )
     {
         $this->base = $base;
-        $environment = $model_definition->get_environment();
+        $environment = $model_definition->environment();
         parent::__construct($controller_bundle, $environment);
         $this->model_definition = $model_definition;
-        $this->model_declaration = $this->model_definition->get_delegate();
+        $this->model_declaration = $this->model_definition->get_model_declaration();
         $this->model_data_store = $this->model_definition->get_data_store();
     }
 
@@ -133,7 +133,7 @@ class Mixtape_Rest_Api_Controller_ModelBase extends Mixtape_Rest_Api_Controller 
     }
 
     /**
-     * @param $entity array|Mixtape_Model_Collection|Mixtape_Model
+     * @param array|Mixtape_Model_Collection|Mixtape_Model $entity
      * @return array
      */
     protected function prepare_dto( $entity ) {
@@ -161,13 +161,7 @@ class Mixtape_Rest_Api_Controller_ModelBase extends Mixtape_Rest_Api_Controller 
      * @return array
      */
     protected function model_to_dto($model) {
-        $result = array();
-        foreach ($this->get_model_definition()->get_dto_field_mappings() as $mapping_name => $field_name ) {
-            $value = $model->get( $field_name );
-            $result[$mapping_name] = $value;
-        }
-
-        return $result;
+        return $this->get_model_definition()->model_to_dto( $model );
     }
 
     /**

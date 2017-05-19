@@ -43,6 +43,7 @@ class Mixtape_Rest_Api_Controller_Settings extends Mixtape_Rest_Api_Controller_M
      * @return WP_REST_Response
      */
     protected function create_or_update( $request ) {
+        $is_update = $request->get_method() !== 'POST';
         $model_to_update = $this->model_definition->find_one_by_id( null );
         if ( empty( $model_to_update ) ) {
             return $this->not_found( 'Model does not exist' );

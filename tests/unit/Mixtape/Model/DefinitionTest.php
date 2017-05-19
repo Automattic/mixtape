@@ -9,28 +9,32 @@ class Mixtape_Model_DefinitionTest extends Mixtape_Testing_Model_TestCase {
     function test_add_model_definition() {
         $env = $this->mixtape->load()
             ->environment();
-        $env->define_model( new Casette(), new Mixtape_Data_Store_Nil() );
-        $model_definition = $env->model_definition( Casette::class );
+        $env->define()->model( 'Casette' );
+        $model_definition = $env->get()->model( Casette::class );
         $this->assertInstanceOf( Mixtape_Model_Definition::class, $model_definition );
         $this->assertEquals( $model_definition->get_model_class(), Casette::class );
         $this->assertInstanceOf( Mixtape_Data_Store_Nil::class, $model_definition->get_data_store() );
     }
 
     function test_get_field_declarations() {
-        $model_definition = $this->mixtape
+         $this->mixtape
             ->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_Nil() )
-            ->model_definition( Casette::class );
+            ->define()
+             ->model( new Casette());
+        $model_definition= $this->mixtape->environment()
+            ->get()
+            ->model( Casette::class );
         $declarations = $model_definition->get_field_declarations();
         $this->assertInternalType( 'array', $declarations );
         $this->assertEquals( 6, count( $declarations ) );
     }
 
     function test_create_with_array() {
-        $casette = $this->mixtape
+         $this->mixtape
             ->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_Nil() )
-            ->model_definition( Casette::class )
+            ->define()->model( new Casette() );
+        $casette = $this->mixtape
+            ->environment()->get()->model( Casette::class )
             ->create_instance( array(
                 'title' => 'Awesome',
                 'songs' => array(1,2,3)
@@ -41,19 +45,18 @@ class Mixtape_Model_DefinitionTest extends Mixtape_Testing_Model_TestCase {
     }
 
     function test_find_one_by_id_from_cpt_entity_return_null_when_id_not_in_db() {
-        $casette_definition = $this->mixtape
-            ->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_CustomPostType( 'mixtape_cassette' ) )
-            ->model_definition( Casette::class );
+        $env = $this->mixtape
+            ->environment();
+        $casette_definition = $this->get_casette_definition();
+
         $model = $casette_definition->find_one_by_id( -1 );
         $this->assertNull( $model );
     }
 
     function test_find_one_by_id_from_cpt_entity_return_model() {
-        $casette_definition = $this->mixtape
-            ->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_CustomPostType( 'mixtape_cassette' ) )
-            ->model_definition( Casette::class );
+        $env = $this->mixtape
+            ->environment();
+        $casette_definition = $this->get_casette_definition();
 
         $casette_to_insert = $casette_definition->create_instance( array(
             'title' => 'Awesomeness',
@@ -74,5 +77,19 @@ class Mixtape_Model_DefinitionTest extends Mixtape_Testing_Model_TestCase {
         $this->assertEquals( $id, $model_id );
         $model_meta_field = $model->get( 'songs' );
         $this->assertEquals( array( 1,2,3 ), $model_meta_field );
+    }
+
+    private function get_casette_definition() {
+        $env = $this->mixtape
+            ->environment();
+         $env->define()
+             ->model( 'Casette' )
+             ->with_data_store(
+                 $env->define()
+                     ->data_store()
+                     ->custom_post_type()
+                     ->with_post_type( 'mixtape_cassette' )
+             );
+        return $env->get()->model( Casette::class );
     }
 }

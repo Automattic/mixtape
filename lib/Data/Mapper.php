@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Mixtape_Data_Mapper {
     /**
      * @var Mixtape_Data_Serializer
@@ -23,10 +27,10 @@ class Mixtape_Data_Mapper {
             $key = $declaration->get_name();
             $mapping = $declaration->get_map_from();
             $value = null;
-            if ( in_array( $key, $post_array_keys ) ) {
+            if ( in_array( $key, $post_array_keys, true ) ) {
                 // simplest case: we got a $key for this, so just map it
                 $value = $this->serializer->deserialize( $declaration, $data[$key] );
-            } else if (in_array( $mapping, $post_array_keys ) ) {
+            } else if (in_array( $mapping, $post_array_keys, true ) ) {
                 $value = $this->serializer->deserialize( $declaration, $data[$mapping] );
             } else {
                 $value = $declaration->get_default_value();
@@ -37,7 +41,7 @@ class Mixtape_Data_Mapper {
     }
 
     /**
-     * @param Mixtape_Model $model
+     * @param Mixtape_Interfaces_Model $model
      * @param $field_type
      * @return array
      */

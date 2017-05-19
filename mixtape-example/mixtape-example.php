@@ -25,21 +25,24 @@ function run_plugin() {
         $mixtape_path = dirname( $base_path );
         $generated_path = path_join( $base_path, 'inc' );
         include_once ( path_join( $mixtape_path, 'loader.php' ) );
-        $mixtape = Mixtape::create( array(
-//            'prefix' => 'Mixtape',
-//            'base_dir' => untrailingslashit( dirname( __FILE__ ) ),
-//            'prefix_dir' => $generated_path,
-//            'is_debugging' => false,
-        ) )->load(); //load it before defining our classes
+        $mixtape = Mixtape_Bootstrap::create()->load(); //load it before defining our classes
         include_once ( path_join( $base_path, 'Casette.php' ) );
 
         $env = $mixtape->environment();
-        $env->define_model( new Casette(), new Mixtape_Data_Store_CustomPostType( 'mixtape_casette' ) );
+        $env->define()->model(
+            'Casette'
+        )->with_data_store(
+            $env->define()->data_store()
+                ->custom_post_type()
+                ->with_post_type('mixtape_casette')
+        );
         $bundle = $env
-            ->define_bundle('mixtape-example/v1')
-            ->add_endpoint( $env->crud( $env->model_definition( 'Casette' ), '/casettes' ) )
-            ->add_endpoint( $env->endpoint( CasetteApiEndpointVersion::class ) );
-        $env->add_rest_bundle( $bundle );
+            ->define()->rest_api('mixtape-example/v1');
+        $bundle->endpoint()
+            ->crud( '/casettes' )
+            ->for_model( $env->get()->model( 'Casette' ) );
+        $bundle->endpoint()
+            ->with_class( CasetteApiEndpointVersion::class );
 
         $mixtape->environment()->start();
 

@@ -4,32 +4,26 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class Mixtape_Data_Store_CustomPostType
-    extends Mixtape_Data_Store_Abstract
-    implements Mixtape_Interfaces_Data_Store {
+class Mixtape_Data_Store_CustomPostType extends Mixtape_Data_Store_Abstract {
     /**
      * @var string the post type name
      */
     private $post_type;
-    /**
-     * Load all of the cpt including meta in one go
-     * @var bool
-     */
-    private $eager_load;
 
     /**
-     * Mixtape_Data_Store_Cpt constructor.
+     * Mixtape_Data_Store_CustomPostType constructor.
+     * @param null|Mixtape_Model_Definition $definition
      * @param string $post_type
      */
-    public function __construct( $post_type = null, $args = array() ) {
-        $this->post_type = empty( $post_type ) ? 'post' : $post_type;
-        $this->eager_load = isset( $args[ 'eager_load' ] ) ? (bool)$args['eager_load'] : true;
+    public function __construct( $definition = null, $post_type = 'post' ) {
+        $this->post_type = $post_type;
+        parent::__construct( $definition );
     }
 
     /**
      * @return Mixtape_Model_Collection
      */
-    public function get_entities() {
+    public function get_entities( $filter = null ) {
         $query = new WP_Query( array(
             'post_type' => $this->post_type,
             'post_status' => 'any'
@@ -112,8 +106,8 @@ class Mixtape_Data_Store_CustomPostType
      */
     public function upsert( $model ) {
         $updating = ! empty( $model->get_id() );
-        $fields = $this->get_data_mapper()->model_to_data( $model, Mixtape_Model_Field_Types::FIELD );
-        $meta_fields = $this->get_data_mapper()->model_to_data( $model, Mixtape_Model_Field_Types::META );
+        $fields = $this->get_data_mapper()->model_to_data( $model, Mixtape_Model_Field_Declaration::FIELD);
+        $meta_fields = $this->get_data_mapper()->model_to_data( $model, Mixtape_Model_Field_Declaration::META);
         if ( ! isset( $fields['post_type'] ) ) {
             $fields['post_type'] = $this->post_type;
         }

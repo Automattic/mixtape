@@ -1,11 +1,15 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Mixtape_Data_Store_InMemory extends Mixtape_Data_Store_Abstract implements Mixtape_Interfaces_Data_Store {
     private $entities = array();
     /**
      * @return Mixtape_Model_Collection
      */
-    public function get_entities() {
+    public function get_entities( $filter = null ) {
         return new Mixtape_Model_Collection( $this->entities );
     }
 

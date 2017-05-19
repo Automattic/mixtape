@@ -1,11 +1,27 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 interface Mixtape_Interfaces_Model_Declaration {
+
     /**
-     * @param Mixtape_Model_Definition $definition
+     * @param Mixtape_Model_Definition $def
+     * @return mixed
+     */
+    function set_definition( $def );
+
+    /**
+     * @return Mixtape_Model_Definition
+     */
+    function definition();
+
+    /**
+     * @param Mixtape_Model_Field_Declaration_Collection_Builder $definition
      * @return array list of Mixtape_Model_Field_Declaration
      */
-    public function declare_fields( $definition );
+    function declare_fields( $definition );
 
     /**
      * Call a method
@@ -13,14 +29,14 @@ interface Mixtape_Interfaces_Model_Declaration {
      * @param array $args
      * @return mixed
      */
-    public function call( $method, $args = array());
+    function call( $method, $args = array());
 
     /**
      * Get this model's unique identifier
      * @param Mixtape_Interfaces_Model $model
      * @return mixed
      */
-    public function get_id( $model );
+    function get_id( $model );
 
     /**
      * Set this model's unique identifier
@@ -28,6 +44,11 @@ interface Mixtape_Interfaces_Model_Declaration {
      * @param mixed $id
      * @return Mixtape_Interfaces_Model the model
      */
-    public function set_id( $model, $id );
+    function set_id( $model, $id );
+
+    /**
+     * @return string this declaration's name
+     */
+    function get_name();
 
 }

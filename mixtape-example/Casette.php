@@ -1,44 +1,93 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class DoingItWrongDeclaration extends Mixtape_Model_Declaration {
 }
 
-class Casette extends Mixtape_Model_Declaration {
-    public function declare_fields( $def ) {
-            return array(
-                $def->field( 'id' )
-                    ->map_from( 'ID' )
-                    ->of_type('integer')
-                    ->with_description( 'Unique identifier for the object.' )
-                    ->with_sanitize( 'as_uint' ),
+class CasetteAdminSettings {
+    static function get_settings() {
+        return array(
+            'casette_general' => array(
+                __( 'Casette General', 'mixtape' ),
+                array(
+                    array(
+                        'name'        => 'mixtape_casette_per_page',
+                        'std'         => '10',
+                        'placeholder' => '',
+                        'label'       => __( 'Casettes Per Page', 'mixtape' ),
+                        'desc'        => __( 'How many listings should be shown per page by default?', 'mixtape' ),
+                        'attributes'  => array()
+                    ),
+                    array(
+                        'name'       => 'mixtape_casette_hide_listened',
+                        'std'        => '0',
+                        'label'      => __( 'Hide Listened Casettes', 'mixtape' ),
+                        'cb_label'   => __( 'Hide Listened Casettes', 'mixtape' ),
+                        'desc'       => __( 'If enabled, listened Casettes will be hidden from archives.', 'mixtape' ),
+                        'type'       => 'checkbox',
+                        'attributes' => array()
+                    ),
+                    array(
+                        'name'       => 'mixtape_casette_enable_private',
+                        'std'        => '0',
+                        'label'      => __( 'Users can create private Casettes', 'mixtape' ),
+                        'cb_label'   => __( 'Users can create private Casettes', 'mixtape' ),
+                        'desc'       => __( 'If enabled, Users can create private Casettes (defaults to false)', 'mixtape' ),
+                        'type'       => 'checkbox',
+                        'attributes' => array()
+                    ),
+                )
+            )
+        );
+    }
+}
 
-                $def->field( 'title', 'The casette title.' )
+class CasetteSettings extends Mixtape_Model_Declaration_Settings {
+    function dto_name_for_field( $field_data ) {
+        return str_replace( 'mixtape_casette_', '', $field_data['name'] );
+    }
+
+    function get_settings() {
+        return CasetteAdminSettings::get_settings();
+    }
+}
+
+class Casette extends Mixtape_Model_Declaration {
+    public function declare_fields( $d ) {
+            return array(
+                $d->field( 'id' )
+                    ->map_from( 'ID' )
+                    ->typed( $d->type( 'uint') )
+                    ->description( 'Unique identifier for the object.' ),
+
+                $d->field( 'title', 'The casette title.' )
                     ->map_from( 'post_title' )
-                    ->of_type('string')
+                    ->typed( $d->type( 'string') )
                     ->required(),
 
-                $def->field( 'author', __( 'The author identifier.', 'casette' ) )
+                $d->field( 'author', __( 'The author identifier.', 'casette' ) )
                     ->map_from( 'post_author' )
-                    ->of_type('integer')
-                    ->with_validations( 'validate_author' )
+                    ->typed( $d->type( 'uint') )
+                    ->validated_by( 'validate_author' )
                     ->with_default( 0 )
-                    ->dto_name( 'authorID' )
-                    ->with_sanitize( 'as_uint' ),
+                    ->dto_name( 'authorID' ),
 
-                $def->field( 'status', 'The casette status.' )
-                    ->of_type('string')
-                    ->with_validations( 'validate_status' )
+                $d->field( 'status', 'The casette status.' )
+                    ->typed( $d->type( 'string') )
+                    ->validated_by( 'validate_status' )
                     ->with_default('draft')
                     ->map_from( 'post_status' ),
 
-                $def->derived_field( 'ratings', 'The casette ratings' )
-                    ->map_from( 'get_ratings' )
+                $d->field( 'ratings', 'The casette ratings' )
+                    ->derived( 'get_ratings' )
                     ->dto_name( 'the_ratings' ),
 
-                $def->meta_field( 'songs', 'The casette songs' )
+                $d->field( 'songs', 'The casette songs', 'meta' )
                     ->map_from( '_casette_song_ids' )
-                    ->of_type( 'array' )
-                    ->with_default( array() )
+                    ->typed( $d->type( 'array' ) )
                     ->with_deserializer( 'song_before_return' )
                     ->with_serializer( 'song_before_save' )
                     ->dto_name( 'song_ids' ),
@@ -51,6 +100,10 @@ class Casette extends Mixtape_Model_Declaration {
 
     public function get_id( $model ) {
         return $model->get( 'id' );
+    }
+
+    public function get_name() {
+        return 'mixtape_casette';
     }
 
     protected function validate_author( $model, $author_id ) {
@@ -86,25 +139,29 @@ class Casette extends Mixtape_Model_Declaration {
 }
 
 class Song extends Mixtape_Model_Declaration {
-    public function declare_fields( $def ) {
+    public function declare_fields($d ) {
         return array(
-            $def->field()
+            $d->field()
                 ->named( 'id' )
                 ->map_from( 'ID' )
-                ->of_type('integer')
-                ->with_description( 'Unique identifier for the object.' )
-                ->with_sanitize( 'as_uint' ),
-            $def->field()
+                ->typed('integer')
+                ->description( 'Unique identifier for the object.' )
+                ->sanitized_by( 'as_uint' ),
+            $d->field()
                 ->named( 'title' )
                 ->map_from( 'post_title' )
-                ->of_type('string')
-                ->with_description( 'The song title.' )
+                ->typed('string')
+                ->description( 'The song title.' )
                 ->required( true ),
         );
     }
 
     public function get_ratings() {
         return array();
+    }
+
+    public function get_name() {
+        return 'mixtape_casette_song';
     }
 }
 

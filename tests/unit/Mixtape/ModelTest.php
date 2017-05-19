@@ -51,9 +51,10 @@ class Mixtape_ModelTest extends Mixtape_Testing_Model_TestCase {
     }
 
     function create_casette( $props ) {
-        return $this->mixtape->environment()
-            ->define_model( new Casette(), new Mixtape_Data_Store_Nil() )
-            ->model_definition( Casette::class )
+        $this->mixtape->environment()
+            ->define()
+            ->model( new Casette() );
+        return $this->mixtape->environment()->get()->model( Casette::class )
             ->create_instance( $props );
     }
 }

@@ -12,7 +12,6 @@ class Mixtape_Rest_Api_Controller_Bundle_Definition extends Mixtape_Rest_Api_Con
         $this->environment = $environment;
         $this->bundle_prefix = $bundle_prefix;
         $this->endpoint_builders = $endpoint_builders;
-        parent::__construct();
     }
 
     public function get_endpoints() {

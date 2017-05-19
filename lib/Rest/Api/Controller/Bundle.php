@@ -20,16 +20,8 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Interfaces_Rest_Api_
      */
     protected $endpoints = array();
 
-    /**
-     * Mixtape_Rest_Api_Controller_Bundle constructor.
-     */
-    public function __construct() {
-    }
-
-    public function start() {
-        if ( null === $this->bundle_prefix ) {
-            throw new Mixtape_Exception( 'api_prefix should be defined' );
-        }
+    function start() {
+        Mixtape_Expect::that( null !== $this->bundle_prefix, 'api_prefix should be defined' );
         add_action( 'rest_api_init', array( $this, 'register' ) );
         return $this;
     }
@@ -38,40 +30,29 @@ class Mixtape_Rest_Api_Controller_Bundle implements Mixtape_Interfaces_Rest_Api_
      * bootstrap registry
      * register all endpoints
      */
-    public function register() {
-        if ( !$this->can_use_rest_api() ) {
-            return;
-        }
-        $rest_api_prefix = str_replace('/', '_', $this->bundle_prefix );
+    function register() {
         /**
          * add/remove endpoints. Useful for extensions
          * @param $endpoints array an array of Mixtape_Rest_Api_Controller
          * @param $bundle Mixtape_Rest_Api_Controller_Bundle the bundle instance
          * @return array
          */
-        $this->endpoints = (array)apply_filters( 'mixtape_rest_api_get_endpoints', $this->get_endpoints(), $this );
+        $this->endpoints = (array)apply_filters(
+            'mixtape_rest_api_controller_bundle_get_endpoints',
+            $this->get_endpoints(),
+            $this
+        );
 
         foreach ($this->endpoints as $endpoint ) {
             $endpoint->register( $this );
         }
     }
 
-    /**
-     * @return Mixtape_Rest_Api_Helper
-     */
-    public function get_registry() {
-        return null;
-    }
-
-    public function get_endpoints() {
+    function get_endpoints() {
         return array();
     }
 
-    public function can_use_rest_api() {
-        return true;
-    }
-
-    public function get_bundle_prefix() {
+    function get_bundle_prefix() {
         return $this->bundle_prefix;
     }
 }

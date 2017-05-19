@@ -9,12 +9,16 @@ class Mixtape_Data_Store_CustomPostTypeTest extends Mixtape_Testing_Model_TestCa
 
     function setUp() {
         parent::setUp();
-        $this->environment->define_model(
-            new Casette(),
-            new Mixtape_Data_Store_CustomPostType()
+        $env = $this->environment;
+        $env->define()->model(
+            'Casette'
+        )->with_data_store(
+            $env->define()->data_store()
+            ->custom_post_type()
+            ->with_post_type( 'mixtape_casette' )
         );
         $this->model_definition = $this->environment
-            ->model_definition( Casette::class );
+            ->get()->model( Casette::class );
     }
 
     function test_upsert_inserts_new_entity() {

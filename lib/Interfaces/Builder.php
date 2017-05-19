@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 interface Mixtape_Interfaces_Builder {
-    public function build();
+    function build();
 }

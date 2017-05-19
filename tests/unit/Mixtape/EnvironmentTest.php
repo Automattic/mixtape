@@ -32,7 +32,7 @@ class Mixtape_EnvironmentTest extends Mixtape_Testing_TestCase {
 
         $this->bootstrap
             ->environment()
-            ->add_rest_bundle( $a_bundle );
+            ->define()->rest_api( $a_bundle );
         $this->bootstrap->environment()->start();
     }
 
@@ -42,12 +42,12 @@ class Mixtape_EnvironmentTest extends Mixtape_Testing_TestCase {
     }
 
     function test_endpoint_returns_builder() {
-        $b = $this->bootstrap->environment()->endpoint( 'Foo' );
+        $b = $this->bootstrap->environment()->define()->rest_api('zzz')->endpoint();
         $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_Builder', $b );
     }
 
     function test_crud_returns_builder() {
-        $b = $this->bootstrap->environment()->crud( null, null );
-        $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_CRUD_Builder', $b );
+        $b = $this->bootstrap->environment()->define()->rest_api('zzz')->endpoint()->crud();
+        $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_Builder', $b );
     }
 }

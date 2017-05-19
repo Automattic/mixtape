@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Mixtape_Class_Loader implements Mixtape_Interfaces_Class_Loader {
     /**
      * @var array loaded class map
@@ -51,6 +55,12 @@ class Mixtape_Class_Loader implements Mixtape_Interfaces_Class_Loader {
     }
 
     private function include_class_file( $path_to_the_class ) {
+        if ( isset( $this->loaded_classes[$path_to_the_class] ) ) {
+            return $this;
+        }
+        if ( ! file_exists( $path_to_the_class ) ) {
+            throw new Exception( $path_to_the_class . ' not found' );
+        }
         $included = include_once( $path_to_the_class );
         $this->loaded_classes[$path_to_the_class] = $included;
 

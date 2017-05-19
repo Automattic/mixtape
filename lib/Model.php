@@ -39,14 +39,12 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
      * @throws Mixtape_Exception
      */
     function __construct( $definition, $data = array() ) {
+        Mixtape_Expect::that( is_array( $data ), '$data should be an array' );
+
         $this->definition = $definition;
-        $this->declaration = $this->definition->get_delegate();
+        $this->declaration = $this->definition->get_model_declaration();
         $this->fields = $this->definition->get_field_declarations();
         $this->data = array();
-
-        if ( !is_array( $data ) ) {
-            throw new Mixtape_Exception( '$data shoud be an array' );
-        }
 
         $this->raw_data = $data;
         $data_keys = array_keys( $data );
@@ -57,7 +55,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
 
     public function get( $field_name, $args = array() ) {
-        $this->throw_if_field_unknown( $field_name );
+        Mixtape_Expect::that( $this->has( $field_name ), 'Field ' . $field_name . 'is not defined' );
         $field_declaration = $this->fields[$field_name];
 
         if ( ! isset( $this->data[ $field_name ] ) ) {
@@ -78,11 +76,15 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
     }
     
     public function set( $field, $value ) {
-        $this->throw_if_field_unknown( $field );
-
+        Mixtape_Expect::that( $this->has( $field ), 'Field ' . $field . 'is not defined' );
+        /** @var Mixtape_Model_Field_Declaration $field_declaration */
         $field_declaration = $this->fields[$field];
-        $val = $field_declaration->cast_value( $value );
-        $this->data[$field_declaration->name] = $val;
+        if ( null !== $field_declaration->before_model_set() ) {
+            $val = $this->declaration->call( $field_declaration->before_model_set(), array( $this, $value ) );
+        } else {
+            $val = $field_declaration->cast_value( $value );
+        }
+        $this->data[$field_declaration->get_name()] = $val;
         return $this;
     }
 
@@ -116,6 +118,25 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
             return $this->validation_error( $validation_errors );
         }
         return true;
+    }
+
+    public function sanitize() {
+        foreach ( $this->fields as $key => $field_declaration ) {
+            $field_name = $field_declaration->get_name();
+            $value = $this->get( $field_name );
+            $is_valid = $this->run_field_validations( $field_declaration );
+            if ( is_wp_error( $is_valid ) ) {
+                $validation_errors[] = $is_valid->get_error_data();
+            }
+            $custom_sanitization = $field_declaration->get_sanitize();
+            if ( ! empty( $custom_sanitization ) ) {
+                $value = $this->declaration->call( $custom_sanitization, array( $this, $value ) );
+            } else {
+                $value = $field_declaration->get_type_definition()->sanitize( $value );
+            }
+            $this->set( $field_name, $value );
+        }
+        return $this;
     }
 
     /**
@@ -159,7 +180,7 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
      * @param Mixtape_Model_Field_Declaration $field_declaration
      * @return mixed
      */
-    private function prepare_value( $field_declaration, $args = array() ) {
+    private function prepare_value( $field_declaration ) {
         $key = $field_declaration->get_name();
         $value = $this->data[ $key ];
         $before_return = $field_declaration->get_before_return();
@@ -168,11 +189,5 @@ class Mixtape_Model implements Mixtape_Interfaces_Model {
         }
 
         return $value;
-    }
-
-    private function throw_if_field_unknown( $field ) {
-        if ( ! $this->has( $field ) ) {
-            throw new Mixtape_Exception( 'Field ' . $field . 'is not defined' );
-        }
     }
 }

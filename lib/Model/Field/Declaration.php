@@ -8,42 +8,42 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Mixtape_Model_Field_Declaration
  */
 class Mixtape_Model_Field_Declaration {
-
-    const STRING_VALUE  = 'string';
-    const INT_VALUE     = 'integer';
-    const ARRAY_VALUE   = 'array';
-    const OBJECT_VALUE  = 'object';
-    const BOOLEAN_VALUE = 'boolean';
-    const ANY_VALUE     = 'any';
-    const ENUM          = 'enum';
-
-    public $before_return;
-    public $before_output;
-    public $map_from;
-    public $type;
-    public $name;
-    public $primary;
-    public $required;
-    public $supported_outputs;
-    public $description;
-    public $json_name;
-    public $validations;
+    const FIELD = 'field';
+    const META = 'meta';
+    const DERIVED = 'derived';
+    const TAXONOMY = 'taxonomy';
+    const OPTION = 'option';
+    const TAG = 'tag';
+    private $before_return;
+    private $map_from;
+    private $type;
+    private $name;
+    private $primary;
+    private $required;
+    private $supported_outputs;
+    private $description;
+    private $data_transfer_name;
+    private $validations;
     private $default_value;
-    private $value_type;
     private $choices;
+    /**
+     * @var null|Mixtape_Interfaces_Type
+     */
+    private $type_definition;
 
-    public function get_value_type() {
-        return $this->value_type;
-    }
     private $on_serialize;
 
     private $accepted_data_store_hints = array(
-        Mixtape_Model_Field_Types::FIELD,
-        Mixtape_Model_Field_Types::META,
-        Mixtape_Model_Field_Types::DERIVED
+        self::FIELD,
+        self::META,
+        self::DERIVED,
+        self::TAXONOMY,
+        self::OPTION,
+        self::TAG
     );
     private $on_deserialize;
     private $sanitize;
+    private $before_model_set;
 
     public function __construct( $args ) {
         if ( !isset( $args['name'] ) || empty( $args['name'] ) || ! is_string( $args['name'] ) ) {
@@ -52,22 +52,24 @@ class Mixtape_Model_Field_Declaration {
         if ( !isset( $args['type'] ) || !in_array( $args['type'], $this->accepted_data_store_hints, true ) ) {
             throw new Mixtape_Exception( 'every field should have a type (one of ' . implode( ',', $this->accepted_data_store_hints ) . ')' );
         }
-        $this->name              = $args['name'];
-        $this->type              = $args['type'];
-        $this->map_from          = $this->value_or_default( $args, 'map_from' );
-        $this->before_return     = $this->value_or_default( $args, 'before_return' );
-        $this->sanitize          = $this->value_or_default( $args, 'sanitize' );
-        $this->on_serialize      = $this->value_or_default( $args, 'on_serialize' );
-        $this->on_deserialize    = $this->value_or_default( $args, 'on_deserialize' );
-        $this->primary           = $this->value_or_default( $args, 'primary', false );
-        $this->required          = $this->value_or_default( $args, 'required', false );
-        $this->supported_outputs = $this->value_or_default( $args, 'supported_outputs', array( 'json' ) );
-        $this->json_name         = $this->value_or_default( $args, 'json_name', $this->name );
-        $this->value_type        = $this->value_or_default( $args, 'value_type', 'any' );
-        $this->default_value     = $this->value_or_default( $args, 'default_value' );
-        $this->description       = $this->value_or_default( $args, 'description', '' );
-        $this->choices           = $this->value_or_default( $args, 'choices' );
-        $this->validations       = $this->value_or_default( $args, 'validations', array() );
+
+        $this->name                = $args['name'];
+        $this->type                = $args['type'];
+        $this->type_definition     = $this->value_or_default( $args, 'type_definition', Mixtape_Type::any() );
+        $this->map_from            = $this->value_or_default( $args, 'map_from' );
+        $this->before_return       = $this->value_or_default( $args, 'before_return' );
+        $this->sanitize            = $this->value_or_default( $args, 'sanitize' );
+        $this->on_serialize        = $this->value_or_default( $args, 'on_serialize' );
+        $this->on_deserialize      = $this->value_or_default( $args, 'on_deserialize' );
+        $this->primary             = $this->value_or_default( $args, 'primary', false );
+        $this->required            = $this->value_or_default( $args, 'required', false );
+        $this->supported_outputs   = $this->value_or_default( $args, 'supported_outputs', array( 'json' ) );
+        $this->data_transfer_name  = $this->value_or_default( $args, 'data_transfer_name', $this->get_name() );
+        $this->default_value       = $this->value_or_default( $args, 'default_value' );
+        $this->description         = $this->value_or_default( $args, 'description', '' );
+        $this->choices             = $this->value_or_default( $args, 'choices', null );
+        $this->validations         = $this->value_or_default( $args, 'validations', array() );
+        $this->before_model_set    = $this->value_or_default( $args, 'before_model_set' );
     }
 
     /**
@@ -86,15 +88,15 @@ class Mixtape_Model_Field_Declaration {
     }
 
     public function is_meta_field() {
-        return $this->type === Mixtape_Model_Field_Types::META;
+        return $this->type === self::META;
     }
 
     public function is_derived_field() {
-        return $this->type === Mixtape_Model_Field_Types::DERIVED;
+        return $this->type === self::DERIVED;
     }
 
     public function is_field() {
-        return $this->type === Mixtape_Model_Field_Types::FIELD;
+        return $this->type === self::FIELD;
     }
 
     public function get_default_value() {
@@ -102,47 +104,11 @@ class Mixtape_Model_Field_Declaration {
             return ( is_array( $this->default_value ) && is_callable( $this->default_value ) ) ? call_user_func( $this->default_value ) : $this->default_value;
         }
 
-        if ( self::INT_VALUE === $this->value_type ) {
-            return 0;
-        }
-
-        if ( self::STRING_VALUE === $this->value_type ) {
-            return '';
-        }
-
-        if ( self::ARRAY_VALUE === $this->value_type ) {
-            return array();
-        }
-
-        if ( self::OBJECT_VALUE === $this->value_type ) {
-            return null;
-        }
-
-        if ( self::BOOLEAN_VALUE === $this->value_type ) {
-            return false;
-        }
-
-        return null;
+        return $this->type_definition->default_value();
     }
 
     public function cast_value( $value ) {
-        if ( self::INT_VALUE === $this->value_type ) {
-            return intval( $value, 10 );
-        }
-
-        if ( self::INT_VALUE === $this->value_type ) {
-            return intval( $value, 10 );
-        }
-
-        if ( self::STRING_VALUE === $this->value_type ) {
-            return (string)$value;
-        }
-
-        if ( self::ARRAY_VALUE === $this->value_type ) {
-            return is_array( $value ) ? $value : (array)$value;
-        }
-
-        return $value;
+        return $this->type_definition->cast( $value );
     }
 
     public function supports_output_type( $type ) {
@@ -150,25 +116,14 @@ class Mixtape_Model_Field_Declaration {
     }
 
     public function as_item_schema_property() {
-        $schema = array(
-            'description' => $this->get_description(),
-            'type'        => $this->get_value_type(),
-            'context'     => array( 'view', 'edit' )
-        );
-        if ( $this->get_value_type() === 'uint' ) {
-            $schema['minimum'] = 0;
-        }
-        if ( null !== $this->get_choices() ) {
-            $schema['oneOf'] = (array)$this->get_choices();
+        $schema = $this->type_definition->schema();
+        $schema['context'] = array( 'view', 'edit' );
+        $schema['description'] = $this->get_description();
+
+        if ( $this->get_choices() ) {
+            $schema['enum'] = (array)$this->get_choices();
         }
         return $schema;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function get_before_output() {
-        return $this->before_output;
     }
 
     /**
@@ -179,7 +134,7 @@ class Mixtape_Model_Field_Declaration {
             return $this->map_from;
         }
 
-        return $this->name;
+        return $this->get_name();
     }
 
     /**
@@ -197,31 +152,24 @@ class Mixtape_Model_Field_Declaration {
     }
 
     /**
-     * @return null
+     * @return bool
      */
     public function is_primary() {
-        return $this->primary;
+        return (bool)$this->primary;
     }
 
     /**
-     * @return null
+     * @return bool
      */
     public function is_required() {
-        return $this->required;
-    }
-
-    /**
-     * @return null
-     */
-    public function get_supported_outputs() {
-        return $this->supported_outputs;
+        return (bool)$this->required;
     }
 
     /**
      * @return string
      */
     public function get_description() {
-        if (isset( $this->description ) && !empty( $this->description ) ) {
+        if ( isset( $this->description ) && !empty( $this->description ) ) {
             return $this->description;
         }
         $name = ucfirst( str_replace('_', ' ', $this->get_name() ) );
@@ -232,7 +180,7 @@ class Mixtape_Model_Field_Declaration {
      * @return string
      */
     public function get_data_transfer_name() {
-        return isset( $this->json_name ) ? $this->json_name : $this->get_name();
+        return isset( $this->data_transfer_name ) ? $this->data_transfer_name : $this->get_name();
     }
 
     /**
@@ -254,7 +202,14 @@ class Mixtape_Model_Field_Declaration {
         return $this->on_deserialize;
     }
 
-    public function suppports_output_type($string) {
-        return in_array( $string, $this->get_supported_outputs() );
+    /**
+     * @return Mixtape_Interfaces_Type
+     */
+    function get_type_definition() {
+        return $this->type_definition;
+    }
+
+    public function before_model_set() {
+        return $this->before_model_set;
     }
 }

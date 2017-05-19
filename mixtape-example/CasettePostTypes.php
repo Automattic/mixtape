@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class CasettePostTypes {
     static function register() {
         register_post_type( 'mixtape_casette',

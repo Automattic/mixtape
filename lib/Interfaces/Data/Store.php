@@ -10,33 +10,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface Mixtape_Interfaces_Data_Store {
 
     /**
+     * @param Mixtape_Interfaces_Model|null $filter possibly a filter model
      * @return Mixtape_Model_Collection
      */
-    public function get_entities();
+    public function get_entities( $filter = null );
 
 
     /**
      * @param int $id the id of the entity
-     * @return Mixtape_Model
+     * @return Mixtape_Interfaces_Model
      */
     public function get_entity( $id );
 
     /**
-     * @param $model Mixtape_Model
+     * @param Mixtape_Interfaces_Model $model
      * @param array $args
      * @return mixed
      */
     public function delete( $model, $args = array() );
 
     /**
-     * @param $model Mixtape_Model
+     * @param Mixtape_Interfaces_Model $model
      * @return mixed
      */
-    public function upsert($model );
-
-    /**
-     * @param Mixtape_Model_Definition $definition
-     * @return Mixtape_Interfaces_Data_Store $this
-     */
-    public function set_definition( $definition );
+    public function upsert( $model );
 }

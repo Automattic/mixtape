@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Mixtape_Data_Serializer {
     private $model_delegate;
 
@@ -8,7 +12,7 @@ class Mixtape_Data_Serializer {
      * @param Mixtape_Model_Definition $model_definition
      */
     function __construct( $model_definition ) {
-        $this->model_delegate = $model_definition->get_delegate();
+        $this->model_delegate = $model_definition->get_model_declaration();
     }
 
     /**
@@ -21,6 +25,12 @@ class Mixtape_Data_Serializer {
         return $deserializer ? $this->model_delegate->call( $deserializer, array( $value ) ) : $value;
     }
 
+    /**
+     * @param  Mixtape_Model_Field_Declaration $field_declaration
+     * @param mixed $value
+     * @return mixed
+     * @throws Mixtape_Exception
+     */
     function serialize( $field_declaration, $value ) {
         $serializer = $field_declaration->get_serializer();
         if ( isset( $serializer ) && !empty( $serializer ) ) {

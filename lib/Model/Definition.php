@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Mixtape_Model_Definition {
 
     /**
@@ -19,26 +23,31 @@ class Mixtape_Model_Definition {
      */
     private $data_store;
     /**
-     * @var Mixtape_Model_Declaration
+     * @var Mixtape_Interfaces_Model_Declaration
      */
-    private $delegate;
+    private $model_declaration;
     /**
-     * @var strings
+     * @var string
      */
     private $name;
-    /**
-     * @var Mixtape_Model_Field_Sanitizer
-     */
-    private $sanitizer;
 
-    function __construct( $environment, $delegate, $data_store ) {
+    /**
+     * Mixtape_Model_Definition constructor.
+     * @param Mixtape_Environment $environment
+     * @param Mixtape_Interfaces_Model_Declaration $model_declaration
+     * @param Mixtape_Interfaces_Data_Store|Mixtape_Data_Store_Builder $data_store
+     */
+    function __construct( $environment, $model_declaration, $data_store ) {
+        Mixtape_Expect::that( $environment !== null      , '$environment cannot be null' );
+        Mixtape_Expect::that( $model_declaration !== null, '$model_declaration cannot be null' );
+        Mixtape_Expect::that( $data_store !== null       , '$data_store cannot be null' );
+
         $this->field_declarations = null;
-        $this->environment = $environment;
-        $this->delegate = $delegate;
-        $this->model_class = get_class( $delegate );
-        $this->sanitizer = new Mixtape_Model_Field_Sanitizer();
+        $this->environment        = $environment;
+        $this->model_declaration  = $model_declaration;
+        $this->model_class        = get_class( $model_declaration );
+        $this->name               = strtolower( $this->model_class );
         $this->set_data_store( $data_store );
-        $this->name = strtolower( $this->model_class );
     }
 
     function get_model_class() {
@@ -49,26 +58,34 @@ class Mixtape_Model_Definition {
         return $this->data_store;
     }
 
+    /**
+     * @param Mixtape_Interfaces_Data_Store|Mixtape_Data_Store_Builder $data_store
+     * @return $this
+     */
     function set_data_store( $data_store ) {
-        $this->data_store = $data_store;
-        $this->data_store->set_definition( $this );
+        if ( is_a( $data_store, 'Mixtape_Data_Store_Builder' ) ) {
+            $this->data_store = $data_store
+                ->with_model_definition( $this )
+                ->build();
+        } else {
+            $this->data_store = $data_store;
+        }
+
         return $this;
     }
 
-    function get_environment() {
+    function environment() {
         return $this->environment;
     }
 
-    public function get_field_declarations( $filter_by_type=null ) {
-        $delegate = $this->get_delegate();
-        $interface = $this->get_environment()->full_class_name( 'Interfaces_Model_Declaration' );
+    function get_field_declarations( $filter_by_type=null ) {
+        $model_declaration = $this->get_model_declaration()->set_definition( $this );
 
-        if ( !is_a( $delegate, $interface ) ) {
-            throw new Mixtape_Exception( $this->get_model_class() . ' is not a subclass of ' . $interface );
-        }
+        Mixtape_Expect::is_a( $model_declaration, 'Mixtape_Interfaces_Model_Declaration' );
 
         if ( null === $this->field_declarations ) {
-            $fields = $delegate->declare_fields( $this );
+            $builder = new Mixtape_Model_Field_Declaration_Collection_Builder( $this->environment() );
+            $fields = $model_declaration->declare_fields( $builder );
 
             $this->field_declarations = $this->initialize_field_map( $fields );
         }
@@ -77,14 +94,14 @@ class Mixtape_Model_Definition {
         }
         $filtered = array();
         foreach ($this->field_declarations as $field_declaration ) {
-            if ( $field_declaration->type === $filter_by_type ) {
+            if ( $field_declaration->get_type() === $filter_by_type ) {
                 $filtered[] = $field_declaration;
             }
         }
         return $filtered;
     }
 
-    public function create_instance( $entity ) {
+    function create_instance( $entity ) {
         if (is_array( $entity ) ) {
             return new Mixtape_Model( $this, $entity );
         }
@@ -98,12 +115,64 @@ class Mixtape_Model_Definition {
      * @return Mixtape_Model
      * @throws Mixtape_Exception
      */
-    public function merge_updates_from_request( $model, $request, $updating = false ) {
+    function merge_updates_from_request( $model, $request, $updating = false ) {
         $request_data = $this->map_request_data( $request, $updating );
         foreach ( $request_data as $name => $value ) {
             $model->set( $name, $value );
         }
-        return $model;
+        return $model->sanitize();
+    }
+
+    public function get_model_declaration() {
+        return $this->model_declaration;
+    }
+
+    /**
+     * @param WP_REST_Request $request
+     * @return Mixtape_Model
+     */
+    public function new_from_request( $request ) {
+        $field_data = $this->map_request_data( $request, false );
+        return $this->create_instance( $field_data )->sanitize();
+    }
+
+    function get_dto_field_mappings() {
+        $mappings = array();
+        foreach ( $this->get_field_declarations() as $field_declaration ) {
+            /** @var Mixtape_Model_Field_Declaration $field_declaration */
+            if ( !$field_declaration->supports_output_type( 'json' ) ) {
+                continue;
+            }
+            $mappings[$field_declaration->get_data_transfer_name()] = $field_declaration->get_name();
+        }
+        return $mappings;
+    }
+
+    function model_to_dto( $model ) {
+        $result = array();
+        foreach ($this->get_dto_field_mappings() as $mapping_name => $field_name ) {
+            $value = $model->get( $field_name );
+            $result[$mapping_name] = $value;
+        }
+
+        return $result;
+    }
+
+    public function find_one_by_id( $id) {
+        $entity = $this->get_data_store()->get_entity( $id );
+        return !empty( $entity ) ? $entity : null;
+    }
+
+    public function get_name() {
+        return $this->name;
+    }
+
+    /**
+     * @param WP_REST_Request $request
+     * @return bool
+     */
+    public function permissions_check( $request, $action ) {
+        return true;
     }
 
     private function map_request_data( $request, $updating = false ) {
@@ -118,69 +187,10 @@ class Mixtape_Model_Definition {
             $field_name = $field->get_name();
             if ( isset( $request[$dto_name] ) && !( $updating && $field->is_primary() ) ) {
                 $value = $request[$dto_name];
-                $custom_sanitization = $field->get_sanitize();
-                if ( ! empty( $custom_sanitization ) ) {
-                    $value = $this->get_delegate()->call( $custom_sanitization, array( $value ) );
-                } else {
-                    $value = $this->sanitizer->sanitize( $field, $value );
-                }
                 $request_data[$field_name] = $value;
             }
         }
         return $request_data;
-    }
-
-    function field( $name = null, $description = null ) {
-        $builder = new Mixtape_Model_Field_DeclarationBuilder();
-        if ( ! empty( $name ) ) {
-            $builder->named( $name );
-        }
-        if ( ! empty( $description ) ) {
-            $builder->with_description( $description );
-        }
-        return $builder;
-    }
-
-    function meta_field( $name = null, $description = null ) {
-        return $this->field( $name, $description )->with_field_type( Mixtape_Model_Field_Types::META );
-    }
-
-    function derived_field( $name = null, $description = null ) {
-        return $this->field( $name, $description )->with_field_type( Mixtape_Model_Field_Types::DERIVED );
-    }
-
-    public function get_delegate() {
-        return $this->delegate;
-    }
-
-    /**
-     * @param WP_REST_Request $request
-     * @return Mixtape_Model
-     */
-    public function new_from_request( $request ) {
-        $field_data = $this->map_request_data( $request, false );
-        return $this->create_instance( $field_data );
-    }
-
-    public function get_dto_field_mappings() {
-        $mappings = array();
-        foreach ( $this->get_field_declarations() as $field_declaration ) {
-            /** @var Mixtape_Model_Field_Declaration $field_declaration */
-            if ( !$field_declaration->suppports_output_type( 'json' ) ) {
-                continue;
-            }
-            $mappings[$field_declaration->get_data_transfer_name()] = $field_declaration->get_name();
-        }
-        return $mappings;
-    }
-
-    public function all() {
-        return $this->get_data_store()->get_entities();
-    }
-
-    public function find_one_by_id( $id) {
-        $entity = $this->get_data_store()->get_entity( $id );
-        return !empty( $entity ) ? $entity : null;
     }
 
     /**
@@ -191,21 +201,10 @@ class Mixtape_Model_Definition {
         $fields = array(
         );
         foreach ( $declared_field_builders as $field_builder ) {
+            /** @var Mixtape_Model_Field_Declaration $field */
             $field = $field_builder->build();
-            $fields[$field->name] = $field;
+            $fields[$field->get_name()] = $field;
         }
         return $fields;
-    }
-
-    public function get_name() {
-        return $this->name;
-    }
-
-    /**
-     * @param WP_REST_Request $request
-     * @return bool
-     */
-    public function permissions_check( $request, $action ) {
-        return true;
     }
 }

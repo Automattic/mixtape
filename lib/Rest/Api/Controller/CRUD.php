@@ -47,7 +47,7 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller_Model
         $item_id = isset( $request['id'] ) ? absint( $request['id'] ) : null;
 
         if (null === $item_id ) {
-            $models = $this->model_definition->all();
+            $models = $this->get_model_data_store()->get_entities();
             $data = $this->prepare_dto( $models );
             return $this->succeed( $data );
         }

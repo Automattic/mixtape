@@ -6,16 +6,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Mixtape_Data_Store_Option extends Mixtape_Data_Store_Abstract implements Mixtape_Interfaces_Data_Store {
     /**
-     * @var stdClass a guard value
+     * @var stdClass a guard value to distinguish between get_option returning results or not
      */
     private $does_not_exist_guard;
 
-    /**
-     * @return Mixtape_Model_Collection|Mixtape_Model
-     */
-    public function get_entities() {
+    function __construct( $definition, $data_provider = null ) {
+        parent::__construct( $definition );
         $this->does_not_exist_guard = new stdClass();
-        // there is only one option bag and one optionbag global per data store
+    }
+
+    public function get_entities( $filter = null ) {
+        // there is only one option bag and one option bag global per data store
         return $this->get_entity( '' );
     }
 
@@ -24,7 +25,6 @@ class Mixtape_Data_Store_Option extends Mixtape_Data_Store_Abstract implements M
      * @return Mixtape_Model
      */
     public function get_entity( $id ) {
-        // TODO: Implement get_entity() method.
         $field_declarations = $this->get_definition()->get_field_declarations();
         $raw_data = array();
         foreach ($field_declarations as $field_declaration) {
@@ -41,17 +41,7 @@ class Mixtape_Data_Store_Option extends Mixtape_Data_Store_Abstract implements M
     }
 
     /**
-     * @param $entity Mixtape_Model
-     * @param $field_declaration Mixtape_Model_Field_Declaration
-     * @return mixed
-     */
-    public function get_meta_field_value( $model, $field_declaration ) {
-        // no metafields
-        return '';
-    }
-
-    /**
-     * @param $model Mixtape_Model
+     * @param Mixtape_Interfaces_Model $model
      * @param array $args
      * @return mixed
      */
@@ -66,7 +56,7 @@ class Mixtape_Data_Store_Option extends Mixtape_Data_Store_Abstract implements M
     }
 
     /**
-     * @param $model Mixtape_Model
+     * @param Mixtape_Interfaces_Model $model 
      * @return mixed
      */
     public function upsert( $model ) {
