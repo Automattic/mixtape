@@ -2,7 +2,9 @@
 /**
  * Model Declarations
  *
- * The preferred way to customise the Behaviour of a model is to provide it
+ * Extending Models: the Declaration
+ *
+ * The preferred way to customise the Behaviour of a Model is to provide it
  * With a class that Implements this Interface.
  *
  * @package Mixtape

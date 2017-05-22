@@ -2,6 +2,8 @@
 /**
  * Environment
  *
+ * Contains rest bundle, type and model definitions
+ *
  * @package Mixtape
  */
 

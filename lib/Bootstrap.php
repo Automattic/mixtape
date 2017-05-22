@@ -2,6 +2,9 @@
 /**
  * Bootstrap
  *
+ * Loads classes and creates an Environment subclass instance from
+ * the specified lib location, with the specified prefix
+ *
  * @package Mixtape
  */
 
