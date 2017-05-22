@@ -153,14 +153,14 @@ function wp_mkdir_p( $target ) {
     return false;
 }
 
-if ( ! class_exists( 'Mixtape_Bootstrap' ) ) {
-    include_once($lib_dir . DIRECTORY_SEPARATOR . 'lib/Bootstrap.php');
+if ( ! class_exists('MT_Bootstrap') ) {
+    include_once($lib_dir . DIRECTORY_SEPARATOR . 'lib/class-mt-bootstrap.php');
 }
 
-include_once ( $lib_dir . DIRECTORY_SEPARATOR . 'lib/Interfaces/Class/Loader.php' );
-include_once ( $lib_dir . DIRECTORY_SEPARATOR . 'lib/Class/Loader.php' );
+include_once ( $lib_dir . DIRECTORY_SEPARATOR . 'lib/interfaces/class-mt-interfaces-classloader.php' );
+include_once ( $lib_dir . DIRECTORY_SEPARATOR . 'lib/class-mt-classloader.php' );
 
-class Mixtape_Class_Loader_PrefixGenerator implements Mixtape_Interfaces_Class_Loader {
+class MT_Classloader_PrefixGenerator implements MT_Interfaces_Classloader {
     /**
      * @var bool should we autoload? Defaults to true
      */
@@ -180,10 +180,10 @@ class Mixtape_Class_Loader_PrefixGenerator implements Mixtape_Interfaces_Class_L
     /**
      * @var string the default prefix
      */
-    private $default_prefix = 'Mixtape';
+    private $default_prefix = 'MT';
     private $prefix_dir;
     /**
-     * @var Mixtape_Class_Loader
+     * @var MT_Classloader
      */
     private $class_loader;
     private $is_debugging;
@@ -203,7 +203,7 @@ class Mixtape_Class_Loader_PrefixGenerator implements Mixtape_Interfaces_Class_L
         if ( ! is_dir( $this->prefix_dir ) ) {
             wp_mkdir_p( $this->prefix_dir );
         }
-        $this->class_loader    = new Mixtape_Class_Loader( $this->prefix, $this->prefix_dir );
+        $this->class_loader    = new MT_Classloader( $this->prefix, $this->prefix_dir );
     }
 
     private function get_default_lib_dir() {
@@ -233,6 +233,7 @@ class Mixtape_Class_Loader_PrefixGenerator implements Mixtape_Interfaces_Class_L
                 throw new Exception( 'Template path does not exist: ' . $template_path );
             }
             $content = str_replace( $this->default_prefix, $this->prefix, file_get_contents( $template_path ) );
+            $content = str_replace( 'class-mt-', 'class-' . strtolower( str_replace( '_', '-', $this->prefix ) ) . '-', $content );
             echo "Copying \n    - $template_path to\n    - $path " . PHP_EOL;
             @file_put_contents( $path, $content );
         }
@@ -249,24 +250,24 @@ class Mixtape_Class_Loader_PrefixGenerator implements Mixtape_Interfaces_Class_L
     }
 
     private function get_default_prefix_class_path( $name ) {
-        return path_join( $this->lib_dir, $this->class_loader->class_name_to_relative_path( $name ) );
+        return path_join( $this->lib_dir, $this->class_loader->class_name_to_relative_path( $name, $this->default_prefix ) );
     }
 }
 
-$class_loader = new Mixtape_Class_Loader_PrefixGenerator(array(
+$class_loader = new MT_Classloader_PrefixGenerator(array(
     'prefix' => $prefix,
     'base_dir' => $lib_dir,
     'prefix_dir' => $destination_dir,
     'is_debugging' => false,
 ));
 
-$mixtape = Mixtape_Bootstrap::create( $class_loader );
+$mixtape = MT_Bootstrap::create( $class_loader );
 
 echo 'Generating Prefixed Mixtape';
 
 $mixtape->class_loader()
-    ->load_class( 'Interfaces_Class_Loader' )
-    ->load_class( 'Class_Loader' )
+    ->load_class( 'Interfaces_Classloader' )
+    ->load_class( 'Classloader' )
     ->load_class( 'Bootstrap' );
 $mixtape->load();
 

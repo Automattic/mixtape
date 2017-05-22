@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class DoingItWrongDeclaration extends Mixtape_Model_Declaration {
+class DoingItWrongDeclaration extends MT_Model_Declaration {
 }
 
 class CasetteAdminSettings {
@@ -45,9 +45,9 @@ class CasetteAdminSettings {
     }
 }
 
-class CasetteSettings extends Mixtape_Model_Declaration_Settings {
-    function dto_name_for_field( $field_data ) {
-        return str_replace( 'mixtape_casette_', '', $field_data['name'] );
+class CasetteSettings extends MT_Model_Declaration_Settings {
+    function on_field_setup( $field_name, $field_builder, $field_data, $def  ) {
+        $field_builder->dto_name( str_replace( 'mixtape_casette_', '', $field_data['name'] ) );
     }
 
     function get_settings() {
@@ -55,8 +55,8 @@ class CasetteSettings extends Mixtape_Model_Declaration_Settings {
     }
 }
 
-class Casette extends Mixtape_Model_Declaration
-    implements Mixtape_Interfaces_Rest_Api_Permissions_Provider {
+class Casette extends MT_Model_Declaration
+    implements MT_Interfaces_Permissions_Provider {
     public function declare_fields( $d ) {
             return array(
                 $d->field( 'id' )
@@ -150,7 +150,7 @@ class Casette extends Mixtape_Model_Declaration
     }
 }
 
-class Song extends Mixtape_Model_Declaration {
+class Song extends MT_Model_Declaration {
     public function declare_fields($d ) {
         return array(
             $d->field()
@@ -177,7 +177,7 @@ class Song extends Mixtape_Model_Declaration {
     }
 }
 
-class CasetteApiEndpointVersion extends Mixtape_Rest_Api_Controller {
+class CasetteApiEndpointVersion extends MT_Controller {
     /**
      * @var string the endpoint base
      */
@@ -203,7 +203,7 @@ class CasetteApiEndpointVersion extends Mixtape_Rest_Api_Controller {
     }
 }
 
-class CasetteApiBundleV1 extends Mixtape_Rest_Api_Controller_Bundle {
+class CasetteApiBundleV1 extends MT_Controller_Bundle {
     protected $bundle_prefix = 'mixtape-example/v1';
 
     /**

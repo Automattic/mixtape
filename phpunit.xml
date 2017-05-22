@@ -17,8 +17,9 @@
     </php>
     <testsuites>
         <testsuite name="Mixtape Test Suite">
-            <directory suffix=".php">./tests/</directory>
+            <directory suffix="-test.php">./tests/</directory>
             <exclude>./tests/unit-testing-classes</exclude>
+            <exclude>./tests/bin</exclude>
         </testsuite>
     </testsuites>
     <filter>

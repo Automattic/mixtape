@@ -4,17 +4,16 @@
     <!-- See https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/blob/develop/WordPress-Core/ruleset.xml -->
 
     <!-- Set a description for this ruleset. -->
-    <description>A custom set of code standard rules to check for WordPress themes and plugins.</description>
+    <description>Mixtape Ruleset</description>
 
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/tests/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <config name="testVersion" value="5.2-7.0"/>
     <arg name="report" value="full"/>
-    <!-- For showing the sniff that failed. -->
+    <!-- For showing the classname of the sniff that failed. -->
     <arg value="s"/>
 
-    <!-- Include the WordPress ruleset, with exclusions. -->
     <rule ref="PHPCompatibility">
         <exclude name="PHPCompatibility.PHP.DefaultTimezoneRequired" />
         <exclude name="PHPCompatibility.PHP.NewFunctionParameters"/>
@@ -22,7 +21,5 @@
 
     <rule ref="WordPress">
         <exclude name="WordPress.VIP" />
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
     </rule>
 </ruleset>

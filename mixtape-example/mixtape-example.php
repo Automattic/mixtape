@@ -25,7 +25,7 @@ function run_plugin() {
         $mixtape_path = dirname( $base_path );
         $generated_path = path_join( $base_path, 'inc' );
         include_once ( path_join( $mixtape_path, 'loader.php' ) );
-        $mixtape = Mixtape_Bootstrap::create()->load(); //load it before defining our classes
+        $mixtape = MT_Bootstrap::create()->load(); //load it before defining our classes
         include_once ( path_join( $base_path, 'Casette.php' ) );
 
         $env = $mixtape->environment();

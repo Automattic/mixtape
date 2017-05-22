@@ -14,7 +14,7 @@ from watchdog.events import PatternMatchingEventHandler
 
 
 base_dir = realpath(dirname(dirname(dirname(__file__))))
-tests_dir = join(base_dir, 'tests', 'unit', 'Mixtape')
+tests_dir = join(base_dir, 'tests', 'unit', 'mixtape')
 lib_dir = join(base_dir, 'lib')
 phpcs_bin = join(base_dir, 'vendor', 'bin', 'phpcs')
 phpunit_bin = join(base_dir, 'vendor', 'bin', 'phpunit')
@@ -25,7 +25,7 @@ logger = logging.getLogger('PHPUnitEventHandler')
 def test_file(class_file):
     'Get conventional phpunit test file name of a class file'
     common_part = class_file.split('lib/')[-1]
-    return join(tests_dir, common_part).replace('.php', 'Test.php')
+    return join(tests_dir, common_part).replace('.php', '-test.php')
 
 
 def on_created_or_modified(event):

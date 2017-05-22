@@ -33,7 +33,7 @@ class Mixtape_Unit_Tests_Bootstrap {
     }
 
     public function load_mixtape() {
-        require_once( $this->mixtape_dir . '/lib/Bootstrap.php' );
+        require_once( $this->mixtape_dir . '/lib/class-mt-bootstrap.php' );
     }
 
     public function install_mixtape() {
@@ -49,7 +49,7 @@ class Mixtape_Unit_Tests_Bootstrap {
     }
 
     public function includes() {
-        Mixtape_Bootstrap::create()->load()->load_testing_classes();
+        MT_Bootstrap::create()->load()->load_testing_classes();
         include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
     }
 
