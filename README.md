@@ -1,8 +1,6 @@
 # Mixtape
 
 Model, Data Store, Data Transfer Object and REST API Controller Library for WordPress
-It can be used peacemeal, use as much as you need.
-
 
 ## Mixtape
 
@@ -21,13 +19,10 @@ Controllers
 ### Mixtape loves
 
 - FluentInterface https://martinfowler.com/bliki/FluentInterface.html
-- Delegation, Composition
-- Interfaces
-- Tests (A side effect of dependency injection, objects can be swapped/stubbed/mocked)
+- Delegation, Composition, DI, SOLID.
+- Testability (A side effect of dependency injection, objects can be swapped/stubbed/mocked)
+- Generates prefixed classes of the library to avoid plugin conflicts (remixing)
 
-Hates
-
-- Conflicts (? Optional Wrapper that creates a uniquely prefixed class hierarchy per plugin)
 
 Mixtape_Bootstrap
   Mixtape_Class_Loader
@@ -52,4 +47,10 @@ Thie above will rename all mixtape classes: e.g. `Mixtape_Bootstrap -> Custom_Pr
 Mixtape has a PHPUnit test suite. It can be setup like this (look into the script for possible options you can override such as db pass)
 
     ./tests/bin/install.sh
-    phpunit
+    ./vendor/bin/phpunit
+
+You can also start a watcher script for fast TDD cycles
+
+   ./tests/bin/watch.py
+
+You will need Python 3 and pip (for installing dependencies).
