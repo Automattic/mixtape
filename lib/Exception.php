@@ -1,7 +1,12 @@
 <?php
+/**
+ * Mixtape_Exception
+ *
+ * @package Mixtape
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 /**

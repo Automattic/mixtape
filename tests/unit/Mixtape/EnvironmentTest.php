@@ -39,14 +39,6 @@ class Mixtape_EnvironmentTest extends Mixtape_Testing_TestCase {
         $this->bootstrap->environment()->start();
     }
 
-    /**
-     * @covers Mixtape_Environment::full_class_name
-     */
-    function test_full_class_name() {
-        $class_name = $this->bootstrap->environment()->full_class_name('Environment');
-        $this->assertEquals( 'Mixtape_Environment', $class_name );
-    }
-
     function test_endpoint_returns_builder() {
         $b = $this->bootstrap->environment()->define()->rest_api('zzz')->endpoint();
         $this->assertInstanceOf( 'Mixtape_Rest_Api_Controller_Builder', $b );

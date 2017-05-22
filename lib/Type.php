@@ -1,39 +1,90 @@
 <?php
+/**
+ * The default Mixtape_Interfaces_Type Implementation
+ *
+ * @package Mixtape/Types
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
+/**
+ * Class Mixtape_Type
+ */
 class Mixtape_Type implements Mixtape_Interfaces_Type {
-    protected $identifier;
+	/**
+	 * The unique identifier of this type.
+	 *
+	 * @var string
+	 */
+	protected $identifier;
+	/**
+	 * Mixtape_Type constructor.
+	 *
+	 * @param string $identifier The identifier.
+	 */
+	function __construct( $identifier ) {
+		$this->identifier = $identifier;
+	}
 
-    function __construct( $identifier ) {
-        $this->identifier = $identifier;
-    }
+	/**
+	 * The name
+	 *
+	 * @return string
+	 */
+	function name() {
+		return $this->identifier;
+	}
 
-    function name() {
-        return $this->identifier;
-    }
+	/**
+	 * The default value
+	 *
+	 * @return null
+	 */
+	function default_value() {
+		return null;
+	}
 
-    function default_value() {
-        return null;
-    }
+	/**
+	 * Cast value to be Type
+	 *
+	 * @param mixed $value The value that needs casting.
+	 *
+	 * @return mixed
+	 */
+	function cast( $value ) {
+		return $value;
+	}
 
-    function cast( $value ) {
-        return $value;
-    }
+	/**
+	 * Sanitize this value
+	 *
+	 * @param mixed $value The value to sanitize.
+	 *
+	 * @return mixed
+	 */
+	function sanitize( $value ) {
+		return $value;
+	}
 
-    function sanitize($value) {
-        return $value;
-    }
+	/**
+	 * Get this type's JSON Schema.
+	 *
+	 * @return array
+	 */
+	function schema() {
+		return array(
+			'type' => $this->name(),
+		);
+	}
 
-    function schema() {
-        return array(
-            'type' => $this->name()
-        );
-    }
-
-    static function any() {
-        return new self( 'any' );
-    }
+	/**
+	 * Get our "Any" type
+	 *
+	 * @return Mixtape_Type
+	 */
+	static function any() {
+		return new self( 'any' );
+	}
 }
