@@ -6,10 +6,14 @@ DB_NAME=${DB_NAME-'mixtape_test'}
 DB_USER=${DB_USER-'root'}
 DB_PASS=${DB_PASS-''}
 DB_HOST=${DB_HOST-'localhost'}
-WP_VERSION=${WP_VERSION-4.7.4}
 
+WP_VERSION=${WP_VERSION-4.7.4}
 WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
+
+COMPOSER_SCRIPT=${COMPOSER_SCRIPT-'composer'}
+
+THISDIR=`pwd`
 
 if [[ $WP_VERSION =~ [0-9]+\.[0-9]+(\.[0-9]+)? ]]; then
 	WP_TESTS_TAG="tags/$WP_VERSION"
@@ -81,12 +85,29 @@ install_db() {
 
 	if ! mysql -u$DB_USER -p$DB_PASS $DB_NAME -e 'SELECT 1' 2>&1 > /dev/null; then
 	    # create database
+			echo 'Creating Database'
     	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
 	fi
+}
 
-    echo 'Database Created';
+install_wp_phpcs() {
+	thisdir=`pwd`
+	sniff_dir=$thisdir/tests/bin/codesniffer_rules
+	echo $sniff_dir
+	if [ ! -d $sniff_dir ]; then
+    echo "Cloning Sniffing Rules"
+		git clone -b master https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git $sniff_dir
+		git clone -b master https://github.com/wimg/PHPCompatibility $sniff_dir/PHPCompatibility
+	fi
+	php "$THISDIR/vendor/bin/phpcs" --config-set installed_paths $sniff_dir
+}
+
+composer_install() {
+    cd $THISDIR && $COMPOSER_SCRIPT install
 }
 
 install_wp
 install_test_suite
 install_db
+composer_install
+install_wp_phpcs

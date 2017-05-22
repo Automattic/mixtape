@@ -146,3 +146,5 @@ Temporary Items
 
 generated/*
 !generated/.gitkeep
+/vendor/
+tests/bin/codesniffer_rules

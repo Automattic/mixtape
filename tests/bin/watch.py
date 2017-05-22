@@ -14,25 +14,37 @@ from watchdog.events import PatternMatchingEventHandler
 
 
 base_dir = realpath(dirname(dirname(dirname(__file__))))
-
 tests_dir = join(base_dir, 'tests', 'unit', 'Mixtape')
-
 lib_dir = join(base_dir, 'lib')
+phpcs_bin = join(base_dir, 'vendor', 'bin', 'phpcs')
+phpunit_bin = join(base_dir, 'vendor', 'bin', 'phpunit')
+
 
 logger = logging.getLogger('PHPUnitEventHandler')
 
+def test_file(class_file):
+    'Get conventional phpunit test file name of a class file'
+    common_part = class_file.split('lib/')[-1]
+    return join(tests_dir, common_part).replace('.php', 'Test.php')
+
+
 def on_created_or_modified(event):
-    '''Runs any PHPUnit tests for this modified file.'''
+    '''Runs any PHPCodeSniffer and PHPUnit tests for this modified file.'''
     if not event.is_directory:
         file_path = event.src_path
         logger.info('Changed or Modified: %s' % file_path)
+        logger.info('Running PHPCodeSniffer')
+        res = subprocess.run([phpcs_bin, file_path])
+        if res.returncode > 0:
+            logger.info('Now go and fix those PHPCodeSniffer Errors')
+            return
+
         if 'lib' in file_path:
-            common_part = file_path.split('lib/')[-1]
-            file_path = join(tests_dir, common_part).replace('.php', 'Test.php')
-            logger.info('Test file: %s' % file_path)
+            file_path = test_file(file_path)
+
         if exists(file_path):
-            logger.info('Running PHPUnit')
-            subprocess.run(['phpunit', file_path])
+            logger.info('Running PHPUnit for test file: %s' % file_path)
+            subprocess.run([phpunit_bin, file_path])
         else:
             logger.info('No PHPUnit tests found for %s' % file_path)
 
