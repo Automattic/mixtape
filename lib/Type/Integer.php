@@ -1,30 +1,30 @@
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 class Mixtape_Type_Integer extends Mixtape_Type {
 
-    private $unsigned;
+	private $unsigned;
 
-    public function __construct( $unsigned = false ) {
-        $this->unsigned = $unsigned;
-        parent::__construct( 'integer' );
-    }
+	public function __construct( $unsigned = false ) {
+		$this->unsigned = $unsigned;
+		parent::__construct( 'integer' );
+	}
 
-    public function default_value() {
-        return 0;
-    }
+	public function default_value() {
+		return 0;
+	}
 
-    public function cast( $value ) {
-        if ( ! is_numeric( $value ) ) {
-            return $this->default_value();
-        }
-        return $this->unsigned ? absint( $value ) : intval( $value, 10 );
-    }
+	public function cast( $value ) {
+		if ( ! is_numeric( $value ) ) {
+			return $this->default_value();
+		}
+		return $this->unsigned ? absint( $value ) : intval( $value, 10 );
+	}
 
-    function sanitize( $value ) {
-        return $this->cast( $value );
-    }
+	function sanitize( $value ) {
+		return $this->cast( $value );
+	}
 }

@@ -1,20 +1,45 @@
 <?php
+/**
+ * Controller Bundle
+ *
+ * A collection of Mixtape_Rest_Api_Controller, sharing a common prefix.
+ *
+ * @package Mixtape/REST
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-} // Exit if accessed directly
+	exit;
+}
 
 /**
  * Interface Mixtape_Interfaces_Rest_Api_Controller_Bundle
- * Represents a collection of Mixtape_Rest_Api_Controller instances, sharing a common prefix
- * @package rest-api
  */
 interface Mixtape_Interfaces_Rest_Api_Controller_Bundle {
-    public function start();
+	/**
+	 * Start This
+	 *
+	 * @return mixed
+	 */
+	public function start();
 
-    public function register();
+	/**
+	 * Register REST Routes
+	 *
+	 * @return mixed
+	 */
+	public function register();
 
-    public function get_endpoints();
+	/**
+	 * Get all the Endpoints
+	 *
+	 * @return mixed
+	 */
+	public function get_endpoints();
 
-    public function get_bundle_prefix();
+	/**
+	 * Get the Prefix
+	 *
+	 * @return string
+	 */
+	public function get_bundle_prefix();
 }

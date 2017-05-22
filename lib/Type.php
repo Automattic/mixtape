@@ -2,7 +2,7 @@
 /**
  * The default Mixtape_Interfaces_Type Implementation
  *
- * @package Mixtape/Types
+ * @package Mixtape/Type
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

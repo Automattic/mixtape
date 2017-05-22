@@ -3,11 +3,12 @@
  * Mixtape_Expect
  *
  * Asserts about invariants
+ *
  * @package Mixtape
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 /**
