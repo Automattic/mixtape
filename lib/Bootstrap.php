@@ -42,7 +42,7 @@ class Mixtape_Bootstrap {
     }
 
     /**
-     * Instead of calling load() you can
+     * Optional: Instead of calling load() you can
      * register as an auto-loader
      * @return Mixtape_Bootstrap $this
      */
@@ -54,7 +54,7 @@ class Mixtape_Bootstrap {
     }
 
     /**
-     * Load all classes
+     * Loads all classes
      * @return Mixtape_Bootstrap $this
      * @throws Exception
      */

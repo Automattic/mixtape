@@ -18,6 +18,6 @@ class Mixtape_BootstrapTest extends Mixtape_Testing_TestCase {
     function test_load_loads_classes() {
         $this->mixtape = Mixtape_Bootstrap::create()->load();
         $this->assertClassExists( 'Mixtape_Environment' );
-        ////
+        //////
     }
 }
