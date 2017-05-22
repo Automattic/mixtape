@@ -24,7 +24,18 @@ class Mixtape_Expect {
 	 * @throws Mixtape_Exception Fail if we got an unexpected class.
 	 */
 	static function is_a( $thing, $class_name ) {
+		self::is_object( $thing );
 		self::that( is_a( $thing, $class_name ), 'Expected ' . $class_name . ', got ' . get_class( $thing ) );
+	}
+
+	/**
+	 * Expect that thing is an object
+	 *
+	 * @param mixed $thing The thing.
+	 * @throws Mixtape_Exception Throw if not an object.
+	 */
+	static function is_object( $thing ) {
+		self::that( is_object( $thing ), (string) $thing . ' is not an Object' );
 	}
 
 	/**
