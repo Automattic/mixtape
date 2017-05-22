@@ -52,7 +52,7 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller_Model
 			return $this->succeed( $data );
 		}
 
-		$model = $this->model_definition->find_one_by_id( $item_id );
+		$model = $this->model_definition->get_data_store()->get_entity( $item_id );
 		if ( empty( $model ) ) {
 			return $this->not_found( __( 'Model not found' ) );
 		}
@@ -93,7 +93,7 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller_Model
 		if ( $is_update ) {
 			$id = isset( $request['id'] ) ? absint( $request['id'] ) : null;
 			if ( ! empty( $id ) ) {
-				$model_to_update = $this->model_definition->find_one_by_id( $id );
+				$model_to_update = $this->model_definition->get_data_store()->get_entity( $id );
 				if ( empty( $model_to_update ) ) {
 					return $this->not_found( 'Model does not exist' );
 				}
@@ -134,7 +134,7 @@ class Mixtape_Rest_Api_Controller_CRUD extends Mixtape_Rest_Api_Controller_Model
 		if ( empty( $id ) ) {
 			return $this->fail_with( 'No Model ID provided' );
 		}
-		$model = $this->model_definition->find_one_by_id( $id );
+		$model = $this->model_definition->get_data_store()->get_entity( $id );
 		if ( null === $model ) {
 			return $this->not_found( 'Model does not exist' );
 		}

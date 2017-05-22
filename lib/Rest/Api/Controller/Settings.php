@@ -21,7 +21,7 @@ class Mixtape_Rest_Api_Controller_Settings extends Mixtape_Rest_Api_Controller_M
 	}
 
 	public function get_items( $request ) {
-		$model = $this->model_definition->find_one_by_id( null );
+		$model = $this->model_definition->get_data_store()->get_entity( null );
 		if ( empty( $model ) ) {
 			return $this->not_found( __( 'Settings not found' ) );
 		}
@@ -44,7 +44,7 @@ class Mixtape_Rest_Api_Controller_Settings extends Mixtape_Rest_Api_Controller_M
 	 */
 	protected function create_or_update( $request ) {
 		$is_update = $request->get_method() !== 'POST';
-		$model_to_update = $this->model_definition->find_one_by_id( null );
+		$model_to_update = $this->model_definition->get_data_store()->get_entity( null );
 		if ( empty( $model_to_update ) ) {
 			return $this->not_found( 'Model does not exist' );
 		}
@@ -72,18 +72,5 @@ class Mixtape_Rest_Api_Controller_Settings extends Mixtape_Rest_Api_Controller_M
 		) );
 
 		return $is_update ? $this->succeed( $dto ) : $this->created( $dto );
-	}
-
-	public function delete_item( $request ) {
-		$id = isset( $request['id'] ) ? absint( $request['id'] ) : null;
-		if ( empty( $id ) ) {
-			return $this->fail_with( 'No Model ID provided' );
-		}
-		$model = $this->model_definition->find_one_by_id( $id );
-		if ( null === $model ) {
-			return $this->not_found( 'Model does not exist' );
-		}
-		$result = $this->model_data_store->delete( $model );
-		return $this->succeed( $result );
 	}
 }

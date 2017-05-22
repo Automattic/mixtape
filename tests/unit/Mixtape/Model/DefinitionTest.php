@@ -49,7 +49,7 @@ class Mixtape_Model_DefinitionTest extends Mixtape_Testing_Model_TestCase {
             ->environment();
         $casette_definition = $this->get_casette_definition();
 
-        $model = $casette_definition->find_one_by_id( -1 );
+        $model = $casette_definition->get_data_store()->get_entity( -1 );
         $this->assertNull( $model );
     }
 
@@ -70,7 +70,7 @@ class Mixtape_Model_DefinitionTest extends Mixtape_Testing_Model_TestCase {
             var_dump($id);
         }
         $this->assertFalse( is_wp_error( $id ) );
-        $model = $casette_definition->find_one_by_id( $id );
+        $model = $casette_definition->get_data_store()->get_entity( $id );
         $this->assertNotNull( $model );
         $this->assertInstanceOf( Mixtape_Model::class, $model );
         $model_id = $model->get( 'id' );

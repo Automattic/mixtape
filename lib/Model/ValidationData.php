@@ -1,19 +1,33 @@
 <?php
+/**
+ * Validation Data
+ *
+ * @package Mixtape
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Class Mixtape_Model_ValidationData
+ */
 class Mixtape_Model_ValidationData {
 	/**
+	 * The value
+	 *
 	 * @var mixed
 	 */
 	private $value;
 	/**
+	 * The model
+	 *
 	 * @var Mixtape_Interfaces_Model
 	 */
 	private $model;
 	/**
+	 * The field
+	 *
 	 * @var Mixtape_Model_Field_Declaration
 	 */
 	private $field;
@@ -21,9 +35,9 @@ class Mixtape_Model_ValidationData {
 	/**
 	 * Mixtape_Model_ValidationData constructor.
 	 *
-	 * @param mixed                           $value
-	 * @param Mixtape_Interfaces_Model        $model
-	 * @param Mixtape_Model_Field_Declaration $field
+	 * @param mixed                           $value The value.
+	 * @param Mixtape_Interfaces_Model        $model The Model.
+	 * @param Mixtape_Model_Field_Declaration $field The Field.
 	 */
 	public function __construct( $value, $model, $field ) {
 		$this->value = $value;
@@ -33,6 +47,8 @@ class Mixtape_Model_ValidationData {
 
 
 	/**
+	 * Get Value
+	 *
 	 * @return mixed $this->value the value that needs validation
 	 */
 	public function get_value() {
@@ -40,6 +56,8 @@ class Mixtape_Model_ValidationData {
 	}
 
 	/**
+	 * Get Model
+	 *
 	 * @return Mixtape_Interfaces_Model
 	 */
 	public function get_model() {
@@ -47,6 +65,8 @@ class Mixtape_Model_ValidationData {
 	}
 
 	/**
+	 * Get Field
+	 *
 	 * @return Mixtape_Model_Field_Declaration
 	 */
 	public function get_field() {

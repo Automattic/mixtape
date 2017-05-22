@@ -19,10 +19,6 @@ class Mixtape_Model_Declaration_Settings extends Mixtape_Model_Declaration
 		Mixtape_Expect::that( false, 'Override this' );
 	}
 
-	protected function dto_name_for_field( $field_data ) {
-		return $field_data['name'];
-	}
-
 	protected function default_for_attribute( $field_data, $attribute ) {
 		return null;
 	}
@@ -79,7 +75,6 @@ class Mixtape_Model_Declaration_Settings extends Mixtape_Model_Declaration
 	private function field_declaration_builder_from_data( $def, $field_data ) {
 		$field_name = $field_data['name'];
 		$field_builder = $def->field( $field_name );
-		$field_dto_name = $this->dto_name_for_field( $field_data );
 		$default_value = isset( $field_data['std'] ) ? $field_data['std'] : $this->default_for_attribute( $field_data, 'std' );
 		$label = isset( $field_data['label'] ) ? $field_data['label'] : $field_name;
 		$description = isset( $field_data['desc'] ) ? $field_data['desc'] : $label;
@@ -90,7 +85,7 @@ class Mixtape_Model_Declaration_Settings extends Mixtape_Model_Declaration
 		if ( 'checkbox' === $setting_type ) {
 			$field_type = 'boolean';
 			if ( $default_value ) {
-				// convert our default value as well
+				// convert our default value as well.
 				$default_value = $this->bit_to_bool( $default_value );
 			}
 			$field_builder
@@ -100,7 +95,7 @@ class Mixtape_Model_Declaration_Settings extends Mixtape_Model_Declaration
 		} elseif ( 'select' === $setting_type ) {
 			$field_type = 'string';
 		} else {
-			// try to guess numeric fields, although this is not perfect
+			// try to guess numeric fields, although this is not perfect.
 			if ( is_numeric( $default_value ) ) {
 				$field_type = is_float( $default_value ) ? 'float' : 'integer';
 			}
@@ -111,7 +106,7 @@ class Mixtape_Model_Declaration_Settings extends Mixtape_Model_Declaration
 		}
 		$field_builder
 			->description( $description )
-			->dto_name( $field_dto_name )
+			->dto_name( $field_name )
 			->typed( $def->type( $field_type ) );
 		if ( $choices ) {
 			$field_builder->choices( $choices );
