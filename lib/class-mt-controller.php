@@ -139,9 +139,10 @@ class MT_Controller extends WP_REST_Controller {
 	 * @return mixed|WP_REST_Response
 	 */
 	private function respond( $data, $status ) {
-		if ( is_array( $data ) ) {
-			$data = new WP_REST_Response( $data, $status );
+		if ( is_a( $data, 'WP_REST_Response' ) ) {
+			return $data;
 		}
-		return rest_ensure_response( $data );
+
+		return new WP_REST_Response( $data, $status );
 	}
 }

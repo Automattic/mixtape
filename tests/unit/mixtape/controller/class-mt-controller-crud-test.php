@@ -17,11 +17,10 @@ class MT_Controller_CRUDTest extends MT_Testing_Controller_TestCase {
 
     function test_get_items_return_all_items() {
         $this->add_casette_rest_api_endpoint();
-        $request = new WP_REST_Request( 'GET', '/casette-crud-test/v1/casettes' );
-        $response = $this->rest_server->dispatch( $request );
+        $response = $this->get( '/casette-crud-test/v1/casettes' );
 
         $this->assertNotNull( $response );
-        $this->assert_http_response_status_success( $response );
+        $this->assertResponseStatus( $response, 200 );
         $data = $response->get_data();
         $this->assertEquals( 2, count( $data ) );
         $this->assertEquals( 1, $data[0]['id'] );
@@ -37,20 +36,18 @@ class MT_Controller_CRUDTest extends MT_Testing_Controller_TestCase {
             ->method('get_entity')
             ->willReturn( null );
         $this->add_casette_rest_api_endpoint( $failing_mock_data_store );
-        $request = new WP_REST_Request( 'GET', '/casette-crud-test/v1/casettes/1' );
-        $response = $this->rest_server->dispatch( $request );
+        $response = $this->get( '/casette-crud-test/v1/casettes/1' );
 
         $this->assertNotNull( $response );
-        $this->assert_http_response_status_not_found( $response );
+        $this->assertResponseStatus( $response, 404 );
     }
 
     function test_get_item_return_item() {
         $this->add_casette_rest_api_endpoint();
-        $request = new WP_REST_Request( 'GET', '/casette-crud-test/v1/casettes/1' );
-        $response = $this->rest_server->dispatch( $request );
+        $response = $this->get( '/casette-crud-test/v1/casettes/1' );
 
         $this->assertNotNull( $response );
-        $this->assert_http_response_status_success( $response );
+        $this->assertResponseStatus( $response, 200 );
         $data = $response->get_data();
         $this->assertTrue( isset($data['id'] ) );
         $this->assertEquals( 1, $data['id'] );
@@ -58,18 +55,31 @@ class MT_Controller_CRUDTest extends MT_Testing_Controller_TestCase {
 
     function test_create_item_succeeds_when_data_store_returns_id() {
         $this->add_casette_rest_api_endpoint();
-        $request = new WP_REST_Request( 'POST', '/casette-crud-test/v1/casettes' );
-        $request->set_param( 'title', 'Awesome Mixtape 3');
-        $request->set_param( 'songs', array( 1,2,3,4 ) );
+        $data = array(
+			'title' => 'Awesome Mixtape 3',
+			'songs' => array( 1, 2, 3, 4 )
+		);
 
-        $response = $this->rest_server->dispatch( $request );
+        $response = $this->post( '/casette-crud-test/v1/casettes', $data );
 
         $this->assertNotNull( $response );
-        $this->assert_http_response_status_created( $response );
+        $this->assertResponseStatus( $response, 201 );
         $data = $response->get_data();
-        $this->assertTrue( isset($data['id'] ) );
+        $this->assertArrayHasKey( 'id', $data );
         $this->assertEquals( 3, $data['id'] );
     }
+
+	function test_create_item_400_when_validation_error() {
+		$this->add_casette_rest_api_endpoint();
+		$data = array(
+			'songs' => array( 1, 2, 3, 4 )
+		);
+
+		$response = $this->post( '/casette-crud-test/v1/casettes', $data );
+
+		$this->assertNotNull( $response );
+		$this->assertResponseStatus( $response, 400 );
+	}
 
     function test_update_item_succeeds_when_data_store_returns_id() {
         $this->add_casette_rest_api_endpoint();
@@ -111,7 +121,7 @@ class MT_Controller_CRUDTest extends MT_Testing_Controller_TestCase {
         $bundle->endpoint()
             ->crud( '/casettes' )
             ->for_model( $model_definition );
-        $env->start();
+        $env->auto_start();
 
         do_action( 'rest_api_init' );
     }
