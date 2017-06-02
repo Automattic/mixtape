@@ -142,7 +142,7 @@ class MT_Controller_Model extends MT_Controller {
 			return $entity;
 		}
 
-		if ( is_a( $entity, 'MT_Model_Collection') ) {
+		if ( is_a( $entity, 'MT_Model_Collection' ) ) {
 			$results = array();
 			foreach ( $entity->get_items() as $model ) {
 				$results[] = $this->model_to_dto( $model );
@@ -150,7 +150,7 @@ class MT_Controller_Model extends MT_Controller {
 			return $results;
 		}
 
-		if ( is_a( $entity, 'MT_Model') ) {
+		if ( is_a( $entity, 'MT_Model' ) ) {
 			return $this->model_to_dto( $entity );
 		}
 
