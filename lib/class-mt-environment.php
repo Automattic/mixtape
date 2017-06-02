@@ -156,10 +156,10 @@ class MT_Environment {
 	 * @param MT_Interfaces_Controller_Bundle $bundle the bundle.
 	 *
 	 * @return MT_Environment $this
-	 * @throws MT_Exception In case it's not a Mixtape_Interfaces_Rest_Api_Controller_Bundle.
+	 * @throws MT_Exception In case it's not a MT_Interfaces_Controller_Bundle.
 	 */
 	private function add_rest_bundle( $bundle ) {
-		MT_Expect::is_a( $bundle, 'MT_Interfaces_Controller_Bundle');
+		MT_Expect::is_a( $bundle, 'MT_Interfaces_Controller_Bundle' );
 		$key = $bundle->get_bundle_prefix();
 		$this->rest_api_bundles[ $key ] = $bundle;
 		return $this;
@@ -170,21 +170,40 @@ class MT_Environment {
 	 *
 	 * This should be called once our Environment is set up to our liking.
 	 * Evaluates all Builders, creating missing REST Api and Model Definitions.
+	 * Hook this into rest_api_init
 	 *
 	 * @return MT_Environment $this
 	 */
 	public function start() {
 		if ( false === $this->started ) {
 			do_action( 'mixtape_environment_before_start', $this );
+			$this->load_models();
 			$this->load_pending_builders( 'bundles' );
 			foreach ( $this->rest_api_bundles as $k => $bundle ) {
-				$bundle->start();
+				$bundle->register();
 			}
 			$this->started = true;
 			do_action( 'mixtape_environment_after_start', $this );
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Loads Models
+	 *
+	 * @return MT_Environment $this
+	 */
+	public function load_models() {
+		$this->load_pending_builders( 'models' );
+		return $this;
+	}
+
+	/**
+	 * Auto start on rest_api_init. For more control, use ::start();
+	 */
+	public function auto_start() {
+		add_action( 'rest_api_init', array( $this, 'start' ) );
 	}
 
 	/**

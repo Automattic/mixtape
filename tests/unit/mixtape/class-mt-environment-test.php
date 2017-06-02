@@ -21,7 +21,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
     /**
      * @covers Mixtape_Environment::start
      */
-    function test_start_calls_start_in_added_bundles() {
+    function test_start_calls_register_in_added_bundles() {
         $a_bundle = $this
             ->getMockBuilder( MT_Interfaces_Controller_Bundle::class )
             ->setMethods( array( 'get_bundle_prefix', 'start', 'register', 'get_endpoints' ) )
@@ -31,7 +31,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
             ->method('get_bundle_prefix')
             ->willReturn('/foo/v1');
         $a_bundle->expects($this->once())
-            ->method('start');
+            ->method('register');
 
         $this->bootstrap
             ->environment()

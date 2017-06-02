@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Mixtape_FluentInterface_Define
+ * Class MT_Fluent_Define
  */
 class MT_Fluent_Define {
 	/**
@@ -21,7 +21,7 @@ class MT_Fluent_Define {
 	private $environment;
 
 	/**
-	 * Mixtape_FluentInterface_Define constructor.
+	 * MT_Fluent_Define constructor.
 	 *
 	 * @param MT_Environment $environment The Environment.
 	 */

@@ -33,7 +33,7 @@ class MT_Controller extends WP_REST_Controller {
 	protected $base = null;
 
 	/**
-	 * Optional, an enviromnent
+	 * Optional, an enviromnent.
 	 *
 	 * @var null|MT_Environment
 	 */
@@ -47,7 +47,6 @@ class MT_Controller extends WP_REST_Controller {
 	 * @throws MT_Exception If no base is set.
 	 */
 	public function __construct( $controller_bundle = null, $environment = null ) {
-		MT_Expect::that( ! empty( $this->base ), 'Need to put a string with a backslash in $base' );
 		$this->controller_bundle = $controller_bundle;
 		$this->set_environment( $environment );
 	}
@@ -81,6 +80,7 @@ class MT_Controller extends WP_REST_Controller {
 	 * @throws MT_Exception Override this.
 	 */
 	public function register() {
+		MT_Expect::that( ! empty( $this->base ), 'Need to put a string with a backslash in $base' );
 		throw new MT_Exception( 'override me' );
 	}
 
