@@ -1,7 +1,16 @@
 <?php
 
+/**
+ * Class MT_Testing_TestCase
+ */
 class MT_Testing_TestCase extends WP_UnitTestCase {
-	protected function assertClassExists( $className ) {
-		return $this->assertTrue( class_exists( $className ), 'Failed Asserting that class ' . $className . ' exists.' );
+
+	/**
+	 * Expect a class Exists.
+	 *
+	 * @param string $cls Class Name.
+	 */
+	function assertClassExists( $cls ) {
+		return $this->assertTrue( class_exists( $cls ), 'Failed Asserting that class ' . $cls . ' exists.' );
 	}
 }
