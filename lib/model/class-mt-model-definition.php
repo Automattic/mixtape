@@ -63,10 +63,10 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	/**
 	 * Mixtape_Model_Definition constructor.
 	 *
-	 * @param MT_Environment                                      $environment The Environment.
-	 * @param MT_Interfaces_Model_Declaration                     $model_declaration Declaration.
+	 * @param MT_Environment                                 $environment The Environment.
+	 * @param MT_Interfaces_Model_Declaration                $model_declaration Declaration.
 	 * @param MT_Interfaces_Data_Store|MT_Data_Store_Builder $data_store Store.
-	 * @param MT_Interfaces_Permissions_Provider         $permissions_provider Provider.
+	 * @param MT_Interfaces_Permissions_Provider             $permissions_provider Provider.
 	 *
 	 * @throws MT_Exception Throws if wrong types or null args provided.
 	 */
@@ -76,9 +76,9 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 		MT_Expect::that( null !== $data_store          , '$data_store cannot be null' );
 		MT_Expect::that( null !== $permissions_provider, '$permissions_provider cannot be null' );
 		// Fail if provided with inappropriate types.
-		MT_Expect::is_a( $environment         , 'MT_Environment');
-		MT_Expect::is_a( $model_declaration   , 'MT_Interfaces_Model_Declaration');
-		MT_Expect::is_a( $permissions_provider, 'MT_Interfaces_Permissions_Provider');
+		MT_Expect::is_a( $environment         , 'MT_Environment' );
+		MT_Expect::is_a( $model_declaration   , 'MT_Interfaces_Model_Declaration' );
+		MT_Expect::is_a( $permissions_provider, 'MT_Interfaces_Permissions_Provider' );
 
 		$this->field_declarations   = null;
 		$this->environment          = $environment;
@@ -188,8 +188,8 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	 * Note: Values change in place.
 	 *
 	 * @param MT_Interfaces_Model $model The model.
-	 * @param WP_REST_Request          $request The request.
-	 * @param bool                     $updating Is this an update?.
+	 * @param WP_REST_Request     $request The request.
+	 * @param bool                $updating Is this an update?.
 	 * @return MT_Model
 	 * @throws MT_Exception Throws.
 	 */
@@ -214,7 +214,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	 * Creates a new Model From a Request
 	 *
 	 * @param WP_REST_Request $request The request.
-	 * @return MT_Model
+	 * @return MT_Model|WP_Error
 	 */
 	public function new_from_request( $request ) {
 		$field_data = $this->map_request_data( $request, false );

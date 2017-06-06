@@ -103,7 +103,7 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 		if ( $is_update && $model_to_update ) {
 			$model = $this->model_definition->merge_updates_from_request( $model_to_update, $request, $is_update );
 		} else {
-			$model = $model = $this->get_model_definition()->new_from_request( $request );
+			$model = $this->get_model_definition()->new_from_request( $request );
 		}
 
 		if ( is_wp_error( $model ) ) {

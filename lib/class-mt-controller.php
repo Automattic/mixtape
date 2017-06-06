@@ -109,7 +109,7 @@ class MT_Controller extends WP_REST_Controller {
 	/**
 	 * Bad request
 	 *
-	 * @param array $data The dto.
+	 * @param array|WP_Error $data The dto.
 	 *
 	 * @return WP_REST_Response
 	 */
