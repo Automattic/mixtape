@@ -113,7 +113,7 @@ class MT_Controller extends WP_REST_Controller {
 	 *
 	 * @return WP_REST_Response
 	 */
-	protected function fail_with( $data ) {
+	protected function bad_request( $data ) {
 		return $this->respond( $data, self::HTTP_BAD_REQUEST );
 	}
 

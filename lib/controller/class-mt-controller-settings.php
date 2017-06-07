@@ -1,9 +1,24 @@
 <?php
+/**
+ * Controller for handling settings
+ *
+ * @package MT/Controller
+ */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Class MT_Controller_Settings
+ */
 class MT_Controller_Settings extends MT_Controller_Model {
 
+	/**
+	 * Register this.
+	 */
 	function register() {
-		$prefix = $this->controller_bundle->get_bundle_prefix();
+		$prefix = $this->controller_bundle->get_prefix();
 
 		register_rest_route( $prefix, $this->base, array(
 			array(
@@ -20,6 +35,12 @@ class MT_Controller_Settings extends MT_Controller_Model {
 		) );
 	}
 
+	/**
+	 * Get Settings
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return WP_REST_Response
+	 */
 	public function get_items( $request ) {
 		$model = $this->model_definition->get_data_store()->get_entity( null );
 		if ( empty( $model ) ) {
@@ -30,7 +51,9 @@ class MT_Controller_Settings extends MT_Controller_Model {
 	}
 
 	/**
-	 * @param WP_REST_Request $request
+	 * Create or Update settings.
+	 *
+	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public function create_item( $request ) {
@@ -38,8 +61,9 @@ class MT_Controller_Settings extends MT_Controller_Model {
 	}
 
 	/**
-	 * @param WP_REST_Request $request
-	 * @param bool            $is_update
+	 * Create or Update a Model
+	 *
+	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	protected function create_or_update( $request ) {
@@ -52,19 +76,18 @@ class MT_Controller_Settings extends MT_Controller_Model {
 		$model = $this->get_model_definition()->merge_updates_from_request( $model_to_update, $request, true );
 
 		if ( is_wp_error( $model ) ) {
-			$wp_err = $model;
-			return $this->fail_with( $wp_err );
+			return $this->bad_request( $model );
 		}
 
 		$validation = $model->validate();
 		if ( is_wp_error( $validation ) ) {
-			return $this->fail_with( $validation );
+			return $this->bad_request( $validation );
 		}
 
 		$id_or_error = $this->model_data_store->upsert( $model );
 
 		if ( is_wp_error( $id_or_error ) ) {
-			return $this->fail_with( $id_or_error );
+			return $this->bad_request( $id_or_error );
 		}
 
 		$dto = $this->prepare_dto( array(

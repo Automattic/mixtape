@@ -35,5 +35,5 @@ interface MT_Interfaces_Controller_Bundle {
 	 *
 	 * @return string
 	 */
-	public function get_bundle_prefix();
+	public function get_prefix();
 }

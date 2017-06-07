@@ -1,13 +1,24 @@
 <?php
+/**
+ * Classic Create, Read, Update, Delete Controller
+ *
+ * @package MT/Controller
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 } // End if().
 
+/**
+ * Class MT_Controller_CRUD
+ */
 class MT_Controller_CRUD extends MT_Controller_Model {
 
+	/**
+	 * Register this crud controller.
+	 */
 	public function register() {
-		$prefix = $this->controller_bundle->get_bundle_prefix();
+		$prefix = $this->controller_bundle->get_prefix();
 
 		register_rest_route( $prefix, $this->base, array(
 			array(
@@ -43,6 +54,12 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 		) );
 	}
 
+	/**
+	 * Get Items.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
 	public function get_items( $request ) {
 		$item_id = isset( $request['id'] ) ? absint( $request['id'] ) : null;
 
@@ -60,13 +77,21 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 		return $this->succeed( $this->prepare_dto( $model ) );
 	}
 
+	/**
+	 * Get Item
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
 	public function get_item( $request ) {
 		return $this->get_items( $request );
 	}
 
 
 	/**
-	 * @param WP_REST_Request $request
+	 * Create Item
+	 *
+	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public function create_item( $request ) {
@@ -75,7 +100,9 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 	}
 
 	/**
-	 * @param WP_REST_Request $request
+	 * Update Item
+	 *
+	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public function update_item( $request ) {
@@ -84,8 +111,11 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 	}
 
 	/**
-	 * @param WP_REST_Request $request
-	 * @param bool            $is_update
+	 * Create Or Update Item
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @param bool            $is_update Is Update.
+	 *
 	 * @return WP_REST_Response
 	 */
 	protected function create_or_update( $request, $is_update = false ) {
@@ -108,18 +138,18 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 
 		if ( is_wp_error( $model ) ) {
 			$wp_err = $model;
-			return $this->fail_with( $wp_err );
+			return $this->bad_request( $wp_err );
 		}
 
 		$validation = $model->validate();
 		if ( is_wp_error( $validation ) ) {
-			return $this->fail_with( $validation );
+			return $this->bad_request( $validation );
 		}
 
 		$id_or_error = $this->model_data_store->upsert( $model );
 
 		if ( is_wp_error( $id_or_error ) ) {
-			return $this->fail_with( $id_or_error );
+			return $this->bad_request( $id_or_error );
 		}
 
 		$dto = $this->prepare_dto( array(
@@ -129,10 +159,16 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 		return $is_update ? $this->succeed( $dto ) : $this->created( $dto );
 	}
 
+	/**
+	 * Delete an Item
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
 	public function delete_item( $request ) {
 		$id = isset( $request['id'] ) ? absint( $request['id'] ) : null;
 		if ( empty( $id ) ) {
-			return $this->fail_with( 'No Model ID provided' );
+			return $this->bad_request( 'No Model ID provided' );
 		}
 		$model = $this->model_definition->get_data_store()->get_entity( $id );
 		if ( null === $model ) {
@@ -143,7 +179,9 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 	}
 
 	/**
-	 * @param MT_Model $model
+	 * Model To Dto
+	 *
+	 * @param MT_Interfaces_Model $model The Model.
 	 * @return array
 	 */
 	protected function model_to_dto( $model ) {
@@ -153,11 +191,13 @@ class MT_Controller_CRUD extends MT_Controller_Model {
 	}
 
 	/**
-	 * @param MT_Model $model
+	 * Add Links
+	 *
+	 * @param MT_Interfaces_Model $model Model.
 	 * @return array
 	 */
 	protected function add_links( $model ) {
-		$base_url = rest_url() . $this->controller_bundle->get_bundle_prefix() . $this->base . '/';
+		$base_url = rest_url() . $this->controller_bundle->get_prefix() . $this->base . '/';
 
 		$result = array(
 			'collection' => array(

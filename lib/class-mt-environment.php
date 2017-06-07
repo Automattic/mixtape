@@ -160,7 +160,7 @@ class MT_Environment {
 	 */
 	private function add_rest_bundle( $bundle ) {
 		MT_Expect::is_a( $bundle, 'MT_Interfaces_Controller_Bundle' );
-		$key = $bundle->get_bundle_prefix();
+		$key = $bundle->get_prefix();
 		$this->rest_api_bundles[ $key ] = $bundle;
 		return $this;
 	}

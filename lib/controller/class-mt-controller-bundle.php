@@ -1,14 +1,16 @@
 <?php
+/**
+ * A Collection of Controllers, under the same prefix
+ *
+ * @package MT/Controller
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // End if().
+}
 
 /**
- * Class Mixtape_Rest_Api_Controller_Bundle
- * Represents a collection of Mixtape_Rest_Api_Controller instances, sharing a common prefix
- *
- * @package rest-api
+ * Class MT_Controller_Bundle
  */
 class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 
@@ -53,11 +55,21 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 		return $this;
 	}
 
+	/**
+	 * Get endpoints.
+	 *
+	 * @return array
+	 */
 	function get_endpoints() {
 		return array();
 	}
 
-	function get_bundle_prefix() {
+	/**
+	 * Get Prefix.
+	 *
+	 * @return string
+	 */
+	function get_prefix() {
 		return $this->bundle_prefix;
 	}
 }

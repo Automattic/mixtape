@@ -190,7 +190,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	 * @param MT_Interfaces_Model $model The model.
 	 * @param WP_REST_Request     $request The request.
 	 * @param bool                $updating Is this an update?.
-	 * @return MT_Model
+	 * @return MT_Interfaces_Model|WP_Error
 	 * @throws MT_Exception Throws.
 	 */
 	function merge_updates_from_request( $model, $request, $updating = false ) {
