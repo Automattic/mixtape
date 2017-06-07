@@ -44,17 +44,17 @@ class Mixtape_Unit_Tests_Bootstrap {
 
     public function register_mixtape_test_cpts() {
         // register some post types for using with our tests
-        include_once( path_join( $this->mixtape_example_dir, 'CasettePostTypes.php' ) );
-        CasettePostTypes::register();
+        include_once( path_join( $this->mixtape_example_dir, 'class-casette-post-types.php' ) );
+        Casette_Post_Types::register();
     }
 
     public function includes() {
         MT_Bootstrap::create()->load()->load_testing_classes();
-        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
+        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'casette.php' );
     }
 
     public function include_example_classes() {
-        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
+        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'casette.php' );
     }
 
     /**
