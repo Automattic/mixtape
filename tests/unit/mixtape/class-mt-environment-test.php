@@ -24,11 +24,11 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
     function test_start_calls_register_in_added_bundles() {
         $a_bundle = $this
             ->getMockBuilder( MT_Interfaces_Controller_Bundle::class )
-            ->setMethods( array( 'get_bundle_prefix', 'start', 'register', 'get_endpoints' ) )
+            ->setMethods( array( 'get_prefix', 'start', 'register', 'get_endpoints' ) )
             ->getMock();
 
         $a_bundle->expects($this->once())
-            ->method('get_bundle_prefix')
+            ->method('get_prefix')
             ->willReturn('/foo/v1');
         $a_bundle->expects($this->once())
             ->method('register');
