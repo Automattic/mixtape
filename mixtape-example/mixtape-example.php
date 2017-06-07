@@ -44,7 +44,7 @@ function run_plugin() {
         $bundle->endpoint()
             ->with_class( CasetteApiEndpointVersion::class );
 
-        $mixtape->environment()->start();
+        $mixtape->environment()->auto_start();
 
     });
 }

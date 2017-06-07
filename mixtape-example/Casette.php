@@ -4,9 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class DoingItWrongDeclaration extends MT_Model_Declaration {
-}
-
 class CasetteAdminSettings {
     static function get_settings() {
         return array(
@@ -121,7 +118,7 @@ class Casette extends MT_Model_Declaration
         $status = $validation_data->get_value();
         if ('publish' === $status ) {
             $author_id = $model->get( 'author' );
-            if ( empty( $author_id ) ) {
+            if ( empty( $author_id ) || null === $this->get_author( $author_id ) ) {
                 return new WP_Error( 'missing-author-id', __( 'Cannot publish when author is empty', 'casette' ) );
             }
         }
@@ -184,7 +181,7 @@ class CasetteApiEndpointVersion extends MT_Controller {
     protected $base = '/version';
 
     public function register() {
-        register_rest_route( $this->controller_bundle->get_bundle_prefix(),  $this->base, array(
+        register_rest_route( $this->controller_bundle->get_prefix(),  $this->base, array(
             array(
                 'methods'             => WP_REST_Server::READABLE,
                 'callback'            => array( $this, 'get_items' ),
