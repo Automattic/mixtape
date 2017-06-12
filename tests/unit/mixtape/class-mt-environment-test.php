@@ -35,34 +35,18 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
 
         $this->bootstrap
             ->environment()
-            ->define()->rest_api( $a_bundle );
+			->rest_api( $a_bundle );
         $this->bootstrap->environment()->start();
     }
 
     function test_endpoint_returns_builder() {
-        $b = $this->bootstrap->environment()->define()->rest_api('zzz')->endpoint();
+        $b = $this->bootstrap->environment()->rest_api('zzz')->endpoint();
         $this->assertInstanceOf( 'MT_Controller_Builder', $b );
     }
 
     function test_crud_returns_builder() {
-        $b = $this->bootstrap->environment()->define()->rest_api('zzz')->endpoint()->crud();
+        $b = $this->bootstrap->environment()->rest_api('zzz')->endpoint()->with_class( 'MT_Controller_CRUD' );
         $this->assertInstanceOf( 'MT_Controller_Builder', $b );
-    }
-
-    /**
-     * @covers Mixtape_Environment::define
-     */
-    function test_define_return_fluid_define() {
-        $define = $this->bootstrap->environment()->define();
-        $this->assertInstanceOf( MT_Fluent_Define::class, $define );
-    }
-
-    /**
-     * @covers Mixtape_Environment::get
-     */
-    function test_get_return_fluid_get() {
-        $define = $this->bootstrap->environment()->get();
-        $this->assertInstanceOf( MT_Fluent_Get::class, $define );
     }
 
     /**
@@ -78,7 +62,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      * @covers Mixtape_Environment::model_definition
      */
     function test_model_definition_throw_if_unknown_class() {
-        $this->bootstrap->environment()->model_definition( 'Foo' );
+        $this->bootstrap->environment()->model( 'Foo' );
         ///
     }
 
@@ -87,15 +71,15 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      * @covers Mixtape_Environment::model_definition
      */
     function test_model_definition_throw_if_no_definition() {
-        $this->bootstrap->environment()->model_definition( MT_Model_Declaration_Settings::class );
+        $this->bootstrap->environment()->model( MT_Model_Declaration_Settings::class );
     }
 
     /**
      * @covers Mixtape_Environment::model_definition
      */
     function test_model_definition_return_definition() {
-        $this->bootstrap->environment()->define()->model( MT_Model_Declaration_Settings::class );
-        $d = $this->bootstrap->environment()->model_definition( MT_Model_Declaration_Settings::class );
+        $this->bootstrap->environment()->define_model( MT_Model_Declaration_Settings::class );
+        $d = $this->bootstrap->environment()->model( MT_Model_Declaration_Settings::class );
         $this->assertInstanceOf( MT_Model_Definition::class, $d );
     }
 }

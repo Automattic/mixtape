@@ -16,7 +16,7 @@ class MT_Model_Declaration_SettingsTest extends MT_Testing_Model_TestCase {
     function test_dto_field_names() {
         $setting = $this->get_settings();
         $this->assertNotNull( $setting );
-        $def = $this->environment->get()->model( CasetteSettings::class );
+        $def = $this->environment->model( CasetteSettings::class );
         $dto = $def->model_to_dto( $setting );
         $this->assertNotNull( $dto );
         $this->assertArrayHasKey('hide_listened', $dto );
@@ -27,9 +27,8 @@ class MT_Model_Declaration_SettingsTest extends MT_Testing_Model_TestCase {
     private function get_settings() {
         $env = $this->mixtape->load()
             ->environment();
-        $env->define()->model( CasetteSettings::class );
-        return $env->get()
-            ->model( CasetteSettings::class )
+        $env->define_model( CasetteSettings::class );
+        return $env->model( CasetteSettings::class )
             ->create_instance(
             array(
                 'mixtape_casette_hide_listened'  => false,

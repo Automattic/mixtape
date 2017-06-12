@@ -2,7 +2,7 @@
 /**
  * Environment
  *
- * Contains rest bundle, type and model definitions
+ * Contains rest api, type and model definitions
  *
  * @package Mixtape
  */
@@ -25,7 +25,7 @@ class MT_Environment {
 	 *
 	 * @var array
 	 */
-	protected $rest_api_bundles;
+	protected $rest_apis;
 
 	/**
 	 * This environment's model definitions
@@ -39,7 +39,7 @@ class MT_Environment {
 	 *
 	 * @var bool
 	 */
-	private $started;
+	private $has_started;
 
 	/**
 	 * Our Bootstrap
@@ -56,20 +56,6 @@ class MT_Environment {
 	private $type_registry;
 
 	/**
-	 * Our Fluent Define
-	 *
-	 * @var MT_Fluent_Define
-	 */
-	private $definer;
-
-	/**
-	 * Our Fluent Get
-	 *
-	 * @var MT_Fluent_Get
-	 */
-	private $getter;
-
-	/**
 	 * Queues of pending builders
 	 *
 	 * @var array
@@ -83,8 +69,8 @@ class MT_Environment {
 	 */
 	public function __construct( $bootstrap ) {
 		$this->bootstrap = $bootstrap;
-		$this->started = false;
-		$this->rest_api_bundles = array();
+		$this->has_started = false;
+		$this->rest_apis = array();
 		$this->model_definitions = array();
 		$this->pending_definitions = array(
 			'models' => array(),
@@ -92,8 +78,6 @@ class MT_Environment {
 		);
 		$this->type_registry = new MT_Type_Registry();
 		$this->type_registry->initialize( $this );
-		$this->definer = new MT_Fluent_Define( $this );
-		$this->getter = new MT_Fluent_Get( $this );
 	}
 
 	/**
@@ -101,14 +85,14 @@ class MT_Environment {
 	 *
 	 * All builders are evaluated lazily when needed
 	 *
-	 * @param string                     $where The queue to push the builder to.
+	 * @param string                $where The queue to push the builder to.
 	 * @param MT_Interfaces_Builder $builder The builder to push.
 	 *
 	 * @return MT_Environment $this
 	 * @throws MT_Exception In case the $builder is not a Mixtape_Interfaces_Builder.
 	 */
 	public function push_builder( $where, $builder ) {
-		MT_Expect::is_a( $builder, 'MT_Interfaces_Builder');
+		MT_Expect::is_a( $builder, 'MT_Interfaces_Builder' );
 		$this->pending_definitions[ $where ][] = $builder;
 		return $this;
 	}
@@ -120,7 +104,7 @@ class MT_Environment {
 	 * @return MT_Model_Definition the definition.
 	 * @throws MT_Exception Throws in case the model is not registered.
 	 */
-	public function model_definition( $class ) {
+	public function model( $class ) {
 		if ( ! class_exists( $class ) ) {
 			throw new MT_Exception( $class . ' does not exist' );
 		}
@@ -151,21 +135,6 @@ class MT_Environment {
 	}
 
 	/**
-	 * Add a Bundle to our bundles (muse be Mixtape_Interfaces_Rest_Api_Controller_Bundle)
-	 *
-	 * @param MT_Interfaces_Controller_Bundle $bundle the bundle.
-	 *
-	 * @return MT_Environment $this
-	 * @throws MT_Exception In case it's not a MT_Interfaces_Controller_Bundle.
-	 */
-	private function add_rest_bundle( $bundle ) {
-		MT_Expect::is_a( $bundle, 'MT_Interfaces_Controller_Bundle' );
-		$key = $bundle->get_prefix();
-		$this->rest_api_bundles[ $key ] = $bundle;
-		return $this;
-	}
-
-	/**
 	 * Start things up
 	 *
 	 * This should be called once our Environment is set up to our liking.
@@ -175,14 +144,17 @@ class MT_Environment {
 	 * @return MT_Environment $this
 	 */
 	public function start() {
-		if ( false === $this->started ) {
+		if ( false === $this->has_started ) {
 			do_action( 'mixtape_environment_before_start', $this );
 			$this->load_models();
 			$this->load_pending_builders( 'bundles' );
-			foreach ( $this->rest_api_bundles as $k => $bundle ) {
+			foreach ( $this->rest_apis as $k => $bundle ) {
+				/**
+				 * @var MT_Controller_Bundle
+				 */
 				$bundle->register();
 			}
-			$this->started = true;
+			$this->has_started = true;
 			do_action( 'mixtape_environment_after_start', $this );
 		}
 
@@ -229,24 +201,6 @@ class MT_Environment {
 	}
 
 	/**
-	 * Define something for this Environment
-	 *
-	 * @return MT_Fluent_Define
-	 */
-	public function define() {
-		return $this->definer;
-	}
-
-	/**
-	 * Get something from the Environment
-	 *
-	 * @return MT_Fluent_Get
-	 */
-	public function get() {
-		return $this->getter;
-	}
-
-	/**
 	 * Get our registered types
 	 *
 	 * @return MT_Type_Registry
@@ -265,6 +219,43 @@ class MT_Environment {
 	}
 
 	/**
+	 * Define a new REST API Bundle.
+	 *
+	 * @param null|string|MT_Interfaces_Controller_Bundle $maybe_bundle_or_prefix The bundle name.
+	 * @return MT_Controller_Bundle_Builder
+	 */
+	public function rest_api( $maybe_bundle_or_prefix = null ) {
+		if ( is_a( $maybe_bundle_or_prefix, 'MT_Interfaces_Controller_Bundle' ) ) {
+			$builder = new MT_Controller_Bundle_Builder( $maybe_bundle_or_prefix );
+		} else {
+			$builder = new MT_Controller_Bundle_Builder();
+			if ( is_string( $maybe_bundle_or_prefix ) ) {
+				$builder->with_prefix( $maybe_bundle_or_prefix );
+			}
+			$builder->with_environment( $this );
+		}
+
+		$this->push_builder( 'bundles', $builder );
+		return $builder;
+	}
+
+	/**
+	 * Define a new Model
+	 *
+	 * @param null|MT_Interfaces_Model_Declaration $declaration Maybe a declaration.
+	 *
+	 * @return MT_Model_Definition_Builder
+	 */
+	function define_model( $declaration = null ) {
+		$builder = new MT_Model_Definition_Builder();
+		if ( null !== $declaration ) {
+			$builder->with_declaration( $declaration );
+		}
+		$this->push_builder( 'models', $builder->with_environment( $this ) );
+		return $builder;
+	}
+
+	/**
 	 * Add a new Definition into this Environment
 	 *
 	 * @param MT_Model_Definition $definition the definition to add.
@@ -273,6 +264,21 @@ class MT_Environment {
 	private function add_model_definition( $definition ) {
 		$key = $definition->get_model_class();
 		$this->model_definitions[ $key ] = $definition;
+		return $this;
+	}
+
+	/**
+	 * Add a Bundle to our bundles (muse be Mixtape_Interfaces_Rest_Api_Controller_Bundle)
+	 *
+	 * @param MT_Interfaces_Controller_Bundle $bundle the bundle.
+	 *
+	 * @return MT_Environment $this
+	 * @throws MT_Exception In case it's not a MT_Interfaces_Controller_Bundle.
+	 */
+	private function add_rest_bundle( $bundle ) {
+		MT_Expect::is_a( $bundle, 'MT_Interfaces_Controller_Bundle' );
+		$key = $bundle->get_prefix();
+		$this->rest_apis[ $key ] = $bundle;
 		return $this;
 	}
 }

@@ -10,15 +10,15 @@ class MT_Data_Store_CustomPostTypeTest extends MT_Testing_Model_TestCase {
     function setUp() {
         parent::setUp();
         $env = $this->environment;
-        $env->define()->model(
+        $env->define_model(
             'Casette'
         )->with_data_store(
-            $env->define()->data_store()
+            $env->data_store()
             ->custom_post_type()
             ->with_post_type( 'mixtape_casette' )
         );
         $this->model_definition = $this->environment
-            ->get()->model( Casette::class );
+            ->model( Casette::class );
     }
 
     function test_upsert_inserts_new_entity() {

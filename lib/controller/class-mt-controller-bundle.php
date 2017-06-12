@@ -19,7 +19,7 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	 *
 	 * @var string|null
 	 */
-	protected $bundle_prefix = null;
+	protected $prefix = null;
 
 	/**
 	 * Collection of Mixtape_Rest_Api_Controller subclasses
@@ -27,6 +27,31 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	 * @var array
 	 */
 	protected $endpoints = array();
+	/**
+	 * Our Endpoint Builders
+	 *
+	 * @var array
+	 */
+	private $endpoint_builders;
+	/**
+	 * Environment.
+	 *
+	 * @var MT_Environment
+	 */
+	private $environment;
+
+	/**
+	 * MT_Controller_Bundle_Definition constructor.
+	 *
+	 * @param MT_Environment $environment Env.
+	 * @param string         $bundle_prefix Prefix.
+	 * @param array          $endpoint_builders Builders.
+	 */
+	function __construct( $environment, $bundle_prefix, $endpoint_builders ) {
+		$this->environment = $environment;
+		$this->prefix = $bundle_prefix;
+		$this->endpoint_builders = $endpoint_builders;
+	}
 
 	/**
 	 * Register all endpoints
@@ -34,22 +59,28 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	 * @return MT_Interfaces_Controller_Bundle $this;
 	 */
 	function register() {
-		MT_Expect::that( null !== $this->bundle_prefix, 'api_prefix should be defined' );
+		MT_Expect::that( null !== $this->prefix, 'prefix should be defined' );
 		/**
 		 * Add/remove endpoints. Useful for extensions
 		 *
-		 * @param $endpoints array an array of Mixtape_Rest_Api_Controller
-		 * @param $bundle MT_Controller_Bundle the bundle instance
+		 * @param array   $endpoints An array of MT_Interfaces_Controller
+		 * @param $bundle MT_Controller_Bundle The bundle instance.
+		 *
 		 * @return array
 		 */
 		$this->endpoints = (array) apply_filters(
-			'mixtape_rest_api_controller_bundle_get_endpoints',
+			'mt_rest_api_controller_bundle_get_endpoints',
 			$this->get_endpoints(),
 			$this
 		);
 
 		foreach ( $this->endpoints as $endpoint ) {
-			$endpoint->register( $this );
+			/**
+			 * Controller
+			 *
+			 * @var MT_Interfaces_Controller
+			 */
+			$endpoint->register( $this, $this->environment );
 		}
 
 		return $this;
@@ -60,8 +91,26 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	 *
 	 * @return array
 	 */
-	function get_endpoints() {
-		return array();
+	/**
+	 * Get Endpoints.
+	 *
+	 * @return array
+	 */
+	public function get_endpoints() {
+		$endpoints = array();
+		foreach ( $this->endpoint_builders as $builder ) {
+			/**
+			 * A Builder.
+			 *
+			 * @var MT_Controller_Builder $builder
+			 */
+			$endpoint = $builder
+				->with_bundle( $this )
+				->with_environment( $this->environment )
+				->build();
+			$endpoints[] = $endpoint;
+		}
+		return $endpoints;
 	}
 
 	/**
@@ -70,6 +119,7 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	 * @return string
 	 */
 	function get_prefix() {
-		return $this->bundle_prefix;
+		return $this->prefix;
 	}
 }
+

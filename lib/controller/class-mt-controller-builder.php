@@ -44,12 +44,6 @@ class MT_Controller_Builder implements MT_Interfaces_Builder {
 	 * @var string
 	 */
 	private $base = '';
-	/**
-	 * Actions
-	 *
-	 * @var array
-	 */
-	private $actions = array();
 
 	/**
 	 * MT_Controller_Builder constructor.
@@ -105,28 +99,6 @@ class MT_Controller_Builder implements MT_Interfaces_Builder {
 	}
 
 	/**
-	 * Setup a crud controller.
-	 *
-	 * @param null|string $base The base.
-	 * @return MT_Controller_Builder $this
-	 */
-	public function crud( $base = null ) {
-		if ( $base ) {
-			$this->with_base( $base );
-		}
-		return $this->with_class( 'MT_Controller_CRUD' );
-	}
-
-	/**
-	 * Setup a settings controller.
-	 *
-	 * @return MT_Controller_Builder $this
-	 */
-	public function settings() {
-		return $this->with_class( 'MT_Controller_Settings' );
-	}
-
-	/**
 	 * Build a controller.
 	 *
 	 * @return MT_Controller
@@ -134,20 +106,9 @@ class MT_Controller_Builder implements MT_Interfaces_Builder {
 	public function build() {
 		$controller_class = $this->controller_class;
 		if ( $this->model_definition ) {
-			return new $controller_class( $this->bundle, $this->base, $this->model_definition );
+			return new $controller_class( $this->base, $this->model_definition );
 		}
 		return new $controller_class( $this->bundle, $this->environment );
-	}
-
-	/**
-	 * Actions.
-	 *
-	 * @param array $actions Actions.
-	 * @return $this
-	 */
-	public function with_actions( $actions ) {
-		$this->actions = $actions;
-		return $this;
 	}
 
 	/**

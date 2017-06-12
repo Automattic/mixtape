@@ -15,24 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class MT_Controller_Settings extends MT_Controller_Model {
 
 	/**
-	 * Register this.
+	 * Setup
 	 */
-	function register() {
-		$prefix = $this->controller_bundle->get_prefix();
-
-		register_rest_route( $prefix, $this->base, array(
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permissions_check' ),
-			),
-			array(
-				'methods'         => WP_REST_Server::EDITABLE,
-				'callback'        => array( $this, 'create_item' ),
-				'permission_callback' => array( $this, 'create_item_permissions_check' ),
-				'args'            => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
-			),
-		) );
+	public function setup() {
+		$this->add_route()
+			->handler( 'index', array( $this, 'get_items' ) )
+			->handler( 'update', array( $this, 'create_item' ) );
 	}
 
 	/**

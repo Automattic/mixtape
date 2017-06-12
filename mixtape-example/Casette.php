@@ -180,30 +180,39 @@ class CasetteApiEndpointVersion extends MT_Controller {
 	 */
 	protected $base = '/version';
 
-	public function register() {
-		register_rest_route( $this->controller_bundle->get_prefix(),  $this->base, array(
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permissions_check' ),
-				'args'                => array(),
-			),
-		) );
+	/**
+	 * Setup
+	 */
+	public function setup() {
+		$this->add_route()
+			->handler( WP_REST_Server::READABLE, array( $this, 'get_items' ) );
 	}
 
+	/**
+	 * Get Items
+	 *
+	 * @param WP_REST_Request $request Req.
+	 * @return WP_REST_Response
+	 */
 	public function get_items( $request ) {
 		return new WP_REST_Response( array(
 			'mixtape-example-version' => '0.1.0',
 		), 200 );
 	}
 
+	/**
+	 * Permissions,
+	 *
+	 * @param WP_REST_Request $request R.
+	 * @return bool
+	 */
 	public function get_items_permissions_check( $request ) {
 		return true;
 	}
 }
 
 class CasetteApiBundleV1 extends MT_Controller_Bundle {
-	protected $bundle_prefix = 'mixtape-example/v1';
+	protected $prefix = 'mixtape-example/v1';
 
 	/**
 	 * Gets the endpoints, those can be extended by plugins by hooking into
@@ -229,31 +238,30 @@ class CasetteRESTApi {
 	 */
 	static function register( $bootstrap ) {
 		$env = $bootstrap->environment();
-		$cpt_data_store = $env->define()->data_store()
+		$cpt_data_store = $env->data_store()
 			->custom_post_type()
 			->with_post_type( 'mixtape_casette' );
 
-		$env->define()
-			->model( 'Casette' )
+		$env->define_model( 'Casette' )
 			->with_data_store( $cpt_data_store );
 
-		$env->define()
-			->model( 'CasetteSettings' )
-			->with_data_store( $env->define()->data_store()->option() );
+		$env->define_model( 'CasetteSettings' )
+			->with_data_store( $env->data_store()->option() );
 
-		$rest_api = $env->define()->rest_api( 'mixtape-example/v1' );
+		$rest_api = $env->rest_api( 'mixtape-example/v1' );
 
 		$rest_api->endpoint()
-			->crud( '/casettes' )
-			->for_model( $env->get()->model( 'Casette' ) );
+			->with_base( '/casettes' )
+			->with_class( 'MT_Controller_CRUD' )
+			->for_model( $env->model( 'Casette' ) );
 
 		$rest_api->endpoint()
 			->with_class( 'CasetteApiEndpointVersion' );
 
 		$rest_api->endpoint()
-			->for_model( $env->get()->model( 'CasetteSettings' ) )
 			->with_base( '/settings' )
-			->with_class( 'MT_Controller_Settings' );
+			->with_class( 'MT_Controller_Settings' )
+			->for_model( $env->model( 'CasetteSettings' ) );
 
 		$env->auto_start();
 	}

@@ -86,6 +86,7 @@ class MT_Bootstrap {
 			->load_class( 'Interfaces_Builder' )
 			->load_class( 'Interfaces_Model_Collection' )
 			->load_class( 'Interfaces_Model_Declaration' )
+			->load_class( 'Interfaces_Controller' )
 			->load_class( 'Interfaces_Controller_Bundle' )
 			->load_class( 'Interfaces_Permissions_Provider' )
 			->load_class( 'Exception' )
@@ -107,8 +108,6 @@ class MT_Bootstrap {
 			->load_class( 'Data_Store_CustomPostType' )
 			->load_class( 'Data_Store_Option' )
 			->load_class( 'Data_Store_Builder' )
-			->load_class( 'Fluent_Define' )
-			->load_class( 'Fluent_Get' )
 			->load_class( 'Model_Field_Declaration' )
 			->load_class( 'Model_Field_Declaration_Builder' )
 			->load_class( 'Model_Field_Declaration_Collection_Builder' )
@@ -120,13 +119,12 @@ class MT_Bootstrap {
 			->load_class( 'Model_ValidationData' )
 			->load_class( 'Model_Collection' )
 			->load_class( 'Controller' )
-			->load_class( 'Controller_Definition' )
 			->load_class( 'Controller_Builder' )
 			->load_class( 'Controller_Model' )
 			->load_class( 'Controller_Settings' )
+			->load_class( 'Controller_Route' )
 			->load_class( 'Controller_CRUD' )
 			->load_class( 'Controller_Bundle' )
-			->load_class( 'Controller_Bundle_Definition' )
 			->load_class( 'Controller_Bundle_Builder' );
 
 		return $this;

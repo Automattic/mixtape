@@ -52,9 +52,8 @@ class MT_ModelTest extends MT_Testing_Model_TestCase {
 
     function create_casette( $props ) {
         $this->mixtape->environment()
-            ->define()
-            ->model( new Casette() );
-        return $this->mixtape->environment()->get()->model( Casette::class )
+            ->define_model( 'Casette' );
+        return $this->mixtape->environment()->model( 'Casette' )
             ->create_instance( $props );
     }
 }

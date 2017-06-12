@@ -9,8 +9,8 @@ class MT_Model_DefinitionTest extends MT_Testing_Model_TestCase {
     function test_add_model_definition() {
         $env = $this->mixtape->load()
             ->environment();
-        $env->define()->model( 'Casette' );
-        $model_definition = $env->get()->model( Casette::class );
+        $env->define_model( 'Casette' );
+        $model_definition = $env->model( Casette::class );
         $this->assertInstanceOf( MT_Model_Definition::class, $model_definition );
         $this->assertEquals( $model_definition->get_model_class(), Casette::class );
         $this->assertInstanceOf( MT_Data_Store_Nil::class, $model_definition->get_data_store() );
@@ -19,10 +19,8 @@ class MT_Model_DefinitionTest extends MT_Testing_Model_TestCase {
     function test_get_field_declarations() {
          $this->mixtape
             ->environment()
-            ->define()
-             ->model( new Casette());
+            ->define_model( new Casette());
         $model_definition= $this->mixtape->environment()
-            ->get()
             ->model( Casette::class );
         $declarations = $model_definition->get_field_declarations();
         $this->assertInternalType( 'array', $declarations );
@@ -32,9 +30,9 @@ class MT_Model_DefinitionTest extends MT_Testing_Model_TestCase {
     function test_create_with_array() {
          $this->mixtape
             ->environment()
-            ->define()->model( new Casette() );
+            ->define_model( new Casette() );
         $casette = $this->mixtape
-            ->environment()->get()->model( Casette::class )
+            ->environment()->model( Casette::class )
             ->create_instance( array(
                 'title' => 'Awesome',
                 'songs' => array(1,2,3)
@@ -82,14 +80,12 @@ class MT_Model_DefinitionTest extends MT_Testing_Model_TestCase {
     private function get_casette_definition() {
         $env = $this->mixtape
             ->environment();
-         $env->define()
-             ->model( 'Casette' )
+         $env->define_model( 'Casette' )
              ->with_data_store(
-                 $env->define()
-                     ->data_store()
+                 $env->data_store()
                      ->custom_post_type()
                      ->with_post_type( 'mixtape_cassette' )
              );
-        return $env->get()->model( Casette::class );
+        return $env->model( Casette::class );
     }
 }

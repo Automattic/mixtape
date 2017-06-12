@@ -12,47 +12,60 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class MT_Controller_CRUD
  */
-class MT_Controller_CRUD extends MT_Controller_Model {
+class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Controller {
+	/**
+	 * Setup
+	 */
+	public function setup() {
+		$this->add_route( '/' )
+			->handler( 'index',  array( $this, 'get_items' ) )
+			->handler( 'create', array( $this, 'create_item' ) );
 
+		$this->add_route( '/(?P<id>\d+)' )
+			->handler( 'show',  array( $this, 'get_item' ) )
+			->handler( 'update',  array( $this, 'update_item' ) )
+			->handler( 'delete', array( $this, 'delete_item' ) );
+	}
 	/**
 	 * Register this crud controller.
 	 */
-	public function register() {
-		$prefix = $this->controller_bundle->get_prefix();
-
-		register_rest_route( $prefix, $this->base, array(
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permissions_check' ),
-			),
-			array(
-				'methods'         => WP_REST_Server::CREATABLE,
-				'callback'        => array( $this, 'create_item' ),
-				'permission_callback' => array( $this, 'create_item_permissions_check' ),
-				'args'            => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
-			),
-		) );
-		register_rest_route( $prefix,  $this->base . '/(?P<id>\d+)', array(
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permissions_check' ),
-			),
-			array(
-				'methods'         => WP_REST_Server::EDITABLE,
-				'callback'        => array( $this, 'update_item' ),
-				'permission_callback' => array( $this, 'create_item_permissions_check' ),
-				'args'            => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
-			),
-			array(
-				'methods'         => WP_REST_Server::DELETABLE,
-				'callback'        => array( $this, 'delete_item' ),
-				'permission_callback' => array( $this, 'create_item_permissions_check' ),
-				'args'            => $this->get_endpoint_args_for_item_schema( WP_REST_Server::DELETABLE ),
-			),
-		) );
-	}
+//	public function register( $bundle, $environment ) {
+//		parent::register( $bundle, $environment );
+//		$prefix = $this->controller_bundle->get_prefix();
+//
+//		register_rest_route( $prefix, $this->base . '/', array(
+//			array(
+//				'methods'             => WP_REST_Server::READABLE,
+//				'callback'            => array( $this, 'get_items' ),
+//				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+//			),
+//			array(
+//				'methods'         => WP_REST_Server::CREATABLE,
+//				'callback'        => array( $this, 'create_item' ),
+//				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+//				'args'            => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
+//			),
+//		) );
+//		register_rest_route( $prefix,  $this->base . '/(?P<id>\d+)', array(
+//			array(
+//				'methods'             => WP_REST_Server::READABLE,
+//				'callback'            => array( $this, 'get_items' ),
+//				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+//			),
+//			array(
+//				'methods'         => WP_REST_Server::EDITABLE,
+//				'callback'        => array( $this, 'update_item' ),
+//				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+//				'args'            => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+//			),
+//			array(
+//				'methods'         => WP_REST_Server::DELETABLE,
+//				'callback'        => array( $this, 'delete_item' ),
+//				'permission_callback' => array( $this, 'create_item_permissions_check' ),
+//				'args'            => $this->get_endpoint_args_for_item_schema( WP_REST_Server::DELETABLE ),
+//			),
+//		) );
+//	}
 
 	/**
 	 * Get Items.

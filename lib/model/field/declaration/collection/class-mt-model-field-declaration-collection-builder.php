@@ -52,6 +52,6 @@ class MT_Model_Field_Declaration_Collection_Builder {
 	 * @throws MT_Exception
 	 */
 	function type( $type_name ) {
-		return $this->environment->get()->type( $type_name );
+		return $this->environment->type()->definition( $type_name );
 	}
 }

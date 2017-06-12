@@ -57,7 +57,7 @@ class MT_Controller_Bundle_Builder implements MT_Interfaces_Builder {
 		if ( is_a( $this->bundle, 'MT_Interfaces_Controller_Bundle' ) ) {
 			return $this->bundle;
 		}
-		return new MT_Controller_Bundle_Definition( $this->environment, $this->bundle_prefix, $this->endpoint_builders );
+		return new MT_Controller_Bundle( $this->environment, $this->bundle_prefix, $this->endpoint_builders );
 	}
 
 	/**
