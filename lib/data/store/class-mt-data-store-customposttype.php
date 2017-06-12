@@ -106,14 +106,15 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	 * @return mixed|WP_Error
 	 */
 	public function upsert( $model ) {
-		$updating = ! empty( $model->get_id() );
+		$id = $model->get_id();
+		$updating = ! empty( $id );
 		$fields = $this->get_data_mapper()->model_to_data( $model, MT_Model_Field_Declaration::FIELD );
 		$meta_fields = $this->get_data_mapper()->model_to_data( $model, MT_Model_Field_Declaration::META );
 		if ( ! isset( $fields['post_type'] ) ) {
 			$fields['post_type'] = $this->post_type;
 		}
 		if ( isset( $fields['ID'] ) && empty( $fields['ID'] ) ) {
-			// ID of 0 is not acceptable on CPTs, so remove it
+			// ID of 0 is not acceptable on CPTs, so remove it.
 			unset( $fields['ID'] );
 		}
 

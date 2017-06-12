@@ -43,7 +43,7 @@ class MT_Type_ArrayTest extends MT_Testing_Model_TestCase {
 
     function test_integer_type() {
         $int_type = $this->type_registry->definition( 'integer' );
-        $this->assertInstanceOf( MT_Type_Integer::class, $int_type );
+        $this->assertInstanceOf( 'MT_Type_Integer', $int_type );
 
         $this->assertEquals( 0, $int_type->default_value() );
         $this->assertEquals( 'integer', $int_type->name() );
@@ -54,7 +54,7 @@ class MT_Type_ArrayTest extends MT_Testing_Model_TestCase {
 
     function test_nullable() {
         $nullable_int = $this->type_registry->definition( 'nullable:integer' );
-        $this->assertInstanceOf( MT_Type_Nullable::class, $nullable_int );
+        $this->assertInstanceOf( 'MT_Type_Nullable', $nullable_int );
 
         $this->assertNull( $nullable_int->default_value() );
         $this->assertEquals( 'nullable:integer', $nullable_int->name() );
@@ -67,7 +67,7 @@ class MT_Type_ArrayTest extends MT_Testing_Model_TestCase {
 
     function test_typed_array() {
         $array_of_ints = $this->type_registry->definition( 'array:integer' );
-        $this->assertInstanceOf( MT_Type_TypedArray::class, $array_of_ints );
+        $this->assertInstanceOf( 'MT_Type_TypedArray', $array_of_ints );
 
         $this->assertEquals( array(), $array_of_ints->default_value() );
         $this->assertEquals( 'array:integer', $array_of_ints->name() );
@@ -78,7 +78,7 @@ class MT_Type_ArrayTest extends MT_Testing_Model_TestCase {
 
     function test_boolean() {
         $bool_type = $this->type_registry->definition( 'boolean' );
-        $this->assertInstanceOf( MT_Type_Boolean::class, $bool_type );
+        $this->assertInstanceOf( 'MT_Type_Boolean', $bool_type );
 
         $this->assertEquals( false, $bool_type->default_value() );
         $this->assertEquals( 'boolean', $bool_type->name() );

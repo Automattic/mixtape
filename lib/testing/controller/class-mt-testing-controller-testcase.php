@@ -36,7 +36,7 @@ class MT_Testing_Controller_TestCase extends MT_Testing_Model_TestCase {
 	 * @param int              $status_code Expected status code.
 	 */
 	function assertResponseStatus( $response, $status_code ) {
-		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertInstanceOf( 'WP_REST_Response', $response );
 		$this->assertEquals( $status_code, $response->get_status() );
 	}
 

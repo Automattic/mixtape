@@ -32,14 +32,14 @@ class MT_Type_RegistryTest extends MT_Testing_Model_TestCase {
 
     function test_get_type_definition_return_type() {
         $str_type = $this->type_registry->definition( 'string' );
-        $this->assertInstanceOf( MT_Interfaces_Type::class, $str_type );
+        $this->assertInstanceOf( 'MT_Interfaces_Type', $str_type );
     }
 
     function test_define_type_create_new_type() {
         $uint = $this->type_registry->definition( 'uint' );
         $this->type_registry->define('uint32', $uint );
         $type = $this->type_registry->definition( 'uint32' );
-        $this->assertInstanceOf( MT_Interfaces_Type::class, $type );
+        $this->assertInstanceOf( 'MT_Interfaces_Type', $type );
         $this->assertSame( $uint, $type );
     }
 
@@ -47,7 +47,7 @@ class MT_Type_RegistryTest extends MT_Testing_Model_TestCase {
         $uint = $this->type_registry->definition( 'uint' );
         $this->type_registry->define( 'uint32', $uint );
         $str_type = $this->type_registry->definition( 'array:uint32' );
-        $this->assertInstanceOf( MT_Interfaces_Type::class, $str_type );
+        $this->assertInstanceOf( 'MT_Interfaces_Type', $str_type );
     }
 
     /**

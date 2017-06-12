@@ -30,7 +30,7 @@ class MT_Type_StringTest extends MT_Testing_Model_TestCase {
 
     function test_string_type_exists() {
         $this->assertClassExists( 'MT_Type_String' );
-        $this->assertInstanceOf( MT_Type_String::class, $this->string_type );
+        $this->assertInstanceOf( 'MT_Type_String', $this->string_type );
         $this->assertEquals( 'string', $this->string_type->name() );
     }
 

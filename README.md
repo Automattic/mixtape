@@ -68,7 +68,7 @@ $bundle->endpoint()
     ->crud( '/casettes' )
     ->for_model( $env->get()->model( 'Casette' ) );
 $bundle->endpoint()
-    ->with_class( CasetteApiEndpointVersion::class );
+    ->with_class( 'CasetteApiEndpointVersion' );
 
 $mixtape->environment()->start();
 ```

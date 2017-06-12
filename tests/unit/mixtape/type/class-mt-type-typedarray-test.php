@@ -21,7 +21,7 @@ class MT_Type_TypedArrayTest extends MT_Testing_Model_TestCase {
     }
 
     function test_is_registered() {
-        $this->assertInstanceOf( MT_Type_TypedArray::class, $this->typed_array );
+        $this->assertInstanceOf( 'MT_Type_TypedArray', $this->typed_array );
     }
 
     function test_default_value() {
