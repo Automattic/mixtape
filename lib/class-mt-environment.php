@@ -150,6 +150,8 @@ class MT_Environment {
 			$this->load_pending_builders( 'bundles' );
 			foreach ( $this->rest_apis as $k => $bundle ) {
 				/**
+				 * Register this bundle
+				 *
 				 * @var MT_Controller_Bundle
 				 */
 				$bundle->register();
@@ -212,10 +214,16 @@ class MT_Environment {
 	/**
 	 * Build a new Data Store
 	 *
+	 * @param string|null $data_store_class Optional class as string.
+	 *
 	 * @return MT_Data_Store_Builder
 	 */
-	public function data_store() {
-		return new MT_Data_Store_Builder();
+	public function data_store( $data_store_class = null ) {
+		$builder = new MT_Data_Store_Builder();
+		if ( null !== $data_store_class ) {
+			$builder->with_class( $data_store_class );
+		}
+		return $builder;
 	}
 
 	/**

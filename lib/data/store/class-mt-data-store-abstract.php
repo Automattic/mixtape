@@ -33,9 +33,10 @@ abstract class MT_Data_Store_Abstract implements MT_Interfaces_Data_Store {
 	 */
 	private $type_serializers;
 
-	public function __construct( $definition = null ) {
+	public function __construct( $definition = null, $args = array() ) {
 		$this->type_serializers = array();
-		if ( is_a( $definition, 'MT_Model_Definition') ) {
+		$this->args = $args;
+		if ( is_a( $definition, 'MT_Model_Definition' ) ) {
 			$this->set_definition( $definition );
 		}
 	}

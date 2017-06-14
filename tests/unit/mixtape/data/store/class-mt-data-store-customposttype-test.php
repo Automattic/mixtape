@@ -14,8 +14,10 @@ class MT_Data_Store_CustomPostTypeTest extends MT_Testing_Model_TestCase {
             'Casette'
         )->with_data_store(
             $env->data_store()
-            ->custom_post_type()
-            ->with_post_type( 'mixtape_casette' )
+            ->with_class( 'MT_Data_Store_CustomPostType' )
+            ->with_args( array(
+				'post_type' => 'mixtape_casette',
+			) )
         );
         $this->model_definition = $this->environment
             ->model( Casette::class );

@@ -239,14 +239,16 @@ class CasetteRESTApi {
 	static function register( $bootstrap ) {
 		$env = $bootstrap->environment();
 		$cpt_data_store = $env->data_store()
-			->custom_post_type()
-			->with_post_type( 'mixtape_casette' );
+			->with_class( 'MT_Data_Store_CustomPostType' )
+			->with_args( array(
+				'post_type' => 'mixtape_cassette',
+			) );
 
 		$env->define_model( 'Casette' )
 			->with_data_store( $cpt_data_store );
 
 		$env->define_model( 'CasetteSettings' )
-			->with_data_store( $env->data_store()->option() );
+			->with_data_store( $env->data_store()->with_class( 'MT_Data_Store_Option' ) );
 
 		$rest_api = $env->rest_api( 'mixtape-example/v1' );
 

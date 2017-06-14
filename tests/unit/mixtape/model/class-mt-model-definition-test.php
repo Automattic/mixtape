@@ -83,9 +83,9 @@ class MT_Model_DefinitionTest extends MT_Testing_Model_TestCase {
          $env->define_model( 'Casette' )
              ->with_data_store(
                  $env->data_store()
-                     ->custom_post_type()
-                     ->with_post_type( 'mixtape_cassette' )
+                     ->with_class( 'MT_Data_Store_CustomPostType' )
+                     ->with_args( array( 'post_type' => 'mixtape_cassette' ) )
              );
-        return $env->model( Casette::class );
+        return $env->model( 'Casette' );
     }
 }

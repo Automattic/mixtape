@@ -4,14 +4,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class MT_Data_Store_Option extends MT_Data_Store_Abstract {
+class MT_Data_Store_Option extends MT_Data_Store_Abstract
+	implements MT_Interfaces_Data_Store {
+
 	/**
-	 * @var stdClass a guard value to distinguish between get_option returning results or not
+	 * A guard value to distinguish between get_option returning results or not
+	 *
+	 * @var stdClass
 	 */
 	private $does_not_exist_guard;
 
-	function __construct( $definition, $data_provider = null ) {
-		parent::__construct( $definition );
+	/**
+	 * MT_Data_Store_Option constructor.
+	 *
+	 * @param MT_Model_Definition $definition Def.
+	 * @param array $args Args.
+	 */
+	function __construct( $definition, $args = array() ) {
+		parent::__construct( $definition, $args );
 		$this->does_not_exist_guard = new stdClass();
 	}
 

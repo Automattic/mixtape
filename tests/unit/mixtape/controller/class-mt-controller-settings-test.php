@@ -18,7 +18,7 @@ class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
 		$this->mixtape->environment()->define_model( 'Casette' );
 		$env = $this->mixtape->environment();
 		$env->define_model( 'CasetteSettings' )
-			->with_data_store( $env->data_store()->option() );
+			->with_data_store( $env->data_store()->with_class( 'MT_Data_Store_Option' ) );
 
 		$bundle = $env->rest_api( 'casette-crud-test/v1' );
 

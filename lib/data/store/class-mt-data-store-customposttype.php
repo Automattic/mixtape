@@ -13,12 +13,12 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	/**
 	 * Mixtape_Data_Store_CustomPostType constructor.
 	 *
-	 * @param null|MT_Model_Definition $definition
-	 * @param string                        $post_type
+	 * @param null|MT_Model_Definition $definition Def.
+	 * @param array                    $args Args.
 	 */
-	public function __construct( $definition = null, $post_type = 'post' ) {
-		$this->post_type = $post_type;
-		parent::__construct( $definition );
+	public function __construct( $definition = null, $args = array() ) {
+		$this->post_type = isset( $args['post_type'] ) ? $args['post_type'] : 'post';
+		parent::__construct( $definition, $args );
 	}
 
 	/**
