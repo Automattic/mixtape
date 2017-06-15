@@ -148,7 +148,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	function get_field_declarations( $filter_by_type = null ) {
 		$model_declaration = $this->get_model_declaration()->set_definition( $this );
 
-		MT_Expect::is_a( $model_declaration, 'MT_Interfaces_Model_Declaration');
+		MT_Expect::is_a( $model_declaration, 'MT_Interfaces_Model_Declaration' );
 
 		if ( null === $this->field_declarations ) {
 			$builder = new MT_Model_Field_Declaration_Collection_Builder( $this->environment() );
@@ -184,18 +184,19 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	}
 
 	/**
-	 * Merge values from HTTP Request with current values.
+	 * * Merge values from array with current values.
 	 * Note: Values change in place.
 	 *
 	 * @param MT_Interfaces_Model $model The model.
-	 * @param WP_REST_Request     $request The request.
+	 * @param array               $data The data (key-value assumed).
 	 * @param bool                $updating Is this an update?.
+	 *
 	 * @return MT_Interfaces_Model|WP_Error
 	 * @throws MT_Exception Throws.
 	 */
-	function merge_updates_from_request( $model, $request, $updating = false ) {
-		$request_data = $this->map_request_data( $request, $updating );
-		foreach ( $request_data as $name => $value ) {
+	function update_from_array( $model, $data, $updating = false ) {
+		$mapped_data = $this->map_data( $data, $updating );
+		foreach ( $mapped_data as $name => $value ) {
 			$model->set( $name, $value );
 		}
 		return $model->sanitize();
@@ -213,11 +214,11 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	/**
 	 * Creates a new Model From a Request
 	 *
-	 * @param WP_REST_Request $request The request.
+	 * @param array $data The request.
 	 * @return MT_Model|WP_Error
 	 */
-	public function new_from_request( $request ) {
-		$field_data = $this->map_request_data( $request, false );
+	public function new_from_array( $data ) {
+		$field_data = $this->map_data( $data, false );
 		return $this->create_instance( $field_data )->sanitize();
 	}
 
@@ -276,14 +277,13 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	}
 
 	/**
-	 * Map Request data
+	 * Map data names
 	 *
-	 * @param WP_REST_Request $request the Request.
-	 * @param bool            $updating Is update.
-	 *
+	 * @param array $data The data to map.
+	 * @param bool  $updating Are we Updating.
 	 * @return array
 	 */
-	private function map_request_data( $request, $updating = false ) {
+	private function map_data( $data, $updating = false ) {
 		$request_data = array();
 		$fields = $this->get_field_declarations();
 		foreach ( $fields as $field ) {
@@ -297,8 +297,8 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 			}
 			$dto_name = $field->get_data_transfer_name();
 			$field_name = $field->get_name();
-			if ( isset( $request[ $dto_name ] ) && ! ( $updating && $field->is_primary() ) ) {
-				$value = $request[ $dto_name ];
+			if ( isset( $data[ $dto_name ] ) && ! ( $updating && $field->is_primary() ) ) {
+				$value = $data[ $dto_name ];
 				$request_data[ $field_name ] = $value;
 			}
 		}

@@ -144,9 +144,9 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 		}
 
 		if ( $is_update && $model_to_update ) {
-			$model = $this->model_definition->merge_updates_from_request( $model_to_update, $request, $is_update );
+			$model = $this->model_definition->update_from_array( $model_to_update, $request->get_params(), $is_update );
 		} else {
-			$model = $this->get_model_definition()->new_from_request( $request );
+			$model = $this->get_model_definition()->new_from_array( $request->get_params() );
 		}
 
 		if ( is_wp_error( $model ) ) {

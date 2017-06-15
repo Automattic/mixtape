@@ -61,7 +61,8 @@ class MT_Controller_Settings extends MT_Controller_Model {
 			return $this->not_found( 'Model does not exist' );
 		}
 
-		$model = $this->get_model_definition()->merge_updates_from_request( $model_to_update, $request, true );
+		$model = $this->get_model_definition()
+			->update_from_array( $model_to_update, $request->get_params(), true );
 
 		if ( is_wp_error( $model ) ) {
 			return $this->bad_request( $model );
