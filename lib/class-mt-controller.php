@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class MT_Controller extends WP_REST_Controller implements MT_Interfaces_Controller {
 	const HTTP_CREATED     = 201;
-	const HTTP_SUCCESS     = 200;
+	const HTTP_OK          = 200;
 	const HTTP_BAD_REQUEST = 400;
 	const HTTP_NOT_FOUND   = 404;
 
@@ -117,8 +117,8 @@ class MT_Controller extends WP_REST_Controller implements MT_Interfaces_Controll
 	 *
 	 * @return WP_REST_Response
 	 */
-	public function succeed( $data ) {
-		return $this->respond( $data, self::HTTP_SUCCESS );
+	public function ok( $data ) {
+		return $this->respond( $data, self::HTTP_OK );
 	}
 
 	/**
@@ -243,6 +243,15 @@ class MT_Controller extends WP_REST_Controller implements MT_Interfaces_Controll
 		$route = new MT_Controller_Route( $this, $pattern );
 		$this->routes[ $pattern ] = $route;
 		return $this->routes[ $pattern ];
+	}
+
+	/**
+	 * Get Environment
+	 *
+	 * @return MT_Environment
+	 */
+	protected function environment() {
+		return $this->environment;
 	}
 
 	/**

@@ -79,7 +79,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 		if ( null === $item_id ) {
 			$models = $this->get_model_data_store()->get_entities();
 			$data = $this->prepare_dto( $models );
-			return $this->succeed( $data );
+			return $this->ok( $data );
 		}
 
 		$model = $this->model_definition->get_data_store()->get_entity( $item_id );
@@ -87,7 +87,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 			return $this->not_found( __( 'Model not found' ) );
 		}
 
-		return $this->succeed( $this->prepare_dto( $model ) );
+		return $this->ok( $this->prepare_dto( $model ) );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 		}
 
 		if ( $is_update && $model_to_update ) {
-			$model = $this->model_definition->update_from_array( $model_to_update, $request->get_params(), $is_update );
+			$model = $this->model_definition->update_model_from_array( $model_to_update, $request->get_params(), $is_update );
 		} else {
 			$model = $this->get_model_definition()->new_from_array( $request->get_params() );
 		}
@@ -169,7 +169,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 			'id' => absint( $id_or_error ),
 		) );
 
-		return $is_update ? $this->succeed( $dto ) : $this->created( $dto );
+		return $is_update ? $this->ok( $dto ) : $this->created( $dto );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 			return $this->not_found( 'Model does not exist' );
 		}
 		$result = $this->model_data_store->delete( $model );
-		return $this->succeed( $result );
+		return $this->ok( $result );
 	}
 
 	/**

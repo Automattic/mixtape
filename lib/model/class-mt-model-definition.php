@@ -194,7 +194,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	 * @return MT_Interfaces_Model|WP_Error
 	 * @throws MT_Exception Throws.
 	 */
-	function update_from_array( $model, $data, $updating = false ) {
+	function update_model_from_array( $model, $data, $updating = false ) {
 		$mapped_data = $this->map_data( $data, $updating );
 		foreach ( $mapped_data as $name => $value ) {
 			$model->set( $name, $value );

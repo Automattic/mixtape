@@ -35,7 +35,7 @@ class MT_Controller_Settings extends MT_Controller_Model {
 			return $this->not_found( __( 'Settings not found' ) );
 		}
 
-		return $this->succeed( $this->prepare_dto( $model ) );
+		return $this->ok( $this->prepare_dto( $model ) );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class MT_Controller_Settings extends MT_Controller_Model {
 		}
 
 		$model = $this->get_model_definition()
-			->update_from_array( $model_to_update, $request->get_params(), true );
+			->update_model_from_array( $model_to_update, $request->get_params(), true );
 
 		if ( is_wp_error( $model ) ) {
 			return $this->bad_request( $model );
@@ -83,6 +83,6 @@ class MT_Controller_Settings extends MT_Controller_Model {
 			'id' => absint( $id_or_error ),
 		) );
 
-		return $is_update ? $this->succeed( $dto ) : $this->created( $dto );
+		return $is_update ? $this->ok( $dto ) : $this->created( $dto );
 	}
 }

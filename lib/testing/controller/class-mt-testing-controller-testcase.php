@@ -18,7 +18,7 @@ class MT_Testing_Controller_TestCase extends MT_Testing_Model_TestCase {
 	}
 
 	function assert_http_response_status_success( $response ) {
-		$this->assert_response_status( $response, MT_Controller::HTTP_SUCCESS );
+		$this->assert_response_status( $response, MT_Controller::HTTP_OK );
 	}
 
 	function assert_http_response_status_created( $response ) {
