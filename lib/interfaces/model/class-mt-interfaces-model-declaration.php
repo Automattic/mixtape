@@ -37,7 +37,7 @@ interface MT_Interfaces_Model_Declaration {
 	/**
 	 * Declare the fields of our Model.
 	 *
-	 * @param MT_Model_Field_Declaration_Collection_Builder $definition The builder.
+	 * @param MT_Field_Declaration_Collection_Builder $definition The builder.
 	 * @return array list of Mixtape_Model_Field_Declaration
 	 */
 	function declare_fields( $definition );

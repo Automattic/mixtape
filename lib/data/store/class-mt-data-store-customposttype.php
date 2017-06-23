@@ -108,8 +108,8 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	public function upsert( $model ) {
 		$id = $model->get_id();
 		$updating = ! empty( $id );
-		$fields = $this->get_data_mapper()->model_to_data( $model, MT_Model_Field_Declaration::FIELD );
-		$meta_fields = $this->get_data_mapper()->model_to_data( $model, MT_Model_Field_Declaration::META );
+		$fields = $this->get_data_mapper()->model_to_data( $model, MT_Field_Declaration::FIELD );
+		$meta_fields = $this->get_data_mapper()->model_to_data( $model, MT_Field_Declaration::META );
 		if ( ! isset( $fields['post_type'] ) ) {
 			$fields['post_type'] = $this->post_type;
 		}

@@ -8,12 +8,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Mixtape_Model_Field_Declaration_Builder
  * Builds a Mixtape_Model_Field_Declaration
  */
-class MT_Model_Field_Declaration_Builder {
+class MT_Field_Declaration_Builder {
 
 	function __construct() {
 		$this->args = array(
 			'name'               => '',
-			'type'               => MT_Model_Field_Declaration::FIELD,
+			'type'               => MT_Field_Declaration::FIELD,
 			'type_definition'    => MT_Type::any(),
 			'required'           => false,
 			'map_from'           => null,
@@ -32,7 +32,7 @@ class MT_Model_Field_Declaration_Builder {
 		);
 	}
 	public function build() {
-		return new MT_Model_Field_Declaration( $this->args );
+		return new MT_Field_Declaration( $this->args );
 	}
 
 	public function with_default( $default_value ) {
@@ -43,7 +43,7 @@ class MT_Model_Field_Declaration_Builder {
 		return $this->with( 'name', $name );
 	}
 
-	public function with_data_store_type( $type ) {
+	public function with_kind($type ) {
 		return $this->with( 'type', $type );
 	}
 
@@ -80,7 +80,7 @@ class MT_Model_Field_Declaration_Builder {
 	 * Set the type definition of this field declaration
 	 *
 	 * @param MT_Interfaces_Type $value_type
-	 * @return MT_Model_Field_Declaration_Builder $this
+	 * @return MT_Field_Declaration_Builder $this
 	 * @throws MT_Exception
 	 */
 	public function typed( $value_type ) {
@@ -120,6 +120,6 @@ class MT_Model_Field_Declaration_Builder {
 	}
 
 	public function derived( $func ) {
-		return $this->with_data_store_type( MT_Model_Field_Declaration::DERIVED )->map_from( $func );
+		return $this->with_kind( MT_Field_Declaration::DERIVED )->map_from( $func );
 	}
 }

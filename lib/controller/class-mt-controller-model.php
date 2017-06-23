@@ -80,7 +80,7 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 			/**
 			 * Our declaration
 			 *
-			 * @var MT_Model_Field_Declaration $field_declaration
+			 * @var MT_Field_Declaration $field_declaration
 			 */
 			$properties[ $field_declaration->get_data_transfer_name() ] = $field_declaration->as_item_schema_property();
 			if ( $field_declaration->is_required() ) {

@@ -31,7 +31,7 @@ class MT_Data_Mapper {
 		$raw_data = array();
 		$post_array_keys = array_keys( $data );
 		foreach ( $field_declarations as $declaration ) {
-			/** @var MT_Model_Field_Declaration $declaration */
+			/** @var MT_Field_Declaration $declaration */
 			$key = $declaration->get_name();
 			$mapping = $declaration->get_map_from();
 			$value = null;
@@ -56,7 +56,7 @@ class MT_Data_Mapper {
 	function model_to_data( $model, $field_type = null ) {
 		$field_values_to_insert = array();
 		foreach ( $this->definition->get_field_declarations( $field_type ) as $field_declaration ) {
-			/** @var MT_Model_Field_Declaration $field_declaration */
+			/** @var MT_Field_Declaration $field_declaration */
 			$what_to_map_to = $field_declaration->get_map_from();
 			$value = $model->get( $field_declaration->get_name() );
 			$field_values_to_insert[ $what_to_map_to ] = $this->serializer->serialize( $field_declaration, $value );

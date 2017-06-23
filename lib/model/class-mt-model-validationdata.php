@@ -28,7 +28,7 @@ class MT_Model_ValidationData {
 	/**
 	 * The field
 	 *
-	 * @var MT_Model_Field_Declaration
+	 * @var MT_Field_Declaration
 	 */
 	private $field;
 
@@ -37,7 +37,7 @@ class MT_Model_ValidationData {
 	 *
 	 * @param mixed                           $value The value.
 	 * @param MT_Interfaces_Model        $model The Model.
-	 * @param MT_Model_Field_Declaration $field The Field.
+	 * @param MT_Field_Declaration $field The Field.
 	 */
 	public function __construct( $value, $model, $field ) {
 		$this->value = $value;
@@ -67,7 +67,7 @@ class MT_Model_ValidationData {
 	/**
 	 * Get Field
 	 *
-	 * @return MT_Model_Field_Declaration
+	 * @return MT_Field_Declaration
 	 */
 	public function get_field() {
 		return $this->field;

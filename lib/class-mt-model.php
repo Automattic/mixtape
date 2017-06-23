@@ -95,7 +95,7 @@ class MT_Model implements MT_Interfaces_Model {
 		/**
 		 * The declaration.
 		 *
-		 * @var MT_Model_Field_Declaration $field_declaration The declaration.
+		 * @var MT_Field_Declaration $field_declaration The declaration.
 		 */
 		$field_declaration = $this->fields[ $field ];
 		if ( null !== $field_declaration->before_set() ) {
@@ -168,7 +168,7 @@ class MT_Model implements MT_Interfaces_Model {
 			/**
 			 * Field Declaration.
 			 *
-			 * @var MT_Model_Field_Declaration $field_declaration
+			 * @var MT_Field_Declaration $field_declaration
 			 */
 			$field_name = $field_declaration->get_name();
 			$value = $this->get( $field_name );
@@ -196,12 +196,12 @@ class MT_Model implements MT_Interfaces_Model {
 	/**
 	 * Run Validations for this field.
 	 *
-	 * @param MT_Model_Field_Declaration $field_declaration The field.
+	 * @param MT_Field_Declaration $field_declaration The field.
 	 *
 	 * @return bool|WP_Error
 	 */
 	protected function run_field_validations( $field_declaration ) {
-		if ( $field_declaration->is_derived_field() ) {
+		if ( $field_declaration->is_kind( MT_Field_Declaration::DERIVED ) ) {
 			return true;
 		}
 		$value = $this->get( $field_declaration->get_name() );
@@ -229,7 +229,7 @@ class MT_Model implements MT_Interfaces_Model {
 	/**
 	 * Prepare the value associated with this declaraton for output.
 	 *
-	 * @param MT_Model_Field_Declaration $field_declaration The declaration to use.
+	 * @param MT_Field_Declaration $field_declaration The declaration to use.
 	 * @return mixed
 	 */
 	private function prepare_value( $field_declaration ) {
@@ -255,12 +255,12 @@ class MT_Model implements MT_Interfaces_Model {
 	/**
 	 * Sets this field's value. Used for derived fields.
 	 *
-	 * @param MT_Model_Field_Declaration $field_declaration The field declaration.
+	 * @param MT_Field_Declaration $field_declaration The field declaration.
 	 */
 	private function set_field_if_unset( $field_declaration ) {
 		$field_name = $field_declaration->get_name();
 		if ( ! isset( $this->data[ $field_name ] ) ) {
-			if ( $field_declaration->is_derived_field() ) {
+			if ( $field_declaration->is_kind( MT_Field_Declaration::DERIVED ) ) {
 				$map_from = $field_declaration->get_map_from();
 				$value    = $this->get_declaration()->call( $map_from, array( $this ) );
 				$this->set( $field_name, $value );

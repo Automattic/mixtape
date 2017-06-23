@@ -17,7 +17,7 @@ class MT_Data_Serializer {
 	}
 
 	/**
-	 * @param MT_Model_Field_Declaration $field_declaration
+	 * @param MT_Field_Declaration $field_declaration
 	 * @param mixed                           $value
 	 * @return mixed the deserialized value
 	 */
@@ -27,7 +27,7 @@ class MT_Data_Serializer {
 	}
 
 	/**
-	 * @param  MT_Model_Field_Declaration $field_declaration
+	 * @param  MT_Field_Declaration $field_declaration
 	 * @param mixed                           $value
 	 * @return mixed
 	 * @throws MT_Exception

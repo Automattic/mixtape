@@ -44,7 +44,7 @@ class MT_Model_Declaration implements MT_Interfaces_Model_Declaration {
 	/**
 	 * Declare fields
 	 *
-	 * @param MT_Model_Field_Declaration_Collection_Builder $definition The def.
+	 * @param MT_Field_Declaration_Collection_Builder $definition The def.
 	 *
 	 * @return void
 	 * @throws MT_Exception Override this.

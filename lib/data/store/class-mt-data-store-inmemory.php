@@ -23,7 +23,7 @@ class MT_Data_Store_InMemory extends MT_Data_Store_Abstract implements MT_Interf
 
 	/**
 	 * @param MT_Model                   $model
-	 * @param MT_Model_Field_Declaration $field_declaration
+	 * @param MT_Field_Declaration $field_declaration
 	 * @return mixed
 	 */
 	public function get_meta_field_value( $model, $field_declaration ) {

@@ -38,7 +38,7 @@ class MT_Data_Store_Option extends MT_Data_Store_Abstract
 		$field_declarations = $this->get_definition()->get_field_declarations();
 		$raw_data = array();
 		foreach ( $field_declarations as $field_declaration ) {
-			/** @var MT_Model_Field_Declaration  $field_declaration */
+			/** @var MT_Field_Declaration  $field_declaration */
 			$option = get_option( $field_declaration->get_map_from(), $this->does_not_exist_guard );
 			if ( $this->does_not_exist_guard !== $option ) {
 				$raw_data[ $field_declaration->get_map_from() ] = $option;

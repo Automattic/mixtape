@@ -151,7 +151,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 		MT_Expect::is_a( $model_declaration, 'MT_Interfaces_Model_Declaration' );
 
 		if ( null === $this->field_declarations ) {
-			$builder = new MT_Model_Field_Declaration_Collection_Builder( $this->environment() );
+			$builder = new MT_Field_Declaration_Collection_Builder( $this->environment() );
 			$fields = $model_declaration->declare_fields( $builder );
 
 			$this->field_declarations = $this->initialize_field_map( $fields );
@@ -164,7 +164,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 			/**
 			 * The field decl.
 			 *
-			 * @var MT_Model_Field_Declaration $field_declaration
+			 * @var MT_Field_Declaration $field_declaration
 			 */
 			if ( $field_declaration->get_kind() === $filter_by_type ) {
 				$filtered[] = $field_declaration;
@@ -235,7 +235,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	function get_dto_field_mappings() {
 		$mappings = array();
 		foreach ( $this->get_field_declarations() as $field_declaration ) {
-			/** @var MT_Model_Field_Declaration $field_declaration */
+			/** @var MT_Field_Declaration $field_declaration */
 			if ( ! $field_declaration->supports_output_type( 'json' ) ) {
 				continue;
 			}
@@ -295,9 +295,9 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 			/**
 			 * Field
 			 *
-			 * @var MT_Model_Field_Declaration $field Field.
+			 * @var MT_Field_Declaration $field Field.
 			 */
-			if ( $field->is_derived_field() ) {
+			if ( $field->is_kind( MT_Field_Declaration::DERIVED ) ) {
 				continue;
 			}
 			$dto_name = $field->get_data_transfer_name();
@@ -323,7 +323,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 			/**
 			 * Builder
 			 *
-			 * @var MT_Model_Field_Declaration $field Field Builder.
+			 * @var MT_Field_Declaration $field Field Builder.
 			 */
 			$field = $field_builder->build();
 			$fields[ $field->get_name() ] = $field;

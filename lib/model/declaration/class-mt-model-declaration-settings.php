@@ -25,15 +25,15 @@ class MT_Model_Declaration_Settings extends MT_Model_Declaration
 
 	/**
 	 * @param string                                             $field_name
-	 * @param MT_Model_Field_Declaration_Builder            $field_builder
+	 * @param MT_Field_Declaration_Builder            $field_builder
 	 * @param array                                              $field_data
-	 * @param MT_Model_Field_Declaration_Collection_Builder $def
+	 * @param MT_Field_Declaration_Collection_Builder $def
 	 */
 	protected function on_field_setup( $field_name, $field_builder, $field_data, $def ) {
 	}
 
 	/**
-	 * @param MT_Model_Field_Declaration_Collection_Builder $def
+	 * @param MT_Field_Declaration_Collection_Builder $def
 	 * @return array
 	 */
 	function declare_fields( $def ) {
@@ -68,9 +68,9 @@ class MT_Model_Declaration_Settings extends MT_Model_Declaration
 	}
 
 	/**
-	 * @param MT_Model_Field_Declaration_Collection_Builder $def
+	 * @param MT_Field_Declaration_Collection_Builder $def
 	 * @param array                                              $field_data
-	 * @return MT_Model_Field_Declaration_Builder
+	 * @return MT_Field_Declaration_Builder
 	 */
 	private function field_declaration_builder_from_data( $def, $field_data ) {
 		$field_name = $field_data['name'];

@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class MT_Model_Field_Declaration_Collection_Builder {
+class MT_Field_Declaration_Collection_Builder {
 	/**
 	 * @var array
 	 */
@@ -20,8 +20,8 @@ class MT_Model_Field_Declaration_Collection_Builder {
 	}
 
 	/**
-	 * @param MT_Model_Field_Declaration_Builder $field
-	 * @return MT_Model_Field_Declaration_Collection_Builder $this
+	 * @param MT_Field_Declaration_Builder $field
+	 * @return MT_Field_Declaration_Collection_Builder $this
 	 */
 	function add( $field ) {
 		$this->field_declarations[] = $field;
@@ -33,7 +33,7 @@ class MT_Model_Field_Declaration_Collection_Builder {
 	}
 
 	function field( $name = null, $description = null, $data_store_type = 'field' ) {
-		$builder = new MT_Model_Field_Declaration_Builder();
+		$builder = new MT_Field_Declaration_Builder();
 		if ( ! empty( $name ) ) {
 			$builder->named( $name );
 		}
@@ -41,7 +41,7 @@ class MT_Model_Field_Declaration_Collection_Builder {
 			$builder->description( $description );
 		}
 		if ( 'field' !== $data_store_type ) {
-			$builder->with_data_store_type( $data_store_type );
+			$builder->with_kind( $data_store_type );
 		}
 		return $builder;
 	}

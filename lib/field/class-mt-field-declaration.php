@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 } // End if().
 
 /**
- * Class Mixtape_Model_Field_Declaration
+ * Class MT_Field_Declaration
  */
-class MT_Model_Field_Declaration {
+class MT_Field_Declaration {
 	/**
 	 * Field A field
 	 */
@@ -26,6 +26,11 @@ class MT_Model_Field_Declaration {
 	 * possible to update their values from callables
 	 */
 	const DERIVED = 'derived';
+	/**
+	 * Map From
+	 *
+	 * @var null|string
+	 */
 	private $map_from;
 	/**
 	 * The field kind
@@ -33,20 +38,66 @@ class MT_Model_Field_Declaration {
 	 * @var string
 	 */
 	private $kind;
+	/**
+	 * Field name
+	 *
+	 * @var string
+	 */
 	private $name;
+	/**
+	 * Is this a primary field?
+	 *
+	 * @var bool
+	 */
 	private $primary;
+	/**
+	 * Is this a required field?
+	 *
+	 * @var bool
+	 */
 	private $required;
+	/**
+	 * Outputs
+	 *
+	 * @var array
+	 */
 	private $supported_outputs;
+	/**
+	 * Description
+	 *
+	 * @var string
+	 */
 	private $description;
+	/**
+	 * Data Transfer Name
+	 *
+	 * @var null|string
+	 */
 	private $data_transfer_name;
+	/**
+	 * Validations
+	 *
+	 * @var null|array
+	 */
 	private $validations;
+	/**
+	 * Default Value
+	 *
+	 * @var null|mixed
+	 */
 	private $default_value;
+	/**
+	 * Field Choices
+	 *
+	 * @var null|array
+	 */
 	private $choices;
 	/**
+	 * Type
+	 *
 	 * @var null|MT_Interfaces_Type
 	 */
 	private $type;
-
 	/**
 	 * Acceptable field kinds
 	 *
@@ -102,7 +153,7 @@ class MT_Model_Field_Declaration {
 	private $updater;
 
 	/**
-	 * MT_Model_Field_Declaration constructor.
+	 * Constructor.
 	 *
 	 * @param array $args The arguments.
 	 * @throws MT_Exception When invalid name or kind provided.
@@ -119,7 +170,7 @@ class MT_Model_Field_Declaration {
 		$this->description         = $this->value_or_default( $args, 'description', '' );
 
 		$this->kind                = $args['type'];
-		$this->type     = $this->value_or_default( $args, 'type_definition', MT_Type::any() );
+		$this->type                = $this->value_or_default( $args, 'type_definition', MT_Type::any() );
 		$this->choices             = $this->value_or_default( $args, 'choices', null );
 		$this->default_value       = $this->value_or_default( $args, 'default_value' );
 
@@ -152,26 +203,45 @@ class MT_Model_Field_Declaration {
 		return $this->choices;
 	}
 
+	/**
+	 * Get Sanitizer
+	 *
+	 * @return callable|null
+	 */
 	public function get_sanitizer() {
 		return $this->sanitizer;
 	}
 
+	/**
+	 * Value or Default
+	 *
+	 * @param array  $args Args.
+	 * @param string $name Name.
+	 * @param mixed  $default Default.
+	 * @return null
+	 */
 	private function value_or_default( $args, $name, $default = null ) {
 		return isset( $args[ $name ] ) ? $args[ $name ] : $default;
 	}
 
-	public function is_meta_field() {
-		return $this->kind === self::META;
+	/**
+	 * Is Kind
+	 *
+	 * @param string $kind The kind.
+	 * @return bool
+	 */
+	public function is_kind( $kind ) {
+		if ( ! in_array( $kind, $this->field_kinds, true ) ) {
+			return false;
+		}
+		return $this->kind === $kind;
 	}
 
-	public function is_derived_field() {
-		return $this->kind === self::DERIVED;
-	}
-
-	public function is_field() {
-		return $this->kind === self::FIELD;
-	}
-
+	/**
+	 * Get default value
+	 *
+	 * @return mixed
+	 */
 	public function get_default_value() {
 		if ( isset( $this->default_value ) && ! empty( $this->default_value ) ) {
 			return ( is_array( $this->default_value ) && is_callable( $this->default_value ) ) ? call_user_func( $this->default_value ) : $this->default_value;
