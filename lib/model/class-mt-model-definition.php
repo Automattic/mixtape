@@ -161,7 +161,12 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 		}
 		$filtered = array();
 		foreach ( $this->field_declarations as $field_declaration ) {
-			if ( $field_declaration->get_type() === $filter_by_type ) {
+			/**
+			 * The field decl.
+			 *
+			 * @var MT_Model_Field_Declaration $field_declaration
+			 */
+			if ( $field_declaration->get_kind() === $filter_by_type ) {
 				$filtered[] = $field_declaration;
 			}
 		}

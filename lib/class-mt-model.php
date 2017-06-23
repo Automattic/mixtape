@@ -98,8 +98,8 @@ class MT_Model implements MT_Interfaces_Model {
 		 * @var MT_Model_Field_Declaration $field_declaration The declaration.
 		 */
 		$field_declaration = $this->fields[ $field ];
-		if ( null !== $field_declaration->before_model_set() ) {
-			$val = $this->get_declaration()->call( $field_declaration->before_model_set(), array( $this, $value ) );
+		if ( null !== $field_declaration->before_set() ) {
+			$val = $this->get_declaration()->call( $field_declaration->before_set(), array( $this, $value ) );
 		} else {
 			$val = $field_declaration->cast_value( $value );
 		}
@@ -165,13 +165,18 @@ class MT_Model implements MT_Interfaces_Model {
 	 */
 	public function sanitize() {
 		foreach ( $this->fields as $key => $field_declaration ) {
+			/**
+			 * Field Declaration.
+			 *
+			 * @var MT_Model_Field_Declaration $field_declaration
+			 */
 			$field_name = $field_declaration->get_name();
 			$value = $this->get( $field_name );
-			$custom_sanitization = $field_declaration->get_sanitize();
+			$custom_sanitization = $field_declaration->get_sanitizer();
 			if ( ! empty( $custom_sanitization ) ) {
 				$value = $this->get_declaration()->call( $custom_sanitization, array( $this, $value ) );
 			} else {
-				$value = $field_declaration->get_type_definition()->sanitize( $value );
+				$value = $field_declaration->get_type()->sanitize( $value );
 			}
 			$this->set( $field_name, $value );
 		}
@@ -230,7 +235,7 @@ class MT_Model implements MT_Interfaces_Model {
 	private function prepare_value( $field_declaration ) {
 		$key = $field_declaration->get_name();
 		$value = $this->data[ $key ];
-		$before_return = $field_declaration->get_before_return();
+		$before_return = $field_declaration->before_get();
 		if ( isset( $before_return ) && ! empty( $before_return ) ) {
 			$value = $this->get_declaration()->call( $before_return, array( $this, $key, $value ) );
 		}

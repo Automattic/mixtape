@@ -1,4 +1,9 @@
 <?php
+/**
+ * Fields
+ *
+ * @package MT
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,16 +13,26 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Mixtape_Model_Field_Declaration
  */
 class MT_Model_Field_Declaration {
+	/**
+	 * Field A field
+	 */
 	const FIELD = 'field';
+	/**
+	 * Meta a meta field
+	 */
 	const META = 'meta';
+	/**
+	 * Derived fields kinds get their values from callables. It is also
+	 * possible to update their values from callables
+	 */
 	const DERIVED = 'derived';
-	const TAXONOMY = 'taxonomy';
-	const OPTION = 'option';
-	const TAG = 'tag';
-
-	private $before_return;
 	private $map_from;
-	private $type;
+	/**
+	 * The field kind
+	 *
+	 * @var string
+	 */
+	private $kind;
 	private $name;
 	private $primary;
 	private $required;
@@ -30,58 +45,115 @@ class MT_Model_Field_Declaration {
 	/**
 	 * @var null|MT_Interfaces_Type
 	 */
-	private $type_definition;
+	private $type;
 
-	private $on_serialize;
-
-	private $accepted_data_store_hints = array(
+	/**
+	 * Acceptable field kinds
+	 *
+	 * @var array
+	 */
+	private $field_kinds = array(
 		self::FIELD,
 		self::META,
 		self::DERIVED,
-		self::TAXONOMY,
-		self::OPTION,
-		self::TAG,
 	);
-	private $on_deserialize;
-	private $sanitize;
-	private $before_model_set;
+	/**
+	 * A custom function to call before serialization
+	 *
+	 * @var null|callable
+	 */
+	private $serializer;
+	/**
+	 * A custom function to call before deserialization
+	 *
+	 * @var null|callable
+	 */
+	private $deserializer;
+	/**
+	 * A custom function to use for sanitizing the field value before setting it.
+	 * Used when receiving values from untrusted sources (e.g. a web form of a REST API request)
+	 *
+	 * @var null|callable
+	 */
+	private $sanitizer;
+	/**
+	 * A custom filtering callable triggered before setting the field with the value
+	 *
+	 * @var null|callable
+	 */
+	private $before_set;
+	/**
+	 * A custom filtering callable triggered before returning the field value
+	 *
+	 * @var null|callable
+	 */
+	private $before_get;
+	/**
+	 * Used by derived fields: The function to use to get the field value
+	 *
+	 * @var null|callable
+	 */
+	private $reader;
+	/**
+	 * Used by derived fields: The function to use to update the field value
+	 *
+	 * @var null|callable
+	 */
+	private $updater;
 
+	/**
+	 * MT_Model_Field_Declaration constructor.
+	 *
+	 * @param array $args The arguments.
+	 * @throws MT_Exception When invalid name or kind provided.
+	 */
 	public function __construct( $args ) {
 		if ( ! isset( $args['name'] ) || empty( $args['name'] ) || ! is_string( $args['name'] ) ) {
 			throw new MT_Exception( 'every field declaration should have a (non-empty) name string' );
 		}
-		if ( ! isset( $args['type'] ) || ! in_array( $args['type'], $this->accepted_data_store_hints, true ) ) {
-			throw new MT_Exception( 'every field should have a type (one of ' . implode( ',', $this->accepted_data_store_hints ) . ')' );
+		if ( ! isset( $args['type'] ) || ! in_array( $args['type'], $this->field_kinds, true ) ) {
+			throw new MT_Exception( 'every field should have a type (one of ' . implode( ',', $this->field_kinds ) . ')' );
 		}
 
 		$this->name                = $args['name'];
-		$this->type                = $args['type'];
-		$this->type_definition     = $this->value_or_default( $args, 'type_definition', MT_Type::any() );
+		$this->description         = $this->value_or_default( $args, 'description', '' );
+
+		$this->kind                = $args['type'];
+		$this->type     = $this->value_or_default( $args, 'type_definition', MT_Type::any() );
+		$this->choices             = $this->value_or_default( $args, 'choices', null );
+		$this->default_value       = $this->value_or_default( $args, 'default_value' );
+
 		$this->map_from            = $this->value_or_default( $args, 'map_from' );
-		$this->before_return       = $this->value_or_default( $args, 'before_return' );
-		$this->sanitize            = $this->value_or_default( $args, 'sanitize' );
-		$this->on_serialize        = $this->value_or_default( $args, 'on_serialize' );
-		$this->on_deserialize      = $this->value_or_default( $args, 'on_deserialize' );
+		$this->data_transfer_name  = $this->value_or_default( $args, 'data_transfer_name', $this->get_name() );
+
 		$this->primary             = $this->value_or_default( $args, 'primary', false );
 		$this->required            = $this->value_or_default( $args, 'required', false );
 		$this->supported_outputs   = $this->value_or_default( $args, 'supported_outputs', array( 'json' ) );
-		$this->data_transfer_name  = $this->value_or_default( $args, 'data_transfer_name', $this->get_name() );
-		$this->default_value       = $this->value_or_default( $args, 'default_value' );
-		$this->description         = $this->value_or_default( $args, 'description', '' );
-		$this->choices             = $this->value_or_default( $args, 'choices', null );
+
+		$this->sanitizer            = $this->value_or_default( $args, 'sanitize' );
 		$this->validations         = $this->value_or_default( $args, 'validations', array() );
-		$this->before_model_set    = $this->value_or_default( $args, 'before_model_set' );
+
+		$this->serializer          = $this->value_or_default( $args, 'on_serialize' );
+		$this->deserializer        = $this->value_or_default( $args, 'on_deserialize' );
+
+		$this->before_get          = $this->value_or_default( $args, 'before_return' );
+		$this->before_set          = $this->value_or_default( $args, 'before_model_set' );
+
+		$this->reader              = $this->value_or_default( $args, 'reader' );
+		$this->updater             = $this->value_or_default( $args, 'updater' );
 	}
 
 	/**
-	 * @return null|array()
+	 * Get possible choices if set
+	 *
+	 * @return null|array
 	 */
 	public function get_choices() {
 		return $this->choices;
 	}
 
-	public function get_sanitize() {
-		return $this->sanitize;
+	public function get_sanitizer() {
+		return $this->sanitizer;
 	}
 
 	private function value_or_default( $args, $name, $default = null ) {
@@ -89,15 +161,15 @@ class MT_Model_Field_Declaration {
 	}
 
 	public function is_meta_field() {
-		return $this->type === self::META;
+		return $this->kind === self::META;
 	}
 
 	public function is_derived_field() {
-		return $this->type === self::DERIVED;
+		return $this->kind === self::DERIVED;
 	}
 
 	public function is_field() {
-		return $this->type === self::FIELD;
+		return $this->kind === self::FIELD;
 	}
 
 	public function get_default_value() {
@@ -105,11 +177,11 @@ class MT_Model_Field_Declaration {
 			return ( is_array( $this->default_value ) && is_callable( $this->default_value ) ) ? call_user_func( $this->default_value ) : $this->default_value;
 		}
 
-		return $this->type_definition->default_value();
+		return $this->type->default_value();
 	}
 
 	public function cast_value( $value ) {
-		return $this->type_definition->cast( $value );
+		return $this->type->cast( $value );
 	}
 
 	public function supports_output_type( $type ) {
@@ -117,7 +189,7 @@ class MT_Model_Field_Declaration {
 	}
 
 	public function as_item_schema_property() {
-		$schema = $this->type_definition->schema();
+		$schema = $this->type->schema();
 		$schema['context'] = array( 'view', 'edit' );
 		$schema['description'] = $this->get_description();
 
@@ -141,8 +213,8 @@ class MT_Model_Field_Declaration {
 	/**
 	 * @return mixed
 	 */
-	public function get_type() {
-		return $this->type;
+	public function get_kind() {
+		return $this->kind;
 	}
 
 	/**
@@ -191,26 +263,66 @@ class MT_Model_Field_Declaration {
 		return $this->validations;
 	}
 
-	public function get_before_return() {
-		return $this->before_return;
-	}
-
-	public function get_serializer() {
-		return $this->on_serialize;
-	}
-
-	public function get_deserializer() {
-		return $this->on_deserialize;
+	/**
+	 * Get Before get
+	 *
+	 * @return callable|null
+	 */
+	public function before_get() {
+		return $this->before_get;
 	}
 
 	/**
-	 * @return MT_Interfaces_Type
+	 * Get Serializer
+	 *
+	 * @return callable|null
 	 */
-	function get_type_definition() {
-		return $this->type_definition;
+	public function get_serializer() {
+		return $this->serializer;
 	}
 
-	public function before_model_set() {
-		return $this->before_model_set;
+	/**
+	 * Get Deserializer
+	 *
+	 * @return callable|null
+	 */
+	public function get_deserializer() {
+		return $this->deserializer;
+	}
+
+	/**
+	 * Get Type
+	 *
+	 * @return MT_Interfaces_Type
+	 */
+	function get_type() {
+		return $this->type;
+	}
+
+	/**
+	 * Before Set
+	 *
+	 * @return callable|null
+	 */
+	public function before_set() {
+		return $this->before_set;
+	}
+
+	/**
+	 * Get Reader
+	 *
+	 * @return callable|null
+	 */
+	public function get_reader() {
+		return $this->reader;
+	}
+
+	/**
+	 * Get Updater
+	 *
+	 * @return callable|null
+	 */
+	public function get_updater() {
+		return $this->updater;
 	}
 }
