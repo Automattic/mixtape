@@ -1,4 +1,9 @@
 <?php
+/**
+ * Settings Model
+ *
+ * @package MT/Model
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,28 +17,41 @@ class MT_Model_Declaration_Settings extends MT_Model_Declaration
 	implements MT_Interfaces_Permissions_Provider {
 
 	/**
-	 * @return array
-	 * @throws MT_Exception
+	 * Get Settings
+	 *
+	 * @throws MT_Exception Override this.
 	 */
 	function get_settings() {
 		MT_Expect::that( false, 'Override this' );
 	}
 
+	/**
+	 * Default for Attribute. Override to change this behavior
+	 *
+	 * @param array  $field_data Data.
+	 * @param string $attribute Attr.
+	 * @return mixed
+	 */
 	protected function default_for_attribute( $field_data, $attribute ) {
 		return null;
 	}
 
 	/**
-	 * @param string                                             $field_name
-	 * @param MT_Field_Declaration_Builder            $field_builder
-	 * @param array                                              $field_data
-	 * @param MT_Field_Declaration_Collection_Builder $def
+	 * On Field Setup
+	 *
+	 * @param string                                  $field_name Name.
+	 * @param MT_Field_Declaration_Builder            $field_builder Builder.
+	 * @param array                                   $field_data Data.
+	 * @param MT_Field_Declaration_Collection_Builder $def Def.
+	 * @return void
 	 */
 	protected function on_field_setup( $field_name, $field_builder, $field_data, $def ) {
 	}
 
 	/**
-	 * @param MT_Field_Declaration_Collection_Builder $def
+	 * Declare Fields
+	 *
+	 * @param MT_Field_Declaration_Collection_Builder $def Def.
 	 * @return array
 	 */
 	function declare_fields( $def ) {
@@ -51,25 +69,52 @@ class MT_Model_Declaration_Settings extends MT_Model_Declaration
 		return $fields;
 	}
 
+	/**
+	 * Convert bool to bit
+	 *
+	 * @param mixed $value Val.
+	 * @return string
+	 */
 	function bool_to_bit( $value ) {
 		return ( ! empty( $value ) && 'false' !== $value ) ? '1' : '';
 	}
 
+	/**
+	 * Covert bit to bool
+	 *
+	 * @param mixed $value Val.
+	 * @return bool
+	 */
 	function bit_to_bool( $value ) {
 		return ( ! empty( $value ) && '0' !== $value ) ? true : false;
 	}
 
+	/**
+	 * Get ID
+	 *
+	 * @param MT_Interfaces_Model $model Model.
+	 * @return string
+	 */
 	function get_id( $model ) {
 		return strtolower( get_class( $this ) );
 	}
 
+	/**
+	 * Set ID
+	 *
+	 * @param MT_Interfaces_Model $model Model.
+	 * @param mixed               $new_id New ID.
+	 * @return MT_Interfaces_Model $this
+	 */
 	function set_id( $model, $new_id ) {
 		return $this;
 	}
 
 	/**
-	 * @param MT_Field_Declaration_Collection_Builder $def
-	 * @param array                                              $field_data
+	 * Build declarations from array
+	 *
+	 * @param MT_Field_Declaration_Collection_Builder $def Def.
+	 * @param array                                   $field_data Data.
 	 * @return MT_Field_Declaration_Builder
 	 */
 	private function field_declaration_builder_from_data( $def, $field_data ) {
@@ -89,8 +134,8 @@ class MT_Model_Declaration_Settings extends MT_Model_Declaration
 				$default_value = $this->bit_to_bool( $default_value );
 			}
 			$field_builder
-				->with_serializer( 'bool_to_bit' )
-				->with_deserializer( 'bit_to_bool' );
+				->with_serializer( array( $this, 'bool_to_bit' ) )
+				->with_deserializer( array( $this, 'bit_to_bool' ) );
 
 		} elseif ( 'select' === $setting_type ) {
 			$field_type = 'string';
@@ -105,11 +150,11 @@ class MT_Model_Declaration_Settings extends MT_Model_Declaration
 			$field_builder->with_default( $default_value );
 		}
 		$field_builder
-			->description( $description )
-			->dto_name( $field_name )
-			->typed( $def->type( $field_type ) );
+			->with_description( $description )
+			->with_dto_name( $field_name )
+			->with_type( $def->type( $field_type ) );
 		if ( $choices ) {
-			$field_builder->choices( $choices );
+			$field_builder->with_choices( $choices );
 		}
 
 		$this->on_field_setup( $field_name, $field_builder, $field_data, $def );
@@ -117,7 +162,10 @@ class MT_Model_Declaration_Settings extends MT_Model_Declaration
 	}
 
 	/**
-	 * @param WP_REST_Request $request
+	 * Permissions Check
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @param string          $action Action.
 	 * @return bool
 	 */
 	public function permissions_check( $request, $action ) {

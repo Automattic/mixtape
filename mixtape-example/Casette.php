@@ -44,7 +44,7 @@ class CasetteAdminSettings {
 
 class CasetteSettings extends MT_Model_Declaration_Settings {
 	function on_field_setup( $field_name, $field_builder, $field_data, $def ) {
-		$field_builder->dto_name( str_replace( 'mixtape_casette_', '', $field_data['name'] ) );
+		$field_builder->with_dto_name( str_replace( 'mixtape_casette_', '', $field_data['name'] ) );
 	}
 
 	function get_settings() {
@@ -57,38 +57,38 @@ class Casette extends MT_Model_Declaration
 	public function declare_fields( $d ) {
 			return array(
 				$d->field( 'id' )
-					->map_from( 'ID' )
-					->typed( $d->type( 'uint' ) )
-					->description( 'Unique identifier for the object.' ),
+					->with_map_from( 'ID' )
+					->with_type( $d->type( 'uint' ) )
+					->with_description( 'Unique identifier for the object.' ),
 
 				$d->field( 'title', 'The casette title.' )
-					->map_from( 'post_title' )
-					->typed( $d->type( 'string' ) )
-					->required(),
+					->with_map_from( 'post_title' )
+					->with_type( $d->type( 'string' ) )
+					->with_required(),
 
 				$d->field( 'author', __( 'The author identifier.', 'casette' ) )
-					->map_from( 'post_author' )
-					->typed( $d->type( 'uint' ) )
-					->validated_by( 'validate_author' )
+					->with_map_from( 'post_author' )
+					->with_type( $d->type( 'uint' ) )
+					->with_validations( 'validate_author' )
 					->with_default( 0 )
-					->dto_name( 'authorID' ),
+					->with_dto_name( 'authorID' ),
 
 				$d->field( 'status', 'The casette status.' )
-					->typed( $d->type( 'string' ) )
-					->validated_by( 'validate_status' )
+					->with_type( $d->type( 'string' ) )
+					->with_validations( 'validate_status' )
 					->with_default( 'draft' )
-					->map_from( 'post_status' ),
+					->with_map_from( 'post_status' ),
 
 				$d->field( 'ratings', 'The casette ratings' )
-					->derived( 'get_ratings' )
-					->dto_name( 'the_ratings' ),
+					->derived( array( $this, 'get_ratings' ) )
+					->with_dto_name( 'the_ratings' ),
 
 				$d->field( 'songs', 'The casette songs', 'meta' )
-					->map_from( '_casette_song_ids' )
-					->typed( $d->type( 'array' ) )
-					->with_deserializer( 'song_before_return' )
-					->with_serializer( 'song_before_save' )
-					->dto_name( 'song_ids' ),
+					->with_map_from( '_casette_song_ids' )
+					->with_type( $d->type( 'array' ) )
+					->with_deserializer( array( $this, 'song_before_return' ) )
+					->with_serializer( array( $this, 'song_before_save' ) )
+					->with_dto_name( 'song_ids' ),
 			);
 	}
 
@@ -151,17 +151,17 @@ class Song extends MT_Model_Declaration {
 	public function declare_fields( $d ) {
 		return array(
 			$d->field()
-				->named( 'id' )
+				->with_name( 'id' )
 				->map_from( 'ID' )
-				->typed( 'integer' )
-				->description( 'Unique identifier for the object.' )
-				->sanitized_by( 'as_uint' ),
+				->with_type( 'integer' )
+				->with_description( 'Unique identifier for the object.' )
+				->with_sanitizer( 'as_uint' ),
 			$d->field()
-				->named( 'title' )
+				->with_name( 'title' )
 				->map_from( 'post_title' )
-				->typed( 'string' )
-				->description( 'The song title.' )
-				->required( true ),
+				->with_type( 'string' )
+				->with_description( 'The song title.' )
+				->with_required( true ),
 		);
 	}
 

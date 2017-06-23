@@ -162,15 +162,15 @@ class MT_Field_Declaration {
 		if ( ! isset( $args['name'] ) || empty( $args['name'] ) || ! is_string( $args['name'] ) ) {
 			throw new MT_Exception( 'every field declaration should have a (non-empty) name string' );
 		}
-		if ( ! isset( $args['type'] ) || ! in_array( $args['type'], $this->field_kinds, true ) ) {
-			throw new MT_Exception( 'every field should have a type (one of ' . implode( ',', $this->field_kinds ) . ')' );
+		if ( ! isset( $args['kind'] ) || ! in_array( $args['kind'], $this->field_kinds, true ) ) {
+			throw new MT_Exception( 'every field should have a kind (one of ' . implode( ',', $this->field_kinds ) . ')' );
 		}
 
 		$this->name                = $args['name'];
 		$this->description         = $this->value_or_default( $args, 'description', '' );
 
-		$this->kind                = $args['type'];
-		$this->type                = $this->value_or_default( $args, 'type_definition', MT_Type::any() );
+		$this->kind                = $args['kind'];
+		$this->type                = $this->value_or_default( $args, 'type', MT_Type::any() );
 		$this->choices             = $this->value_or_default( $args, 'choices', null );
 		$this->default_value       = $this->value_or_default( $args, 'default_value' );
 
@@ -181,14 +181,14 @@ class MT_Field_Declaration {
 		$this->required            = $this->value_or_default( $args, 'required', false );
 		$this->supported_outputs   = $this->value_or_default( $args, 'supported_outputs', array( 'json' ) );
 
-		$this->sanitizer            = $this->value_or_default( $args, 'sanitize' );
+		$this->sanitizer           = $this->value_or_default( $args, 'sanitizer' );
 		$this->validations         = $this->value_or_default( $args, 'validations', array() );
 
-		$this->serializer          = $this->value_or_default( $args, 'on_serialize' );
-		$this->deserializer        = $this->value_or_default( $args, 'on_deserialize' );
+		$this->serializer          = $this->value_or_default( $args, 'serializer' );
+		$this->deserializer        = $this->value_or_default( $args, 'deserializer' );
 
-		$this->before_get          = $this->value_or_default( $args, 'before_return' );
-		$this->before_set          = $this->value_or_default( $args, 'before_model_set' );
+		$this->before_get          = $this->value_or_default( $args, 'before_get' );
+		$this->before_set          = $this->value_or_default( $args, 'before_set' );
 
 		$this->reader              = $this->value_or_default( $args, 'reader' );
 		$this->updater             = $this->value_or_default( $args, 'updater' );
@@ -250,14 +250,31 @@ class MT_Field_Declaration {
 		return $this->type->default_value();
 	}
 
+	/**
+	 * Cast a value
+	 *
+	 * @param mixed $value Val.
+	 * @return mixed
+	 */
 	public function cast_value( $value ) {
 		return $this->type->cast( $value );
 	}
 
+	/**
+	 * Supports this type of output.
+	 *
+	 * @param string $type Type.
+	 * @return bool
+	 */
 	public function supports_output_type( $type ) {
 		return in_array( $type, $this->supported_outputs, true );
 	}
 
+	/**
+	 * As Item Schema Property
+	 *
+	 * @return array
+	 */
 	public function as_item_schema_property() {
 		$schema = $this->type->schema();
 		$schema['context'] = array( 'view', 'edit' );
@@ -270,6 +287,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Get Map From
+	 *
 	 * @return null
 	 */
 	public function get_map_from() {
@@ -281,6 +300,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Get Kind
+	 *
 	 * @return mixed
 	 */
 	public function get_kind() {
@@ -288,6 +309,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Get Name
+	 *
 	 * @return mixed
 	 */
 	public function get_name() {
@@ -295,6 +318,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Is Primary
+	 *
 	 * @return bool
 	 */
 	public function is_primary() {
@@ -302,6 +327,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Is Required
+	 *
 	 * @return bool
 	 */
 	public function is_required() {
@@ -309,6 +336,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Get Description
+	 *
 	 * @return string
 	 */
 	public function get_description() {
@@ -320,6 +349,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Get Dto name
+	 *
 	 * @return string
 	 */
 	public function get_data_transfer_name() {
@@ -327,6 +358,8 @@ class MT_Field_Declaration {
 	}
 
 	/**
+	 * Get Validations
+	 *
 	 * @return array
 	 */
 	public function get_validations() {
