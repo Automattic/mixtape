@@ -47,19 +47,21 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	 * @param string         $bundle_prefix Prefix.
 	 * @param array          $endpoint_builders Builders.
 	 */
-	function __construct( $environment, $bundle_prefix, $endpoint_builders ) {
-		$this->environment = $environment;
+	function __construct( $bundle_prefix, $endpoint_builders ) {
 		$this->prefix = $bundle_prefix;
 		$this->endpoint_builders = $endpoint_builders;
 	}
 
 	/**
-	 * Register all endpoints
+	 * Register this bundle with the environment.
 	 *
-	 * @return MT_Interfaces_Controller_Bundle $this;
+	 * @param MT_Environment $environment The Environment.
+	 * @return $this
+	 * @throws MT_Exception When no prefix is defined.
 	 */
-	function register() {
+	function register( $environment ) {
 		MT_Expect::that( null !== $this->prefix, 'prefix should be defined' );
+		$this->environment = $environment;
 		/**
 		 * Add/remove endpoints. Useful for extensions
 		 *

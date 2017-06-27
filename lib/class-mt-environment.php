@@ -19,6 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package Mixtape
  */
 class MT_Environment {
+	const REGISTRABLE = 'IRegistrable';
+	const BUNDLES = 'Bundles';
+	const MODELS = 'Models';
 
 	/**
 	 * This environment's registered rest bundles (versioned APIs)
@@ -33,6 +36,13 @@ class MT_Environment {
 	 * @var array
 	 */
 	protected $model_definitions;
+
+	/**
+	 * The Environment Variables
+	 *
+	 * @var array
+	 */
+	protected $variables;
 
 	/**
 	 * Did this Environment start?
@@ -56,13 +66,6 @@ class MT_Environment {
 	private $type_registry;
 
 	/**
-	 * Queues of pending builders
-	 *
-	 * @var array
-	 */
-	private $pending_definitions;
-
-	/**
 	 * Mixtape_Environment constructor.
 	 *
 	 * @param MT_Bootstrap $bootstrap The bootstrap.
@@ -71,13 +74,14 @@ class MT_Environment {
 		$this->bootstrap = $bootstrap;
 		$this->has_started = false;
 		$this->rest_apis = array();
+		$this->variables = array();
 		$this->model_definitions = array();
-		$this->pending_definitions = array(
-			'models' => array(),
-			'bundles' => array(),
-		);
 		$this->type_registry = new MT_Type_Registry();
 		$this->type_registry->initialize( $this );
+		// initialize our array vars.
+		$this->array_var( self::MODELS )
+			->array_var( self::REGISTRABLE )
+			->array_var( self::BUNDLES );
 	}
 
 	/**
@@ -92,9 +96,9 @@ class MT_Environment {
 	 * @throws MT_Exception In case the $builder is not a Mixtape_Interfaces_Builder.
 	 */
 	public function push_builder( $where, $builder ) {
+		MT_Expect::that( is_string( $where ), '$where should be a string' );
 		MT_Expect::is_a( $builder, 'MT_Interfaces_Builder' );
-		$this->pending_definitions[ $where ][] = $builder;
-		return $this;
+		return $this->array_var( $where, $builder );
 	}
 
 	/**
@@ -108,7 +112,7 @@ class MT_Environment {
 		if ( ! class_exists( $class ) ) {
 			throw new MT_Exception( $class . ' does not exist' );
 		}
-		$this->load_pending_builders( 'models' );
+		$this->load_pending_builders( self::MODELS );
 		MT_Expect::that( isset( $this->model_definitions[ $class ] ), $class . ' definition does not exist' );
 		return $this->model_definitions[ $class ];
 	}
@@ -117,21 +121,27 @@ class MT_Environment {
 	 * Time to build pending models and bundles
 	 *
 	 * @param string $type One of (models, bundles).
+	 * @return MT_Environment
 	 */
 	private function load_pending_builders( $type ) {
-		foreach ( $this->pending_definitions[ $type ] as $pending ) {
-			/**
-			 * Our pending builder.
-			 *
-			 * @var MT_Interfaces_Builder $pending Our builder.
-			 */
-			if ( 'models' === $type ) {
-				$this->add_model_definition( $pending->build() );
-			}
-			if ( 'bundles' === $type ) {
-				$this->add_rest_bundle( $pending->build() );
+		$things = $this->get( $type );
+		if ( ! empty( $things ) && is_array( $things ) ) {
+			foreach ( $things as $pending ) {
+				/**
+				 * Our pending builder.
+				 *
+				 * @var MT_Interfaces_Builder $pending Our builder.
+				 */
+				if ( self::MODELS === $type ) {
+					$this->add_model_definition( $pending->build() );
+				}
+				if ( self::BUNDLES === $type ) {
+					$this->add_rest_bundle( $pending->build() );
+				}
 			}
 		}
+
+		return $this;
 	}
 
 	/**
@@ -145,31 +155,103 @@ class MT_Environment {
 	 */
 	public function start() {
 		if ( false === $this->has_started ) {
-			do_action( 'mixtape_environment_before_start', $this );
-			$this->load_models();
-			$this->load_pending_builders( 'bundles' );
+			do_action( 'mt_environment_before_start', $this );
+			$this->load_pending_builders( self::MODELS );
+			$this->load_pending_builders( self::BUNDLES );
+			$registrables = $this->get( self::REGISTRABLE ) ? $this->get( self::REGISTRABLE ) : array();
+			foreach ( $registrables as $registrable ) {
+				/**
+				 * A Registrable
+				 *
+				 * @var MT_Interfaces_Registrable $registrable
+				 */
+				$registrable->register( $this );
+			}
 			foreach ( $this->rest_apis as $k => $bundle ) {
 				/**
 				 * Register this bundle
 				 *
-				 * @var MT_Controller_Bundle
+				 * @var MT_Interfaces_Controller_Bundle
 				 */
-				$bundle->register();
+				$bundle->register( $this );
 			}
 			$this->has_started = true;
-			do_action( 'mixtape_environment_after_start', $this );
+			do_action( 'mt_environment_after_start', $this );
 		}
 
 		return $this;
 	}
 
 	/**
-	 * Loads Models
+	 * Add Registrable
 	 *
-	 * @return MT_Environment $this
+	 * @param MT_Interfaces_Registrable $registrable_thing Registrable.
+	 * @return MT_Environment
+	 * @throws MT_Exception When not a MT_Interfaces_Registrable.
 	 */
-	public function load_models() {
-		$this->load_pending_builders( 'models' );
+	public function add_registrable( $registrable_thing ) {
+		MT_Expect::is_a( $registrable_thing, 'MT_Interfaces_Registrable' );
+		$this->array_var( self::REGISTRABLE, $registrable_thing );
+		return $this->define_var( get_class( $registrable_thing ), $registrable_thing );
+	}
+
+	/**
+	 * Has Variable
+	 *
+	 * @param string $name Is this variable Set.
+	 * @return bool
+	 */
+	public function has_variable( $name ) {
+		return isset( $this->variables[ $name ] );
+	}
+
+	/**
+	 * Append to an array
+	 *
+	 * @param string $name  The VarArray Name.
+	 * @param mixed  $thing The thing.
+	 * @return MT_Environment
+	 */
+	public function array_var( $name, $thing = null ) {
+		return $this->define_var( $name, $thing, true );
+	}
+
+	/**
+	 * Get A Variable
+	 *
+	 * @param string $name The Variable Name.
+	 * @return mixed|null The variable or null
+	 *
+	 * @throws MT_Exception Name should be a string.
+	 */
+	public function get( $name ) {
+		MT_Expect::that( is_string( $name ), '$name should be a string' );
+		return $this->has_variable( $name ) ? $this->variables[ $name ] : null;
+	}
+
+	/**
+	 * Def.
+	 *
+	 * @param string $name The Variable To Add.
+	 * @param mixed  $thing The thing that is associated with the var.
+	 * @param bool   $append If true, this var is a list.
+	 *
+	 * @return $this
+	 *
+	 * @throws MT_Exception When name is not a string.
+	 */
+	public function define_var( $name, $thing = null, $append = false ) {
+		MT_Expect::that( is_string( $name ), '$name should be a string' );
+		if ( $append && ! $this->has_variable( $name ) ) {
+			$this->variables[ $name ] = array();
+		}
+		if ( null !== $thing ) {
+			if ( $append ) {
+				$this->variables[ $name ][] = $thing;
+			} else {
+				$this->variables[ $name ] = $thing;
+			}
+		}
 		return $this;
 	}
 
@@ -243,7 +325,7 @@ class MT_Environment {
 			$builder->with_environment( $this );
 		}
 
-		$this->push_builder( 'bundles', $builder );
+		$this->push_builder( self::BUNDLES, $builder );
 		return $builder;
 	}
 
@@ -259,7 +341,7 @@ class MT_Environment {
 		if ( null !== $declaration ) {
 			$builder->with_declaration( $declaration );
 		}
-		$this->push_builder( 'models', $builder->with_environment( $this ) );
+		$this->push_builder( self::MODELS, $builder->with_environment( $this ) );
 		return $builder;
 	}
 

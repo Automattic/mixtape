@@ -22,7 +22,7 @@ class MT_Field_Declaration {
 	 */
 	const META = 'meta';
 	/**
-	 * Derived fields kinds get their values from callables. It is also
+	 * Derived field kinds get their values from callables. It is also
 	 * possible to update their values from callables
 	 */
 	const DERIVED = 'derived';

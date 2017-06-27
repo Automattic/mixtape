@@ -68,7 +68,7 @@ class MT_Model_Declaration implements MT_Interfaces_Model_Declaration {
 	 * Set the id
 	 *
 	 * @param MT_Interfaces_Model $model The model.
-	 * @param mixed                    $new_id The new id.
+	 * @param mixed               $new_id The new id.
 	 *
 	 * @return mixed|null
 	 */

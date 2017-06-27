@@ -46,7 +46,7 @@ class MT_Field_DeclarationTest extends MT_Testing_Model_TestCase {
             ->with_type( $registry->definition( 'string' ) )
             ->with_default( 'Foobar' )
             ->with_map_from( 'firstName' )
-            ->with_required(true)
+            ->with_required( true )
             ->build();
         $this->assertTrue( $first_name_declaration->is_kind( MT_Field_Declaration::FIELD ) );
         $this->assertTrue( $first_name_declaration->is_required() );
@@ -68,6 +68,7 @@ class MT_Field_DeclarationTest extends MT_Testing_Model_TestCase {
             ->with_name( 'first_name' )->build();
         $this->assertEquals( 'First name', $field->get_description() );
     }
+
     function test_as_item_schema_property_contain_choices_if_set() {
         $type_registry = $this->environment->start()->type();
         $choices = array( 'a', 'b', 'c' );

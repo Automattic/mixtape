@@ -81,6 +81,7 @@ class MT_Bootstrap {
 	function load() {
 		$this->class_loader()
 			->load_class( 'Interfaces_Data_Store' )
+			->load_class( 'Interfaces_Registrable' )
 			->load_class( 'Interfaces_Type' )
 			->load_class( 'Interfaces_Model' )
 			->load_class( 'Interfaces_Builder' )
@@ -108,6 +109,7 @@ class MT_Bootstrap {
 			->load_class( 'Data_Store_CustomPostType' )
 			->load_class( 'Data_Store_Option' )
 			->load_class( 'Data_Store_Builder' )
+			->load_class( 'Permissions_Any' )
 			->load_class( 'Field_Declaration' )
 			->load_class( 'Field_Declaration_Builder' )
 			->load_class( 'Field_Declaration_Collection_Builder' )
@@ -125,6 +127,7 @@ class MT_Bootstrap {
 			->load_class( 'Controller_Route' )
 			->load_class( 'Controller_CRUD' )
 			->load_class( 'Controller_Bundle' )
+			->load_class( 'Controller_Extension' )
 			->load_class( 'Controller_Bundle_Builder' );
 
 		return $this;

@@ -14,14 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Interface MT_Interfaces_Rest_Api_Controller_Bundle
  */
-interface MT_Interfaces_Controller_Bundle {
-
-	/**
-	 * Register REST Routes
-	 *
-	 * @return mixed
-	 */
-	public function register();
+interface MT_Interfaces_Controller_Bundle extends MT_Interfaces_Registrable {
 
 	/**
 	 * Get all the Endpoints

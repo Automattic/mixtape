@@ -54,7 +54,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      * @covers Mixtape_Environment::push_builder
      */
     function test_push_builder_throws_when_no_valid_class() {
-        $this->bootstrap->environment()->push_builder( 'models', new stdClass());
+        $this->bootstrap->environment()->push_builder( MT_Environment::MODELS, new stdClass());
     }
 
     /**
@@ -63,7 +63,6 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      */
     function test_model_definition_throw_if_unknown_class() {
         $this->bootstrap->environment()->model( 'Foo' );
-        ///
     }
 
     /**
@@ -82,4 +81,18 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
         $d = $this->bootstrap->environment()->model( MT_Model_Declaration_Settings::class );
         $this->assertInstanceOf( MT_Model_Definition::class, $d );
     }
+
+	function test_define_var_defines_var() {
+		$env = $this->bootstrap->environment();
+		$env->define_var( 'foo', 'bar' );
+		$this->assertSame( 'bar', $env->get( 'foo' ) );
+	}
+
+	function test_add_var_appends_to_list() {
+		$env = $this->bootstrap->environment();
+		$env->array_var( 'listfoo', 'bar' );
+		$lst = $env->get( 'listfoo' );
+		$this->assertInternalType( 'array', $lst );
+		$this->assertSame( 'bar', $lst[0] );
+	}
 }

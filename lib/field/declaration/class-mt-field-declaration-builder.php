@@ -248,8 +248,11 @@ class MT_Field_Declaration_Builder {
 	 *
 	 * @return MT_Field_Declaration_Builder
 	 */
-	public function derived( $func ) {
-		return $this->with_kind( MT_Field_Declaration::DERIVED )->with_map_from( $func );
+	public function derived( $func = null ) {
+		if ( $func ) {
+			$this->with_map_from( $func );
+		}
+		return $this->with_kind( MT_Field_Declaration::DERIVED );
 	}
 
 	/**

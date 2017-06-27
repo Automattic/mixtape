@@ -1,6 +1,6 @@
 <?php
 /**
- * Model Collection
+ * Model Collection Default implementation
  *
  * @package Mixtape/Model
  */
