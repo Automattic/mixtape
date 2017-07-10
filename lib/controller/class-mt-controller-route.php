@@ -108,7 +108,7 @@ class MT_Controller_Route {
 			}
 
 			if ( null !== $settings['args'] ) {
-				$args = call_user_func( $this->expect_callable( $settings['args'] ) );
+				$args = call_user_func( $this->expect_callable( $settings['args'] ), $this->actions_to_http_methods[ $action ] );
 			} else {
 				$args = $this->controller->get_endpoint_args_for_item_schema( $this->actions_to_http_methods[ $action ] );
 			}
@@ -132,11 +132,11 @@ class MT_Controller_Route {
 	 */
 	private function expect_callable( $callable_func ) {
 		if ( ! is_callable( $callable_func ) ) {
-			// Check if controller has method (public).
+			// Check if controller has method called $callable_func (public).
 			if ( is_string( $callable_func ) && method_exists( $this->controller, $callable_func ) ) {
 				return array( $this->controller, $callable_func );
 			}
-			MT_Expect::that( is_callable( $callable_func ), 'Callable Expected: ' . print_r( $callable_func, true ) );
+			MT_Expect::that( is_callable( $callable_func ), 'Callable Expected: $callable_func' );
 		}
 		return $callable_func;
 	}
