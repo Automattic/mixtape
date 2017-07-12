@@ -2,9 +2,11 @@
 
 Model, Data Store, Data Transfer Object and REST API Controller Library for WordPress
 
+[![Build Status](https://travis-ci.org/Automattic/mixtape.svg?branch=master)](https://travis-ci.org/Automattic/mixtape)
+
 ## Features
 
-### Easy-to-use FluentInterface
+### Easy-to-use Fluent Interface
 
 Provides a DSL-Like way of defining Models, Controllers, Etc.(see https://martinfowler.com/bliki/FluentInterface.html)
 
@@ -12,65 +14,79 @@ Provides a DSL-Like way of defining Models, Controllers, Etc.(see https://martin
 #### Defining a Model's Fields
 ```php
 <?php
-function declare_fields( $d ) {
-        return array(
-            $d->field( 'id' )
-                ->map_from( 'ID' )
-                ->typed( $d->type( 'uint') )
-                ->description( 'Unique identifier for the object.' ),
+public function declare_fields( $d ) {
+			return array(
+				$d->field( 'id' )
+					->with_map_from( 'ID' )
+					->with_type( $d->type( 'uint' ) )
+					->with_description( 'Unique identifier for the object.' ),
 
-            $d->field( 'title', 'The casette title.' )
-                ->map_from( 'post_title' )
-                ->typed( $d->type( 'string') )
-                ->required(),
+				$d->field( 'title', 'The casette title.' )
+					->with_map_from( 'post_title' )
+					->with_type( $d->type( 'string' ) )
+					->with_required(),
 
-            $d->field( 'author', __( 'The author identifier.', 'casette' ) )
-                ->map_from( 'post_author' )
-                ->typed( $d->type( 'uint') )
-                ->validated_by( 'validate_author' )
-                ->with_default( 0 )
-                ->dto_name( 'authorID' ),
+				$d->field( 'author', __( 'The author identifier.', 'casette' ) )
+					->with_map_from( 'post_author' )
+					->with_type( $d->type( 'uint' ) )
+					->with_validations( 'validate_author' )
+					->with_default( 0 )
+					->with_dto_name( 'authorID' ),
 
-            $d->field( 'status', 'The casette status.' )
-                ->typed( $d->type( 'string') )
-                ->validated_by( 'validate_status' )
-                ->with_default('draft')
-                ->map_from( 'post_status' ),
+				$d->field( 'status', 'The casette status.' )
+					->with_type( $d->type( 'string' ) )
+					->with_validations( 'validate_status' )
+					->with_default( 'draft' )
+					->with_map_from( 'post_status' ),
 
-            $d->field( 'ratings', 'The casette ratings' )
-                ->derived( 'get_ratings' )
-                ->dto_name( 'the_ratings' ),
+				$d->field( 'ratings', 'The casette ratings' )
+					->derived( array( $this, 'get_ratings' ) )
+					->with_dto_name( 'the_ratings' ),
 
-            $d->field( 'songs', 'The casette songs', 'meta' )
-                ->map_from( '_casette_song_ids' )
-                ->typed( $d->type( 'array' ) )
-                ->with_deserializer( 'song_before_return' )
-                ->with_serializer( 'song_before_save' )
-                ->dto_name( 'song_ids' ),
-        );
-}
+				$d->field( 'songs', 'The casette songs', 'meta' )
+					->with_map_from( '_casette_song_ids' )
+					->with_type( $d->type( 'array' ) )
+					->with_deserializer( array( $this, 'song_before_return' ) )
+					->with_serializer( array( $this, 'song_before_save' ) )
+					->with_dto_name( 'song_ids' ),
+			);
+	}
 ```
 
 #### Setting Up a new Plugin's Environment
 
 ```php
-$env = $mixtape->environment();
-$env->define()->model(
-    'Casette'
-)->with_data_store(
-    $env->define()->data_store()
-        ->custom_post_type()
-        ->with_post_type('mixtape_casette')
-);
-$bundle = $env
-    ->define()->rest_api('mixtape-example/v1');
-$bundle->endpoint()
-    ->crud( '/casettes' )
-    ->for_model( $env->get()->model( 'Casette' ) );
-$bundle->endpoint()
-    ->with_class( 'CasetteApiEndpointVersion' );
+static function register( $bootstrap ) {
+		$env = $bootstrap->environment();
+		$cpt_data_store = $env->data_store()
+			->with_class( 'MT_Data_Store_CustomPostType' )
+			->with_args( array(
+				'post_type' => 'mixtape_cassette',
+			) );
 
-$mixtape->environment()->start();
+		$env->define_model( 'Casette' )
+			->with_data_store( $cpt_data_store );
+
+		$env->define_model( 'CasetteSettings' )
+			->with_data_store( $env->data_store()->with_class( 'MT_Data_Store_Option' ) );
+
+		$rest_api = $env->rest_api( 'mixtape-example/v1' );
+
+		$rest_api->endpoint()
+			->with_base( '/casettes' )
+			->with_class( 'MT_Controller_CRUD' )
+			->for_model( $env->model( 'Casette' ) );
+
+		$rest_api->endpoint()
+			->with_class( 'CasetteApiEndpointVersion' );
+
+		$rest_api->endpoint()
+			->with_base( '/settings' )
+			->with_class( 'MT_Controller_Settings' )
+			->for_model( $env->model( 'CasetteSettings' ) );
+
+		$env->auto_start();
+	}
 ```
 
 - Reusable (Delegation, Composition, DI, SOLID)
@@ -84,7 +100,7 @@ There is a script for creating a new project with a custom prefix. You can run i
 
     /scripts/new_project.sh Custom_Prefix ./../plugin-name/lib/custom_prefix
 
-Thie above will rename all mixtape classes: e.g. `Mixtape_Bootstrap -> Custom_Prefix_Bootstrap`
+The above will rename all mixtape classes: e.g. `Mixtape_Bootstrap -> Custom_Prefix_Bootstrap`
 
 ## Testing
 
