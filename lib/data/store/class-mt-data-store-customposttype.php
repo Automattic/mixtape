@@ -1,12 +1,22 @@
 <?php
+/**
+ * Data Store For custom Post types
+ *
+ * @package MT/Data
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Class MT_Data_Store_CustomPostType
+ */
 class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	/**
-	 * @var string the post type name
+	 * The post type name
+	 *
+	 * @var string
 	 */
 	private $post_type;
 
@@ -22,6 +32,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	}
 
 	/**
+	 * Get Entities
+	 *
+	 * @param null|mixed $filter Filter.
+	 *
 	 * @return MT_Model_Collection
 	 */
 	public function get_entities( $filter = null ) {
@@ -38,7 +52,9 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	}
 
 	/**
-	 * @param int $id the id of the entity
+	 * Get Entity
+	 *
+	 * @param int $id The id of the entity.
 	 * @return MT_Model|null
 	 */
 	public function get_entity( $id ) {
@@ -51,14 +67,16 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	}
 
 	/**
-	 * @param WP_Post $post
+	 * Create from Post.
+	 *
+	 * @param WP_Post $post Post.
 	 * @return MT_Model
-	 * @throws MT_Exception
+	 * @throws MT_Exception If something goes wrong.
 	 */
 	private function create_from_post( $post ) {
 		$field_declarations = $this->get_definition()->get_field_declarations();
 		$raw_post_data = $post->to_array();
-		$raw_meta_data = get_post_meta( $post->ID ); // assumes we are only ever adding one postmeta per key
+		$raw_meta_data = get_post_meta( $post->ID ); // assumes we are only ever adding one postmeta per key.
 
 		$flattened_meta = array();
 		foreach ( $raw_meta_data as $key => $value_arr ) {
@@ -71,8 +89,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	}
 
 	/**
-	 * @param MT_Model $model
-	 * @param array         $args
+	 * Delete
+	 *
+	 * @param MT_Interfaces_Model $model Model.
+	 * @param array               $args Args.
 	 * @return mixed
 	 */
 	public function delete( $model, $args = array() ) {
@@ -102,7 +122,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	}
 
 	/**
-	 * @param MT_Model $model
+	 * Upsert
+	 *
+	 * @param MT_Interfaces_Model $model Model.
+	 *
 	 * @return mixed|WP_Error
 	 */
 	public function upsert( $model ) {

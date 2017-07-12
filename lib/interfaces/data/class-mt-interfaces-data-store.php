@@ -37,7 +37,7 @@ interface MT_Interfaces_Data_Store {
 	 * Delete a Model
 	 *
 	 * @param MT_Interfaces_Model $model The model to delete.
-	 * @param array                    $args Args.
+	 * @param array               $args Args.
 	 * @return mixed
 	 */
 	public function delete( $model, $args = array() );

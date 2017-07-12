@@ -45,7 +45,7 @@ class MT_Model implements MT_Interfaces_Model {
 	 * Mixtape_Model constructor.
 	 *
 	 * @param MT_Model_Definition $definition The Definition.
-	 * @param array                    $data The data array.
+	 * @param array               $data The data array.
 	 *
 	 * @throws MT_Exception Throws when data is not an array.
 	 */

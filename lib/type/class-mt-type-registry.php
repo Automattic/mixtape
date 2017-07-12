@@ -1,38 +1,64 @@
 <?php
+/**
+ * Type Registry
+ *
+ * @package MT/Type
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Class MT_Type_Registry
+ */
 class MT_Type_Registry {
+	/**
+	 * Container Types (types that contain other types)
+	 *
+	 * @var array
+	 */
 	private $container_types = array(
 		'array',
 		'nullable',
 	);
+
+	/**
+	 * Our registered types
+	 *
+	 * @var null|array
+	 */
 	private $types = null;
 
 	/**
-	 * @param string                  $identifier
-	 * @param MT_Interfaces_Type $instance
+	 * Define a new type
+	 *
+	 * @param string             $identifier The Identifier.
+	 * @param MT_Interfaces_Type $instance The type instance.
+	 *
 	 * @return MT_Type_Registry $this
-	 * @throws MT_Exception
+	 *
+	 * @throws MT_Exception When $instance not a MT_Interfaces_Type.
 	 */
 	public function define( $identifier, $instance ) {
-		MT_Expect::is_a( $instance, 'MT_Interfaces_Type');
+		MT_Expect::is_a( $instance, 'MT_Interfaces_Type' );
 		$this->types[ $identifier ] = $instance;
 		return $this;
 	}
 
 	/**
-	 * @param string $type
+	 * Get a type definition
+	 *
+	 * @param string $type The type name.
 	 * @return MT_Interfaces_Type
-	 * @throws MT_Exception
+	 *
+	 * @throws MT_Exception In case of type name not confirming to syntax.
 	 */
 	function definition( $type ) {
 		$types = $this->get_types();
 
 		if ( ! isset( $types[ $type ] ) ) {
-			// maybe lazy-register missing compound type
+			// maybe lazy-register missing compound type.
 			$parts = explode( ':', $type );
 			if ( count( $parts ) > 1 ) {
 
@@ -65,10 +91,20 @@ class MT_Type_Registry {
 		return $types[ $type ];
 	}
 
+	/**
+	 * Get Types
+	 *
+	 * @return array
+	 */
 	private function get_types() {
-		return apply_filters( 'mixtape_type_registry_get_types', $this->types, $this );
+		return (array) apply_filters( 'mixtape_type_registry_get_types', $this->types, $this );
 	}
 
+	/**
+	 * Initialize the type registry
+	 *
+	 * @param MT_Environment $environment The Environment.
+	 */
 	public function initialize( $environment ) {
 		if ( null !== $this->types ) {
 			return;

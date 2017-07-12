@@ -15,19 +15,24 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class MT_Data_Store_Builder
  */
 class MT_Data_Store_Builder {
+
 	/**
 	 * Args.
 	 *
 	 * @var array
 	 */
 	private $args = array();
+
 	/**
 	 * The Model Class.
 	 *
 	 * @var string
 	 */
 	private $store_class = 'MT_Data_Store_CustomPostType';
+
 	/**
+	 * Definition
+	 *
 	 * @var MT_Model_Definition
 	 */
 	private $model_definition;

@@ -43,9 +43,8 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	/**
 	 * MT_Controller_Bundle_Definition constructor.
 	 *
-	 * @param MT_Environment $environment Env.
-	 * @param string         $bundle_prefix Prefix.
-	 * @param array          $endpoint_builders Builders.
+	 * @param string $bundle_prefix Prefix.
+	 * @param array  $endpoint_builders Builders.
 	 */
 	function __construct( $bundle_prefix, $endpoint_builders ) {
 		$this->prefix = $bundle_prefix;

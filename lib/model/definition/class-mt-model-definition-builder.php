@@ -67,7 +67,8 @@ class MT_Model_Definition_Builder implements MT_Interfaces_Builder {
 	/**
 	 * With Data Store
 	 *
-	 * @param null|MT_Interfaces_Builder $data_store
+	 * @param null|MT_Interfaces_Builder $data_store Data Store.
+	 *
 	 * @return MT_Model_Definition_Builder $this
 	 */
 	function with_data_store( $data_store = null ) {
@@ -76,14 +77,19 @@ class MT_Model_Definition_Builder implements MT_Interfaces_Builder {
 	}
 
 	/**
-	 * @param MT_Interfaces_Permissions_Provider $permissions_provider
+	 * With Permissions Provider
+	 *
+	 * @param MT_Interfaces_Permissions_Provider $permissions_provider Provider.
 	 */
 	function with_permissions_provider( $permissions_provider ) {
 		$this->permissions_provider = $permissions_provider;
 	}
 
 	/**
-	 * @param MT_Environment $environment
+	 * With Environment
+	 *
+	 * @param MT_Environment $environment Environment.
+	 *
 	 * @return MT_Model_Definition_Builder $this
 	 */
 	function with_environment( $environment ) {
@@ -92,6 +98,8 @@ class MT_Model_Definition_Builder implements MT_Interfaces_Builder {
 	}
 
 	/**
+	 * Build
+	 *
 	 * @return MT_Model_Definition
 	 */
 	function build() {

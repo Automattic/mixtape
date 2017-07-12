@@ -63,7 +63,7 @@ interface MT_Interfaces_Model_Declaration {
 	 * Set this model's unique identifier
 	 *
 	 * @param MT_Interfaces_Model $model The model.
-	 * @param mixed                    $id The id.
+	 * @param mixed               $id The id.
 	 *
 	 * @return MT_Interfaces_Model The model.
 	 */

@@ -1,4 +1,13 @@
 <?php
+/**
+ * A Route that is part of a controller.
+ *
+ * @package MT/Controller
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Class MT_Controller_Route

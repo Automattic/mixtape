@@ -78,7 +78,8 @@ class MT_Classloader implements MT_Interfaces_Classloader {
 	/**
 	 * Class_name_to_relative_path
 	 *
-	 * @param string $class_name The class name.
+	 * @param string      $class_name The class name.
+	 * @param null|string $prefix The prefix.
 	 *
 	 * @return string
 	 */
@@ -94,7 +95,8 @@ class MT_Classloader implements MT_Interfaces_Classloader {
 	/**
 	 * Prefixed_class_name
 	 *
-	 * @param string $class_name The class name.
+	 * @param string      $class_name The class name.
+	 * @param null|string $prefix The prefix.
 	 *
 	 * @return string
 	 */
@@ -108,7 +110,8 @@ class MT_Classloader implements MT_Interfaces_Classloader {
 	/**
 	 * Strip_prefix
 	 *
-	 * @param string $class_name The class name.
+	 * @param string      $class_name The class name.
+	 * @param null|string $prefix The prefix.
 	 *
 	 * @return string
 	 */

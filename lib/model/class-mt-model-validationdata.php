@@ -35,8 +35,8 @@ class MT_Model_ValidationData {
 	/**
 	 * Mixtape_Model_ValidationData constructor.
 	 *
-	 * @param mixed                           $value The value.
-	 * @param MT_Interfaces_Model        $model The Model.
+	 * @param mixed                $value The value.
+	 * @param MT_Interfaces_Model  $model The Model.
 	 * @param MT_Field_Declaration $field The Field.
 	 */
 	public function __construct( $value, $model, $field ) {

@@ -1,41 +1,58 @@
 <?php
+/**
+ * Data Mapper
+ *
+ * @package MT
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Class MT_Data_Serializer
+ */
 class MT_Data_Serializer {
-	private $model_delegate;
+	/**
+	 * Declaration
+	 *
+	 * @var MT_Interfaces_Model_Declaration
+	 */
+	private $model_declaration;
 
 	/**
 	 * Mixtape_Data_Serializer constructor.
 	 *
-	 * @param MT_Model_Definition $model_definition
+	 * @param MT_Model_Definition $model_definition MD.
 	 */
 	function __construct( $model_definition ) {
-		$this->model_delegate = $model_definition->get_model_declaration();
+		$this->model_declaration = $model_definition->get_model_declaration();
 	}
 
 	/**
-	 * @param MT_Field_Declaration $field_declaration
-	 * @param mixed                           $value
+	 * Deserialize
+	 *
+	 * @param MT_Field_Declaration $field_declaration Declaration.
+	 * @param mixed                $value Value.
 	 * @return mixed the deserialized value
 	 */
 	function deserialize( $field_declaration, $value ) {
 		$deserializer = $field_declaration->get_deserializer();
-		return $deserializer ? $this->model_delegate->call( $deserializer, array( $value ) ) : $value;
+		return $deserializer ? $this->model_declaration->call( $deserializer, array( $value ) ) : $value;
 	}
 
 	/**
-	 * @param  MT_Field_Declaration $field_declaration
-	 * @param mixed                           $value
+	 * Serialize
+	 *
+	 * @param  MT_Field_Declaration $field_declaration Declaration.
+	 * @param mixed                $value Value.
 	 * @return mixed
-	 * @throws MT_Exception
+	 * @throws MT_Exception If call fails.
 	 */
 	function serialize( $field_declaration, $value ) {
 		$serializer = $field_declaration->get_serializer();
 		if ( isset( $serializer ) && ! empty( $serializer ) ) {
-			return $this->model_delegate->call( $serializer, array( $value ) );
+			return $this->model_declaration->call( $serializer, array( $value ) );
 		}
 		return $value;
 	}

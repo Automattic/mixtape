@@ -4,6 +4,7 @@
  *
  * @package Mixtape
  */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

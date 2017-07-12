@@ -2,7 +2,7 @@
 /**
  * The model definition
  *
- * @pacage Mixtape/Model
+ * @package MT/Model
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -116,7 +116,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	 * @throws MT_Exception Throws when Data Store Invalid.
 	 */
 	function set_data_store( $data_store ) {
-		if ( is_a( $data_store, 'MT_Data_Store_Builder') ) {
+		if ( is_a( $data_store, 'MT_Data_Store_Builder' ) ) {
 			$this->data_store = $data_store
 				->with_model_definition( $this )
 				->build();
@@ -124,7 +124,7 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 			$this->data_store = $data_store;
 		}
 		// at this point we should have a data store.
-		MT_Expect::is_a( $this->data_store, 'MT_Interfaces_Data_Store');
+		MT_Expect::is_a( $this->data_store, 'MT_Interfaces_Data_Store' );
 
 		return $this;
 	}
@@ -235,7 +235,11 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 	function get_dto_field_mappings() {
 		$mappings = array();
 		foreach ( $this->get_field_declarations() as $field_declaration ) {
-			/** @var MT_Field_Declaration $field_declaration */
+			/**
+			 * Declaration
+			 *
+			 * @var MT_Field_Declaration $field_declaration
+			 */
 			if ( ! $field_declaration->supports_output_type( 'json' ) ) {
 				continue;
 			}
