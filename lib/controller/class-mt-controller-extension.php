@@ -1,7 +1,7 @@
 <?php
 /**
  * Controller-like class used for extending existing object types (e.g. post)
- * With custom fields. Needs a model definition.
+ * With custom fields. Needs a model definition that will provide the extra fields.
  *
  * @package MT/Controller
  */

@@ -2,7 +2,7 @@
 /**
  * Environment
  *
- * Contains rest api, type and model definitions
+ * Contains variables, rest api, type and model definitions
  *
  * @package Mixtape
  */
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Mixtape_Environment
+ * Class MT_Environment
  *
  * Our global Environment
  *
@@ -24,7 +24,9 @@ class MT_Environment {
 	const MODELS = 'Models';
 
 	/**
-	 * This environment's registered rest bundles (versioned APIs)
+	 * This environment's registered REST bundles
+	 *
+	 * (used for versioned APIs, or logical grouping of related api parts)
 	 *
 	 * @var array
 	 */
@@ -39,6 +41,8 @@ class MT_Environment {
 
 	/**
 	 * The Environment Variables
+	 *
+	 * A key-value array of things.
 	 *
 	 * @var array
 	 */
@@ -149,7 +153,8 @@ class MT_Environment {
 	 *
 	 * This should be called once our Environment is set up to our liking.
 	 * Evaluates all Builders, creating missing REST Api and Model Definitions.
-	 * Hook this into rest_api_init
+	 *
+	 * Normally we hook this into 'rest_api_init'
 	 *
 	 * @return MT_Environment $this
 	 */
@@ -167,7 +172,16 @@ class MT_Environment {
 				 */
 				$registrable->register( $this );
 			}
-			foreach ( $this->rest_apis as $k => $bundle ) {
+
+			/**
+			 * Use this hook to add/remove rest api bundles
+			 *
+			 * @param array          $rest_apis The existing rest apis.
+			 * @param MT_Environment $this The Environment.
+			 */
+			$rest_apis = (array) apply_filters( 'mt_environment_get_rest_apis', $this->rest_apis, $this );
+
+			foreach ( $rest_apis as $k => $bundle ) {
 				/**
 				 * Register this bundle
 				 *
@@ -226,7 +240,17 @@ class MT_Environment {
 	 */
 	public function get( $name ) {
 		MT_Expect::that( is_string( $name ), '$name should be a string' );
-		return $this->has_variable( $name ) ? $this->variables[ $name ] : null;
+		$value = $this->has_variable( $name ) ? $this->variables[ $name ] : null;
+		/**
+		 * Filter the variable value
+		 *
+		 * @param mixed          $value The value.
+		 * @param MT_Environment $this The Environemnt.
+		 * @param string         $name The var name.
+		 *
+		 * @return mixed
+		 */
+		return apply_filters( 'mt_variable_get', $value, $this, $name );
 	}
 
 	/**
@@ -282,6 +306,35 @@ class MT_Environment {
 	public function endpoint( $class ) {
 		$builder = new MT_Controller_Builder();
 		return $builder->with_class( $class )->with_environment( $this );
+	}
+
+	/**
+	 * Create a new Field Declaration Builder
+	 *
+	 * @param null|string $name Optional, the field name.
+	 * @param null|string $description Optional, the description.
+	 * @param null|string $field_kind The field kind (default 'field').
+	 *
+	 * @return MT_Field_Declaration_Builder
+	 */
+	public function field( $name = null, $description = null, $field_kind = null ) {
+		$builder = new MT_Field_Declaration_Builder();
+
+		if ( ! empty( $name ) ) {
+			$builder->with_name( $name );
+		}
+
+		if ( ! empty( $description ) ) {
+			$builder->with_description( $description );
+		}
+
+		if ( empty( $field_kind ) ) {
+			$field_kind = MT_Field_Declaration::FIELD;
+		}
+
+		$builder->with_kind( $field_kind );
+
+		return $builder;
 	}
 
 	/**

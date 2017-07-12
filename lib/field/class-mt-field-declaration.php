@@ -13,14 +13,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class MT_Field_Declaration
  */
 class MT_Field_Declaration {
+
 	/**
 	 * Field A field
 	 */
 	const FIELD = 'field';
+
 	/**
 	 * Meta a meta field
 	 */
 	const META = 'meta';
+
 	/**
 	 * Derived field kinds get their values from callables. It is also
 	 * possible to update their values from callables
