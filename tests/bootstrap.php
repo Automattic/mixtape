@@ -17,7 +17,7 @@ class Mixtape_Unit_Tests_Bootstrap {
         $this->tests_dir    = dirname( __FILE__ );
         $this->mixtape_dir   = dirname( $this->tests_dir );
         $this->wp_tests_dir = getenv( 'WP_TESTS_DIR' ) ? getenv( 'WP_TESTS_DIR' ) : '/tmp/wordpress-tests-lib';
-        $this->mixtape_example_dir = dirname( $this->tests_dir ) . DIRECTORY_SEPARATOR .  'mixtape-example';
+        $this->mixtape_example_dir = $this->mixtape_dir . DIRECTORY_SEPARATOR .  'mixtape-example';
         // load test function so tests_add_filter() is available
         require_once( $this->wp_tests_dir . '/includes/functions.php' );
         // load Mixtape
@@ -50,11 +50,11 @@ class Mixtape_Unit_Tests_Bootstrap {
 
     public function includes() {
         MT_Bootstrap::create()->load()->load_testing_classes();
-        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'casette.php' );
+        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
     }
 
     public function include_example_classes() {
-        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'casette.php' );
+        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
     }
 
     /**
