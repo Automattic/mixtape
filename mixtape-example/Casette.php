@@ -43,7 +43,7 @@ class CasetteAdminSettings {
 }
 
 class CasetteSettings extends MT_Model_Declaration_Settings {
-	function on_field_setup( $field_name, $field_builder, $field_data, $def ) {
+	function on_field_setup( $field_name, $field_builder, $field_data, $env ) {
 		$field_builder->with_dto_name( str_replace( 'mixtape_casette_', '', $field_data['name'] ) );
 	}
 

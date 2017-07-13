@@ -44,12 +44,12 @@ class MT_Model_Declaration implements MT_Interfaces_Model_Declaration {
 	/**
 	 * Declare fields
 	 *
-	 * @param MT_Field_Declaration_Collection_Builder $definition The def.
+	 * @param MT_Environment $env The Environment.
 	 *
 	 * @return void
 	 * @throws MT_Exception Override this.
 	 */
-	function declare_fields( $definition ) {
+	function declare_fields( $env ) {
 		throw new MT_Exception( 'Override me: ' . __FUNCTION__ );
 	}
 

@@ -37,10 +37,10 @@ interface MT_Interfaces_Model_Declaration {
 	/**
 	 * Declare the fields of our Model.
 	 *
-	 * @param MT_Field_Declaration_Collection_Builder $definition The builder.
+	 * @param MT_Environment $environment The Environment.
 	 * @return array list of Mixtape_Model_Field_Declaration
 	 */
-	function declare_fields( $definition );
+	function declare_fields( $environment );
 
 	/**
 	 * Call a method

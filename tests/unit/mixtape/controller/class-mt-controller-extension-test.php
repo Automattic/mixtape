@@ -11,15 +11,15 @@ class TestExtensionModel extends MT_Model_Declaration {
 	/**
 	 * Declare Fields
 	 *
-	 * @param MT_Field_Declaration_Collection_Builder $def Def.
+	 * @param MT_Environment $env Env.
 	 * @return array
 	 */
-	function declare_fields( $def ) {
+	function declare_fields( $env ) {
 		return array(
-			$def->field( 'id', 'the post id' )
+			$env->field( 'id', 'the post id' )
 				->with_map_from( 'ID' ),
-			$def->field( $this->field_name, 'A Custom Field on Posts' )
-				->with_type( $def->type( 'uint' ) )
+			$env->field( $this->field_name, 'A Custom Field on Posts' )
+				->with_type( $env->type( 'uint' ) )
 				->derived()
 				->with_reader( array( $this, 'reader' ) )
 				->with_updater( array( $this, 'updater' ) ),

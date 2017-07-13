@@ -151,18 +151,20 @@ class MT_Model_Definition implements MT_Interfaces_Permissions_Provider {
 		MT_Expect::is_a( $model_declaration, 'MT_Interfaces_Model_Declaration' );
 
 		if ( null === $this->field_declarations ) {
-			$builder = new MT_Field_Declaration_Collection_Builder( $this->environment() );
-			$fields = $model_declaration->declare_fields( $builder );
+			$fields = $model_declaration->declare_fields( $this->environment() );
 
 			$this->field_declarations = $this->initialize_field_map( $fields );
 		}
+
 		if ( null === $filter_by_type ) {
 			return $this->field_declarations;
 		}
+
 		$filtered = array();
+
 		foreach ( $this->field_declarations as $field_declaration ) {
 			/**
-			 * The field decl.
+			 * The field declaration.
 			 *
 			 * @var MT_Field_Declaration $field_declaration
 			 */

@@ -112,7 +112,6 @@ class MT_Bootstrap {
 			->load_class( 'Permissions_Any' )
 			->load_class( 'Field_Declaration' )
 			->load_class( 'Field_Declaration_Builder' )
-			->load_class( 'Field_Declaration_Collection_Builder' )
 			->load_class( 'Model_Declaration' )
 			->load_class( 'Model_Declaration_Settings' )
 			->load_class( 'Model_Definition' )
