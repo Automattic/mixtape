@@ -11,7 +11,7 @@ class MT_Field_Declaration_BuilderTest extends MT_Testing_Model_TestCase {
 		$builder = new MT_Field_Declaration_Builder();
 		$builder->with_name( 'example' )
 			->with_description( 'A description' )
-			->with_type( $env->type()->definition( 'uint' ) )
+			->with_type( $env->get_type_registry()->definition( 'uint' ) )
 			->with_before_set( $func )
 			->with_map_from( '__example' )
 			->with_dto_name( 'example_dto' )
@@ -26,7 +26,7 @@ class MT_Field_Declaration_BuilderTest extends MT_Testing_Model_TestCase {
 		$field_declaration = $builder->build();
 
 		$this->assertEquals( 'example', $field_declaration->get_name() );
-		$this->assertSame( $env->type()->definition( 'uint' ), $field_declaration->get_type() );
+		$this->assertSame( $env->get_type_registry()->definition( 'uint' ), $field_declaration->get_type() );
 		$this->assertSame( MT_Field_Declaration::META, $field_declaration->get_kind() );
 		$this->assertSame( 'A description', $field_declaration->get_description() );
 		$this->assertSame( 'example_dto', $field_declaration->get_data_transfer_name() );

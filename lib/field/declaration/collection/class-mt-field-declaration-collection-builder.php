@@ -89,6 +89,6 @@ class MT_Field_Declaration_Collection_Builder {
 	 * @throws MT_Exception If Invalid type.
 	 */
 	function type( $type_name ) {
-		return $this->environment->type()->definition( $type_name );
+		return $this->environment->get_type_registry()->definition( $type_name );
 	}
 }

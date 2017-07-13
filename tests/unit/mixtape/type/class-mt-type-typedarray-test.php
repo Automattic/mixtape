@@ -12,7 +12,7 @@ class MT_Type_TypedArrayTest extends MT_Testing_Model_TestCase {
 
     function setUp() {
         parent::setUp();
-        $this->type_registry = $this->environment->type();
+        $this->type_registry = $this->environment->get_type_registry();
         $this->typed_array = $this->type_registry->definition( 'array:integer' );
     }
 

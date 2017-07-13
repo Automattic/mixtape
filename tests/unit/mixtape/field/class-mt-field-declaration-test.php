@@ -27,7 +27,7 @@ class MT_Field_DeclarationTest extends MT_Testing_Model_TestCase {
     }
 
     function test_field_declarations() {
-        $registry = $this->environment->type();
+        $registry = $this->environment->get_type_registry();
 
         $sum_declaration = (new MT_Field_Declaration_Builder())
             ->with_kind(MT_Field_Declaration::FIELD)
@@ -70,7 +70,7 @@ class MT_Field_DeclarationTest extends MT_Testing_Model_TestCase {
     }
 
     function test_as_item_schema_property_contain_choices_if_set() {
-        $type_registry = $this->environment->start()->type();
+        $type_registry = $this->environment->start()->get_type_registry();
         $choices = array( 'a', 'b', 'c' );
         $builder = new MT_Field_Declaration_Builder();
         $builder->with_kind(MT_Field_Declaration::FIELD)

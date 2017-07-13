@@ -342,8 +342,20 @@ class MT_Environment {
 	 *
 	 * @return MT_Type_Registry
 	 */
-	public function type() {
+	public function get_type_registry() {
 		return $this->type_registry;
+	}
+
+	/**
+	 * Get a known type definition
+	 *
+	 * @param string $type_name The type name.
+	 * @return MT_Interfaces_Type
+	 *
+	 * @throws MT_Exception When provided with an unknown/invalid type.
+	 */
+	public function type( $type_name ) {
+		return $this->get_type_registry()->definition( $type_name );
 	}
 
 	/**

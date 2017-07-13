@@ -24,7 +24,7 @@ class MT_Type_StringTest extends MT_Testing_Model_TestCase {
 
     function setUp() {
         parent::setUp();
-        $this->type_registry = $this->environment->type();
+        $this->type_registry = $this->environment->get_type_registry();
         $this->string_type = $this->type_registry->definition( 'string' );
     }
 
