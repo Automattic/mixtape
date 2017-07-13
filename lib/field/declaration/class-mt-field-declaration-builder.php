@@ -190,7 +190,10 @@ class MT_Field_Declaration_Builder {
 	 * @return MT_Field_Declaration_Builder
 	 */
 	public function with_validations( $validations ) {
-		return $this->with( 'validations', is_array( $validations ) ? $validations : array( $validations ) );
+		if ( is_callable( $validations ) || ! is_array( $validations ) ) {
+			$validations = array( $validations );
+		}
+		return $this->with( 'validations', $validations );
 	}
 
 	/**
