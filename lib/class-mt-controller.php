@@ -96,10 +96,29 @@ class MT_Controller extends WP_REST_Controller implements MT_Interfaces_Controll
 			 * @var MT_Controller_Route $route
 			 */
 			$params = $route->as_array();
-			register_rest_route( $prefix, $this->base . $params['pattern'], $params['actions'] );
+			$result = register_rest_route( $prefix, $this->base . $params['pattern'], $params['actions'] );
+			if ( ! $result ) {
+				throw new MT_Exception( 'Registration failed' );
+			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Create Action
+	 *
+	 * @param string                     $action_name Action Name.
+	 * @param null|string|array|callable $callback Callback.
+	 * @return MT_Controller_Action
+	 */
+	public function action( $action_name, $callback = null ) {
+		$route_action = new MT_Controller_Action( $this, $action_name );
+		if ( null !== $callback ) {
+			$route_action->with_handler( $callback );
+		}
+
+		return $route_action;
 	}
 
 	/**

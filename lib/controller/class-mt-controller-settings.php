@@ -19,8 +19,8 @@ class MT_Controller_Settings extends MT_Controller_Model {
 	 */
 	public function setup() {
 		$this->add_route()
-			->handler( 'index', array( $this, 'get_items' ) )
-			->handler( 'update', array( $this, 'create_item' ) );
+			->add_action( $this->action( 'index', array( $this, 'get_items' ) ) )
+			->add_action( $this->action( 'update', array( $this, 'create_item' ) ) );
 	}
 
 	/**

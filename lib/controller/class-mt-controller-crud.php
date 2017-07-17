@@ -19,13 +19,13 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 	 */
 	public function setup() {
 		$this->add_route( '/' )
-			->handler( 'index',  array( $this, 'get_items' ) )
-			->handler( 'create', array( $this, 'create_item' ) );
+			->add_action( $this->action( 'index',  array( $this, 'get_items' ) ) )
+			->add_action( $this->action( 'create', array( $this, 'create_item' ) ) );
 
 		$this->add_route( '/(?P<id>\d+)' )
-			->handler( 'show',  array( $this, 'get_item' ) )
-			->handler( 'update',  array( $this, 'update_item' ) )
-			->handler( 'delete', array( $this, 'delete_item' ) );
+			->add_action( $this->action( 'show',  array( $this, 'get_item' ) ) )
+			->add_action( $this->action( 'update',  array( $this, 'update_item' ) ) )
+			->add_action( $this->action( 'delete', array( $this, 'delete_item' ) ) );
 	}
 
 	/**
