@@ -296,19 +296,6 @@ class MT_Environment {
 	}
 
 	/**
-	 * Build a new Endpoint
-	 *
-	 * @param string $class the class to use.
-	 *
-	 * @return $this
-	 * @throws MT_Exception In case our class is not compatible.
-	 */
-	public function endpoint( $class ) {
-		$builder = new MT_Controller_Builder();
-		return $builder->with_class( $class )->with_environment( $this );
-	}
-
-	/**
 	 * Create a new Field Declaration Builder
 	 *
 	 * @param null|string $name Optional, the field name.

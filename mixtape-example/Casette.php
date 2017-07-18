@@ -211,22 +211,6 @@ class CasetteApiEndpointVersion extends MT_Controller {
 	}
 }
 
-class CasetteApiBundleV1 extends MT_Controller_Bundle {
-	protected $prefix = 'mixtape-example/v1';
-
-	/**
-	 * Gets the endpoints, those can be extended by plugins by hooking into
-	 * `mixtape_rest_api_get_endpoints`
-	 *
-	 * @return array
-	 */
-	public function get_endpoints() {
-		return array(
-			new CasetteApiEndpointVersion( $this ),
-		);
-	}
-}
-
 /**
  * Class CasetteRESTApi
  */
@@ -252,18 +236,9 @@ class CasetteRESTApi {
 
 		$rest_api = $env->rest_api( 'mixtape-example/v1' );
 
-		$rest_api->endpoint()
-			->with_base( '/casettes' )
-			->with_class( 'MT_Controller_CRUD' )
-			->for_model( $env->model( 'Casette' ) );
-
-		$rest_api->endpoint()
-			->with_class( 'CasetteApiEndpointVersion' );
-
-		$rest_api->endpoint()
-			->with_base( '/settings' )
-			->with_class( 'MT_Controller_Settings' )
-			->for_model( $env->model( 'CasetteSettings' ) );
+		$rest_api->add_endpoint( new MT_Controller_CRUD( '/casettes', 'Casette' ) );
+		$rest_api->add_endpoint( new CasetteApiEndpointVersion() );
+		$rest_api->add_endpoint( new MT_Controller_Settings( '/settings', 'CasetteSettings' ) );
 
 		$env->auto_start();
 	}

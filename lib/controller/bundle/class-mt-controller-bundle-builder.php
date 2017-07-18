@@ -87,12 +87,12 @@ class MT_Controller_Bundle_Builder implements MT_Interfaces_Builder {
 	 *
 	 * Adds a new MT_Controller_Builder to our builders and returns it for further setup.
 	 *
-	 * @return MT_Controller_Builder
+	 * @param null|MT_Interfaces_Controller $controller_object The (optional) controller object.
+	 * @return MT_Controller_Bundle_Builder $this
 	 */
-	public function endpoint() {
-		$endpoint = new MT_Controller_Builder();
-
-		$this->endpoint_builders[] = $endpoint->with_environment( $this->environment );
-		return $endpoint;
+	public function add_endpoint( $controller_object = null ) {
+		MT_Expect::is_a( $controller_object, 'MT_Interfaces_Controller' );
+		$this->endpoint_builders[] = $controller_object;
+		return $this;
 	}
 }

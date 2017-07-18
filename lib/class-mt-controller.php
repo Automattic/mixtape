@@ -91,13 +91,14 @@ class MT_Controller extends WP_REST_Controller implements MT_Interfaces_Controll
 		$prefix = $this->controller_bundle->get_prefix();
 		foreach ( $this->routes as $pattern => $route ) {
 			/**
-			 * Our route used for registering.
+			 * The route we want to register.
 			 *
 			 * @var MT_Controller_Route $route
 			 */
 			$params = $route->as_array();
 			$result = register_rest_route( $prefix, $this->base . $params['pattern'], $params['actions'] );
-			if ( ! $result ) {
+			if ( false === $result ) {
+				// For now we throw on error, maybe we just need to warn though.
 				throw new MT_Exception( 'Registration failed' );
 			}
 		}

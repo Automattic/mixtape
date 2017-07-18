@@ -112,15 +112,11 @@ class MT_Controller_CRUDTest extends MT_Testing_Controller_TestCase {
         $env = $this->mixtape->environment();
 
         $mock_data_store = !empty( $data_store ) ? $data_store : $this->build_mock_casette_data_store();
-        $env->define_model( Casette::class )->with_data_store( $mock_data_store );
-        $model_definition = $env->model( Casette::class );
+        $env->define_model( 'Casette' )->with_data_store( $mock_data_store );
 
         $bundle = $env->rest_api( 'casette-crud-test/v1' );
 
-        $bundle->endpoint()
-            ->with_base( '/casettes' )
-			->with_class( 'MT_Controller_CRUD' )
-            ->for_model( $model_definition );
+        $bundle->add_endpoint( new MT_Controller_CRUD( '/casettes', 'Casette' ) );
         $env->auto_start();
 
         do_action( 'rest_api_init' );

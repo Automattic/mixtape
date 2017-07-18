@@ -22,10 +22,7 @@ class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
 
 		$bundle = $env->rest_api( 'casette-crud-test/v1' );
 
-		$bundle->endpoint()
-			->for_model( $env->model( 'CasetteSettings' ) )
-			->with_base( '/settings' )
-			->with_class( 'MT_Controller_Settings' );
+		$bundle->add_endpoint( new MT_Controller_Settings( '/settings', 'CasetteSettings' ) );
 		$env->auto_start();
 
 		do_action( 'rest_api_init' );

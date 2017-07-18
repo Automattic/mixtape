@@ -41,16 +41,21 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 	protected $controller;
 
 	/**
+	 * Model Definition Name
+	 *
+	 * @var string
+	 */
+	private $model_definition_name;
+
+	/**
 	 * MT_Controller_Model constructor.
 	 *
-	 * @param string              $base The baser.
-	 * @param MT_Model_Definition $model_definition A Definition.
+	 * @param string $base The baser.
+	 * @param string $model_definition_name A Definition or a definition name.
 	 */
-	public function __construct( $base, $model_definition ) {
+	public function __construct( $base, $model_definition_name ) {
 		$this->base = $base;
-		$this->model_definition = $model_definition;
-		$this->model_declaration = $this->model_definition->get_model_declaration();
-		$this->model_data_store = $this->model_definition->get_data_store();
+		$this->model_definition_name = $model_definition_name;
 	}
 
 	/**
@@ -60,6 +65,23 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 	 */
 	protected function get_model_definition() {
 		return $this->model_definition;
+	}
+
+	/**
+	 * Register this controller, initialize model-related object fields.
+	 *
+	 * @param MT_Controller_Bundle $bundle The bundle to use.
+	 * @param MT_Environment       $environment The Environment.
+	 *
+	 * @throws MT_Exception If an invalid model is provided.
+	 *
+	 * @return bool|WP_Error true if valid otherwise error.
+	 */
+	public function register( $bundle, $environment ) {
+		$this->model_definition = $environment->model( $this->model_definition_name );
+		$this->model_declaration = $this->model_definition->get_model_declaration();
+		$this->model_data_store = $this->model_definition->get_data_store();
+		return parent::register( $bundle, $environment );
 	}
 
 	/**

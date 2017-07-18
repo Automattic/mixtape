@@ -17,13 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface MT_Interfaces_Controller_Bundle extends MT_Interfaces_Registrable {
 
 	/**
-	 * Get all the Endpoints
-	 *
-	 * @return mixed
-	 */
-	public function get_endpoints();
-
-	/**
 	 * Get the Prefix
 	 *
 	 * @return string

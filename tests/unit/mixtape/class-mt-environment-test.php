@@ -39,14 +39,9 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
         $this->bootstrap->environment()->start();
     }
 
-    function test_endpoint_returns_builder() {
-        $b = $this->bootstrap->environment()->rest_api('zzz')->endpoint();
-        $this->assertInstanceOf( 'MT_Controller_Builder', $b );
-    }
-
-    function test_crud_returns_builder() {
-        $b = $this->bootstrap->environment()->rest_api('zzz')->endpoint()->with_class( 'MT_Controller_CRUD' );
-        $this->assertInstanceOf( 'MT_Controller_Builder', $b );
+    function test_add_endpoint_returns_builder() {
+        $b = $this->bootstrap->environment()->rest_api('zzz')->add_endpoint( new MT_Controller_CRUD('/foo', 'FooBar' ));
+        $this->assertInstanceOf( 'MT_Controller_Bundle_Builder', $b );
     }
 
     /**

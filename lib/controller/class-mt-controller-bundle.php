@@ -44,18 +44,18 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 	 * MT_Controller_Bundle_Definition constructor.
 	 *
 	 * @param string $bundle_prefix Prefix.
-	 * @param array  $endpoint_builders Builders.
+	 * @param array  $endpoints Builders.
 	 */
-	function __construct( $bundle_prefix, $endpoint_builders ) {
+	function __construct( $bundle_prefix, $endpoints ) {
 		$this->prefix = $bundle_prefix;
-		$this->endpoint_builders = $endpoint_builders;
+		$this->endpoints = $endpoints;
 	}
 
 	/**
 	 * Register this bundle with the environment.
 	 *
 	 * @param MT_Environment $environment The Environment.
-	 * @return $this
+	 * @return MT_Controller_Bundle $this
 	 * @throws MT_Exception When no prefix is defined.
 	 */
 	function register( $environment ) {
@@ -69,13 +69,13 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 		 *
 		 * @return array
 		 */
-		$this->endpoints = (array) apply_filters(
+		$endpoints = (array) apply_filters(
 			'mt_rest_api_controller_bundle_get_endpoints',
-			$this->get_endpoints(),
+			$this->endpoints,
 			$this
 		);
 
-		foreach ( $this->endpoints as $endpoint ) {
+		foreach ( $endpoints as $endpoint ) {
 			/**
 			 * Controller
 			 *
@@ -85,33 +85,6 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 		}
 
 		return $this;
-	}
-
-	/**
-	 * Get endpoints.
-	 *
-	 * @return array
-	 */
-	/**
-	 * Get Endpoints.
-	 *
-	 * @return array
-	 */
-	public function get_endpoints() {
-		$endpoints = array();
-		foreach ( $this->endpoint_builders as $builder ) {
-			/**
-			 * A Builder.
-			 *
-			 * @var MT_Controller_Builder $builder
-			 */
-			$endpoint = $builder
-				->with_bundle( $this )
-				->with_environment( $this->environment )
-				->build();
-			$endpoints[] = $endpoint;
-		}
-		return $endpoints;
 	}
 
 	/**

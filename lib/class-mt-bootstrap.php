@@ -121,7 +121,6 @@ class MT_Bootstrap {
 			->load_class( 'Model_Collection' )
 			->load_class( 'Controller' )
 			->load_class( 'Controller_Action' )
-			->load_class( 'Controller_Builder' )
 			->load_class( 'Controller_Model' )
 			->load_class( 'Controller_Settings' )
 			->load_class( 'Controller_Route' )
