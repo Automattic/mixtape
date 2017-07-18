@@ -52,7 +52,7 @@ class MT_Controller_RouteTest extends MT_Testing_Controller_TestCase {
 	function test_permissions_throws_when_invalid_action() {
 		$route = new MT_Controller_Route( $this->controller, '/' );
 		$route->add_action( $this->controller->action( 'foobar' )
-			->with_permission_callback( array( $this, 'action' ) ) );
+			->permissions( array( $this, 'action' ) ) );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class MT_Controller_RouteTest extends MT_Testing_Controller_TestCase {
 	 */
 	function test_args_throws_when_invalid_action() {
 		$route = new MT_Controller_Route( $this->controller, '/' );
-		$route->add_action( $this->controller->action( 'foobar' )->with_args_callback( array( $this, 'action' ) ) );
+		$route->add_action( $this->controller->action( 'foobar' )->args( array( $this, 'action' ) ) );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class MT_Controller_RouteTest extends MT_Testing_Controller_TestCase {
 	function test_as_array_throws_when_invalid_permissions_callable() {
 		$route = new MT_Controller_Route( $this->controller, '/' );
 		$route->add_action( $this->controller->action( 'index', array( $this, 'action' ) )
-			->with_permission_callback( 'INVALID' ) );
+			->args( 'INVALID' ) );
 		$route->as_array();
 	}
 
@@ -100,7 +100,7 @@ class MT_Controller_RouteTest extends MT_Testing_Controller_TestCase {
 	function test_as_array_throws_when_invalid_args_callable() {
 		$route = new MT_Controller_Route( $this->controller, '/' );
 		$route->add_action( $this->controller->action( 'index', array( $this, 'action' ) )
-			->with_args_callback( 'INVALID' ) );
+			->args( 'INVALID' ) );
 		$route->as_array();
 	}
 
@@ -114,8 +114,8 @@ class MT_Controller_RouteTest extends MT_Testing_Controller_TestCase {
 		$route = $this->controller->add_route( '/' )
 			->add_action(
 				$c->action( 'index', array( $this, 'action' ) )
-					->with_permission_callback( array( $this, 'action' ) )
-					->with_args_callback( array( $this, 'action' ) ) );
+					->permissions( array( $this, 'action' ) )
+					->args( array( $this, 'action' ) ) );
 		$result = $route->as_array();
 		$this->assertNotNull( $result );
 		$this->assertInternalType( 'array', $result );

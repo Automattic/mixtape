@@ -115,7 +115,7 @@ class MT_Controller extends WP_REST_Controller implements MT_Interfaces_Controll
 	public function action( $action_name, $callback = null ) {
 		$route_action = new MT_Controller_Action( $this, $action_name );
 		if ( null !== $callback ) {
-			$route_action->with_handler( $callback );
+			$route_action->callback( $callback );
 		}
 
 		return $route_action;

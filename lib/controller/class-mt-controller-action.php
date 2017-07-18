@@ -88,7 +88,7 @@ class MT_Controller_Action {
 	 *
 	 * @return MT_Controller_Action
 	 */
-	public function with_permission_callback( $callable ) {
+	public function permissions( $callable ) {
 		$this->permission_callback = $callable;
 		return $this;
 	}
@@ -100,7 +100,7 @@ class MT_Controller_Action {
 	 *
 	 * @return MT_Controller_Action
 	 */
-	public function with_handler( $callable ) {
+	public function callback( $callable ) {
 		$this->handler = $callable;
 		return $this;
 	}
@@ -112,7 +112,7 @@ class MT_Controller_Action {
 	 *
 	 * @return MT_Controller_Action
 	 */
-	public function with_args_callback( $callable ) {
+	public function args( $callable ) {
 		$this->args = $callable;
 		return $this;
 	}
