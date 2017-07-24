@@ -65,16 +65,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      * @covers Mixtape_Environment::model_definition
      */
     function test_model_definition_throw_if_no_definition() {
-        $this->bootstrap->environment()->model( MT_Model_Declaration_Settings::class );
-    }
-
-    /**
-     * @covers Mixtape_Environment::model_definition
-     */
-    function test_model_definition_return_definition() {
-        $this->bootstrap->environment()->define_model( MT_Model_Declaration_Settings::class );
-        $d = $this->bootstrap->environment()->model( MT_Model_Declaration_Settings::class );
-        $this->assertInstanceOf( MT_Model_Definition::class, $d );
+        $this->bootstrap->environment()->model( MT_Model_Settings::class );
     }
 
 	function test_define_var_defines_var() {

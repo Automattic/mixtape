@@ -51,4 +51,15 @@ class MT_Expect {
 			throw new MT_Exception( $fail_message );
 		}
 	}
+
+	/**
+	 * This method should be Overridden
+	 *
+	 * @param string $method The method name.
+	 *
+	 * @throws MT_Exception To Overrride this.
+	 */
+	static function should_override( $method ) {
+		throw new MT_Exception( $method . ' should be overriden' );
+	}
 }

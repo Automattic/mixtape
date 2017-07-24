@@ -60,7 +60,7 @@ class MT_Controller_Extension implements MT_Interfaces_Registrable {
 		if ( ! $this->model_definition ) {
 			return new WP_Error( 'model-not-found' );
 		}
-		$fields = $this->model_definition->get_field_declarations();
+		$fields = $this->model_definition->get_fields();
 		foreach ( $fields as $field ) {
 			$this->register_field( $field );
 		}

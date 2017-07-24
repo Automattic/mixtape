@@ -3,7 +3,7 @@
 class MT_Data_Store_CustomPostTypeTest extends MT_Testing_Model_TestCase {
 
     /**
-     * @var MT_Model_Definition
+     * @var MT_Model_Factory
      */
     private $model_definition;
 
@@ -12,19 +12,15 @@ class MT_Data_Store_CustomPostTypeTest extends MT_Testing_Model_TestCase {
         $env = $this->environment;
         $env->define_model(
             'Casette'
-        )->with_data_store(
-            $env->data_store()
-            ->with_class( 'MT_Data_Store_CustomPostType' )
-            ->with_args( array(
-				'post_type' => 'mixtape_casette',
-			) )
-        );
+        )->with_data_store( new MT_Data_Store_CustomPostType( $env->model( 'Casette' ), array(
+			'post_type' => 'mixtape_casette',
+		) ) );
         $this->model_definition = $this->environment
             ->model( Casette::class );
     }
 
     function test_upsert_inserts_new_entity() {
-        $casette = $this->model_definition->create_instance(
+        $casette = $this->model_definition->create(
             array(
                 'title' => 'Awesome Mix Vol 1',
                 'songs' => array( 1, 2, 3 )
@@ -69,7 +65,7 @@ class MT_Data_Store_CustomPostTypeTest extends MT_Testing_Model_TestCase {
     }
 
     private function insert_cassete() {
-        $casette = $this->model_definition->create_instance(
+        $casette = $this->model_definition->create(
             array(
                 'title' => 'Awesome Mix Vol 1',
                 'songs' => array( 1, 2, 3 )

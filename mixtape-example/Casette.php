@@ -42,19 +42,19 @@ class CasetteAdminSettings {
 	}
 }
 
-class CasetteSettings extends MT_Model_Declaration_Settings {
-	function on_field_setup( $field_name, $field_builder, $field_data, $env ) {
+class CasetteSettings extends MT_Model_Settings {
+	static function on_field_setup( $field_name, $field_builder, $field_data, $env ) {
 		$field_builder->with_dto_name( str_replace( 'mixtape_casette_', '', $field_data['name'] ) );
 	}
 
-	function get_settings() {
+	public static function get_settings() {
 		return CasetteAdminSettings::get_settings();
 	}
 }
 
-class Casette extends MT_Model_Declaration
-	implements MT_Interfaces_Permissions_Provider {
-	public function declare_fields( $d ) {
+class Casette extends MT_Model {
+	public static function declare_fields() {
+		$d = self::get_environment();
 			return array(
 				$d->field( 'id' )
 					->with_map_from( 'ID' )
@@ -80,32 +80,31 @@ class Casette extends MT_Model_Declaration
 					->with_map_from( 'post_status' ),
 
 				$d->field( 'ratings', 'The casette ratings' )
-					->derived( array( $this, 'get_ratings' ) )
+					->derived( 'get_ratings' )
 					->with_dto_name( 'the_ratings' ),
 
 				$d->field( 'songs', 'The casette songs', 'meta' )
 					->with_map_from( '_casette_song_ids' )
 					->with_type( $d->type( 'array' ) )
-					->with_deserializer( array( $this, 'song_before_return' ) )
-					->with_serializer( array( $this, 'song_before_save' ) )
+					->with_deserializer( 'song_before_return' )
+					->with_serializer( 'song_before_save' )
 					->with_dto_name( 'song_ids' ),
 			);
 	}
 
-	public function get_ratings( $model ) {
+	public function get_ratings() {
 		return array( 1 );
 	}
 
-	public function get_id( $model ) {
-		return $model->get( 'id' );
+	public function get_id() {
+		return $this->get( 'id' );
 	}
 
 	public function get_name() {
 		return 'mixtape_casette';
 	}
 
-	protected function validate_author( $validation_data ) {
-		$author_id = $validation_data->get_value();
+	protected function validate_author( $author_id ) {
 		$author = $this->get_author( $author_id );
 		if ( null === $author ) {
 			return new WP_Error( 'invalid-author-id', __( 'Invalid author id', 'casette' ) );
@@ -113,11 +112,9 @@ class Casette extends MT_Model_Declaration
 		return true;
 	}
 
-	protected function validate_status( $validation_data ) {
-		$model = $validation_data->get_model();
-		$status = $validation_data->get_value();
+	protected function validate_status( $status ) {
 		if ( 'publish' === $status ) {
-			$author_id = $model->get( 'author' );
+			$author_id = $this->get( 'author' );
 			if ( empty( $author_id ) || null === $this->get_author( $author_id ) ) {
 				return new WP_Error( 'missing-author-id', __( 'Cannot publish when author is empty', 'casette' ) );
 			}
@@ -142,35 +139,17 @@ class Casette extends MT_Model_Declaration
 	 * @param WP_REST_Request $request
 	 * @return bool
 	 */
-	public function permissions_check( $request, $action ) {
+	public static function permissions_check( $request, $action ) {
 		return true;
 	}
-}
 
-class Song extends MT_Model_Declaration {
-	public function declare_fields( $d ) {
-		return array(
-			$d->field()
-				->with_name( 'id' )
-				->map_from( 'ID' )
-				->with_type( 'integer' )
-				->with_description( 'Unique identifier for the object.' )
-				->with_sanitizer( 'as_uint' ),
-			$d->field()
-				->with_name( 'title' )
-				->map_from( 'post_title' )
-				->with_type( 'string' )
-				->with_description( 'The song title.' )
-				->with_required( true ),
-		);
-	}
-
-	public function get_ratings() {
-		return array();
-	}
-
-	public function get_name() {
-		return 'mixtape_casette_song';
+	/**
+	 * Models should override this. Provide the class name as a string. Ensures our static calls work for php < 5.3
+	 *
+	 * @return string
+	 */
+	public static function get_class() {
+		return __CLASS__;
 	}
 }
 
@@ -222,17 +201,14 @@ class CasetteRESTApi {
 	 */
 	static function register( $bootstrap ) {
 		$env = $bootstrap->environment();
-		$cpt_data_store = $env->data_store()
-			->with_class( 'MT_Data_Store_CustomPostType' )
-			->with_args( array(
-				'post_type' => 'mixtape_cassette',
-			) );
 
-		$env->define_model( 'Casette' )
-			->with_data_store( $cpt_data_store );
+		$env->define_model( 'Casette' )->with_data_store( new MT_Data_Store_CustomPostType( $env->model( 'Cassette' ), array(
+			'post_type' => 'mixtape_cassette',
+		) ) );
 
 		$env->define_model( 'CasetteSettings' )
-			->with_data_store( $env->data_store()->with_class( 'MT_Data_Store_Option' ) );
+			->with_data_store( new MT_Data_Store_Option( $env->model( 'CasetteSettings' ) ) );
+
 
 		$rest_api = $env->rest_api( 'mixtape-example/v1' );
 

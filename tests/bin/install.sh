@@ -7,7 +7,7 @@ DB_USER=${DB_USER-'root'}
 DB_PASS=${DB_PASS-''}
 DB_HOST=${DB_HOST-'localhost'}
 
-WP_VERSION=${WP_VERSION-4.7.4}
+WP_VERSION=${WP_VERSION-4.8}
 WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 

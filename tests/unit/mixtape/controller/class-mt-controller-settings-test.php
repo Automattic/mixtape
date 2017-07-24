@@ -18,7 +18,7 @@ class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
 		$this->mixtape->environment()->define_model( 'Casette' );
 		$env = $this->mixtape->environment();
 		$env->define_model( 'CasetteSettings' )
-			->with_data_store( $env->data_store()->with_class( 'MT_Data_Store_Option' ) );
+			->with_data_store( new MT_Data_Store_Option( $env->model( 'CasetteSettings' ) ) );
 
 		$bundle = $env->rest_api( 'casette-crud-test/v1' );
 
@@ -132,6 +132,12 @@ class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
 		);
 		$response = $this->post( '/casette-crud-test/v1/settings', $request_data );
 		$this->assertResponseStatus( $response, 201 );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'per_page', $data );
+		$this->assertNotEquals( $previous_per_page, $data['per_page'] );
+		$this->assertArrayHasKey( 'enable_private', $data );
+		$this->assertNotEquals( $previous_enable_private, $data['enable_private'] );
+
 		$response = $this->get( '/casette-crud-test/v1/settings' );
 		$data = $response->get_data();
 		$this->assertArrayHasKey( 'per_page', $data );

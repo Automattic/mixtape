@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This is the entry point for.
  */
 class MT_Bootstrap {
+	const MINIMUM_PHP_VERSION = '5.3.0';
 
 	/**
 	 * The Environment we will use
@@ -43,10 +44,19 @@ class MT_Bootstrap {
 	}
 
 	/**
-	 * Create a Bootstrap
+	 * Check compatibility of PHP Version.
+	 *
+	 * @return bool
+	 */
+	public function is_compatible() {
+		return version_compare( phpversion(), self::MINIMUM_PHP_VERSION, '>=' );
+	}
+
+	/**
+	 * Create a Bootstrap, unless we are using a really early php version (< 5.3.0)
 	 *
 	 * @param MT_Interfaces_Classloader|null $class_loader The class loader to use.
-	 * @return MT_Bootstrap
+	 * @return MT_Bootstrap|null
 	 */
 	public static function create( $class_loader = null ) {
 		if ( empty( $class_loader ) ) {
@@ -76,7 +86,7 @@ class MT_Bootstrap {
 	 * Loads all classes
 	 *
 	 * @return MT_Bootstrap $this
-	 * @throws Exception In case no class is found.
+	 * @throws Exception In case a class/file is not found.
 	 */
 	function load() {
 		$this->class_loader()
@@ -86,7 +96,6 @@ class MT_Bootstrap {
 			->load_class( 'Interfaces_Model' )
 			->load_class( 'Interfaces_Builder' )
 			->load_class( 'Interfaces_Model_Collection' )
-			->load_class( 'Interfaces_Model_Declaration' )
 			->load_class( 'Interfaces_Controller' )
 			->load_class( 'Interfaces_Controller_Bundle' )
 			->load_class( 'Interfaces_Permissions_Provider' )
@@ -102,22 +111,16 @@ class MT_Bootstrap {
 			->load_class( 'Type_TypedArray' )
 			->load_class( 'Type_Nullable' )
 			->load_class( 'Type_Registry' )
-			->load_class( 'Data_Serializer' )
-			->load_class( 'Data_Mapper' )
 			->load_class( 'Data_Store_Nil' )
 			->load_class( 'Data_Store_Abstract' )
 			->load_class( 'Data_Store_CustomPostType' )
 			->load_class( 'Data_Store_Option' )
-			->load_class( 'Data_Store_Builder' )
 			->load_class( 'Permissions_Any' )
 			->load_class( 'Field_Declaration' )
 			->load_class( 'Field_Declaration_Builder' )
-			->load_class( 'Model_Declaration' )
-			->load_class( 'Model_Declaration_Settings' )
-			->load_class( 'Model_Definition' )
-			->load_class( 'Model_Definition_Builder' )
 			->load_class( 'Model' )
-			->load_class( 'Model_ValidationData' )
+			->load_class( 'Model_Factory' )
+			->load_class( 'Model_Settings' )
 			->load_class( 'Model_Collection' )
 			->load_class( 'Controller' )
 			->load_class( 'Controller_Action' )

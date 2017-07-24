@@ -112,7 +112,6 @@ class MT_Field_Declaration_Builder {
 	 * @return MT_Field_Declaration_Builder
 	 */
 	public function with_serializer( $serializer ) {
-		$this->expect_is_callable( $serializer, __METHOD__ );
 		return $this->with( 'serializer', $serializer );
 	}
 
@@ -123,7 +122,6 @@ class MT_Field_Declaration_Builder {
 	 * @return MT_Field_Declaration_Builder
 	 */
 	public function with_deserializer( $deserializer ) {
-		$this->expect_is_callable( $deserializer, __METHOD__ );
 		return $this->with( 'deserializer', $deserializer );
 	}
 
@@ -203,7 +201,6 @@ class MT_Field_Declaration_Builder {
 	 * @return MT_Field_Declaration_Builder
 	 */
 	public function with_before_set( $before_set ) {
-		$this->expect_is_callable( $before_set, __METHOD__ );
 		return $this->with( 'before_set', $before_set );
 	}
 
@@ -214,7 +211,6 @@ class MT_Field_Declaration_Builder {
 	 * @return MT_Field_Declaration_Builder
 	 */
 	public function with_before_get( $before_get ) {
-		$this->expect_is_callable( $before_get, __METHOD__ );
 		return $this->with( 'before_get', $before_get );
 	}
 
@@ -266,7 +262,6 @@ class MT_Field_Declaration_Builder {
 	 * @throws MT_Exception When no callable.
 	 */
 	public function with_updater( $func ) {
-		$this->expect_is_callable( $func, __METHOD__ );
 		return $this->with( 'updater', $func );
 	}
 
@@ -278,7 +273,6 @@ class MT_Field_Declaration_Builder {
 	 * @throws MT_Exception When no callable.
 	 */
 	public function with_reader( $func ) {
-		$this->expect_is_callable( $func, __METHOD__ );
 		return $this->with( 'reader', $func );
 	}
 

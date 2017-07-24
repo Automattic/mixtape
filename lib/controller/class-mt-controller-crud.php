@@ -43,7 +43,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 			return $this->ok( $data );
 		}
 
-		$model = $this->model_definition->get_data_store()->get_entity( $item_id );
+		$model = $this->model_factory->get_data_store()->get_entity( $item_id );
 		if ( empty( $model ) ) {
 			return $this->not_found( __( 'Model not found' ) );
 		}
@@ -97,7 +97,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 		if ( $is_update ) {
 			$id = isset( $request['id'] ) ? absint( $request['id'] ) : null;
 			if ( ! empty( $id ) ) {
-				$model_to_update = $this->model_definition->get_data_store()->get_entity( $id );
+				$model_to_update = $this->model_factory->get_data_store()->get_entity( $id );
 				if ( empty( $model_to_update ) ) {
 					return $this->not_found( 'Model does not exist' );
 				}
@@ -105,9 +105,9 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 		}
 
 		if ( $is_update && $model_to_update ) {
-			$model = $this->model_definition->update_model_from_array( $model_to_update, $request->get_params(), $is_update );
+			$model = $model_to_update->update_from_array( $request->get_params(), $is_update );
 		} else {
-			$model = $this->get_model_definition()->new_from_array( $request->get_params() );
+			$model = $this->get_model_factory()->new_from_array( $request->get_params() );
 		}
 
 		if ( is_wp_error( $model ) ) {
@@ -144,7 +144,7 @@ class MT_Controller_CRUD extends MT_Controller_Model implements MT_Interfaces_Co
 		if ( empty( $id ) ) {
 			return $this->bad_request( 'No Model ID provided' );
 		}
-		$model = $this->model_definition->get_data_store()->get_entity( $id );
+		$model = $this->model_factory->get_data_store()->get_entity( $id );
 		if ( null === $model ) {
 			return $this->not_found( 'Model does not exist' );
 		}

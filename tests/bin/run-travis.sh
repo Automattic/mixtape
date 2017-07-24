@@ -8,7 +8,7 @@ run_phpunit_for() {
   export WP_TESTS_DIR="/tmp/$test_branch/tests/phpunit"
   cd "/tmp/$test_branch/src/wp-content/plugins/$PLUGIN_SLUG"
 
-  ./vendor/bin/phpunit
+  phpunit
 
   if [ $? -ne 0 ]; then
     exit 1

@@ -14,18 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Knows about models
  */
 class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Controller {
+
 	/**
-	 * The Definition
+	 * The Factory
 	 *
-	 * @var MT_Model_Definition
+	 * @var MT_Model_Factory
 	 */
-	protected $model_definition;
-	/**
-	 * The Declaration
-	 *
-	 * @var MT_Model_Declaration
-	 */
-	protected $model_declaration;
+	protected $model_factory;
+
 	/**
 	 * The data Store
 	 *
@@ -34,37 +30,30 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 	protected $model_data_store;
 
 	/**
-	 * Our controller
-	 *
-	 * @var MT_Controller
-	 */
-	protected $controller;
-
-	/**
 	 * Model Definition Name
 	 *
 	 * @var string
 	 */
-	private $model_definition_name;
+	private $model_class_name;
 
 	/**
 	 * MT_Controller_Model constructor.
 	 *
 	 * @param string $base The baser.
-	 * @param string $model_definition_name A Definition or a definition name.
+	 * @param string $model_class_name A Definition or a definition name.
 	 */
-	public function __construct( $base, $model_definition_name ) {
+	public function __construct( $base, $model_class_name ) {
 		$this->base = $base;
-		$this->model_definition_name = $model_definition_name;
+		$this->model_class_name = $model_class_name;
 	}
 
 	/**
-	 * Get our model definition
+	 * Get our model factory
 	 *
-	 * @return MT_Model_Definition
+	 * @return MT_Model_Factory
 	 */
-	protected function get_model_definition() {
-		return $this->model_definition;
+	protected function get_model_factory() {
+		return $this->model_factory;
 	}
 
 	/**
@@ -78,9 +67,8 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 	 * @return bool|WP_Error true if valid otherwise error.
 	 */
 	public function register( $bundle, $environment ) {
-		$this->model_definition = $environment->model( $this->model_definition_name );
-		$this->model_declaration = $this->model_definition->get_model_declaration();
-		$this->model_data_store = $this->model_definition->get_data_store();
+		$this->model_factory = $environment->model( $this->model_class_name );
+		$this->model_data_store = $this->model_factory->get_data_store();
 		return parent::register( $bundle, $environment );
 	}
 
@@ -94,8 +82,8 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 	 * @return array Item schema data.
 	 */
 	public function get_item_schema() {
-		$model_definition = $this->get_model_definition();
-		$fields = $model_definition->get_field_declarations();
+		$model_definition = $this->get_model_factory();
+		$fields = $model_definition->get_fields();
 		$properties = array();
 		$required = array();
 		foreach ( $fields as $field_declaration ) {
@@ -113,7 +101,7 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 			'$schema' => 'http://json-schema.org/schema#',
 			'title' => $model_definition->get_name(),
 			'type' => 'object',
-			'properties' => (array) apply_filters( 'mixtape_rest_api_schema_properties', $properties, $this->get_model_definition() ),
+			'properties' => (array) apply_filters( 'mixtape_rest_api_schema_properties', $properties, $this->get_model_factory() ),
 		);
 
 		if ( ! empty( $required ) ) {
@@ -121,15 +109,6 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 		}
 
 		return $this->add_additional_fields_schema( $schema );
-	}
-
-	/**
-	 * Get Model Declaration
-	 *
-	 * @return MT_Model_Declaration
-	 */
-	protected function get_model_declaration() {
-		return $this->model_declaration;
 	}
 
 	/**
@@ -149,7 +128,7 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 	 * @return bool
 	 */
 	public function permissions_check( $request, $action = 'any' ) {
-		return $this->get_model_definition()->permissions_check( $request, $action );
+		return $this->get_model_factory()->permissions_check( $request, $action );
 	}
 
 	/**
@@ -181,6 +160,6 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 	 * @return array
 	 */
 	protected function model_to_dto( $model ) {
-		return $this->get_model_definition()->model_to_dto( $model );
+		return $model->to_dto();
 	}
 }

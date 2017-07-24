@@ -109,14 +109,13 @@ class MT_Environment {
 	 * Retrieve a previously defined Mixtape_Model_Definition
 	 *
 	 * @param string $class the class name.
-	 * @return MT_Model_Definition the definition.
+	 * @return MT_Model_Factory the definition.
 	 * @throws MT_Exception Throws in case the model is not registered.
 	 */
 	public function model( $class ) {
 		if ( ! class_exists( $class ) ) {
 			throw new MT_Exception( $class . ' does not exist' );
 		}
-		$this->load_pending_builders( self::MODELS );
 		MT_Expect::that( isset( $this->model_definitions[ $class ] ), $class . ' definition does not exist' );
 		return $this->model_definitions[ $class ];
 	}
@@ -136,9 +135,6 @@ class MT_Environment {
 				 *
 				 * @var MT_Interfaces_Builder $pending Our builder.
 				 */
-				if ( self::MODELS === $type ) {
-					$this->add_model_definition( $pending->build() );
-				}
 				if ( self::BUNDLES === $type ) {
 					$this->add_rest_bundle( $pending->build() );
 				}
@@ -154,13 +150,19 @@ class MT_Environment {
 	 * This should be called once our Environment is set up to our liking.
 	 * Evaluates all Builders, creating missing REST Api and Model Definitions.
 	 *
-	 * Normally we hook this into 'rest_api_init'
+	 *
+	 * It is recommended we hook this into 'rest_api_init'.
 	 *
 	 * @return MT_Environment $this
 	 */
 	public function start() {
+		if ( ! $this->bootstrap->is_compatible() ) {
+			// Do not even start on an incompatible system.
+			return $this;
+		}
+
 		if ( false === $this->has_started ) {
-			do_action( 'mt_environment_before_start', $this );
+			do_action( 'mt_environment_before_start', $this, get_class( $this ) );
 			$this->load_pending_builders( self::MODELS );
 			$this->load_pending_builders( self::BUNDLES );
 			$registrables = $this->get( self::REGISTRABLE ) ? $this->get( self::REGISTRABLE ) : array();
@@ -346,21 +348,6 @@ class MT_Environment {
 	}
 
 	/**
-	 * Build a new Data Store
-	 *
-	 * @param string|null $data_store_class Optional class as string.
-	 *
-	 * @return MT_Data_Store_Builder
-	 */
-	public function data_store( $data_store_class = null ) {
-		$builder = new MT_Data_Store_Builder();
-		if ( null !== $data_store_class ) {
-			$builder->with_class( $data_store_class );
-		}
-		return $builder;
-	}
-
-	/**
 	 * Define a new REST API Bundle.
 	 *
 	 * @param null|string|MT_Interfaces_Controller_Bundle $maybe_bundle_or_prefix The bundle name.
@@ -384,29 +371,16 @@ class MT_Environment {
 	/**
 	 * Define a new Model
 	 *
-	 * @param null|MT_Interfaces_Model_Declaration $declaration Maybe a declaration.
+	 * @param string $declaration A Model class string.
 	 *
-	 * @return MT_Model_Definition_Builder
+	 * @return MT_Model_Factory
 	 */
-	function define_model( $declaration = null ) {
-		$builder = new MT_Model_Definition_Builder();
-		if ( null !== $declaration ) {
-			$builder->with_declaration( $declaration );
-		}
-		$this->push_builder( self::MODELS, $builder->with_environment( $this ) );
-		return $builder;
-	}
-
-	/**
-	 * Add a new Definition into this Environment
-	 *
-	 * @param MT_Model_Definition $definition the definition to add.
-	 * @return MT_Environment $this
-	 */
-	private function add_model_definition( $definition ) {
-		$key = $definition->get_model_class();
-		$this->model_definitions[ $key ] = $definition;
-		return $this;
+	function define_model( $declaration ) {
+		MT_Expect::that( class_exists( $declaration ), '$declaration string should be an existing class' );
+		MT_Expect::that( in_array( 'MT_Interfaces_Model', class_implements( $declaration ), true ), '$declaration does not implement MT_Interfaces_Model' );
+		$factory = new MT_Model_Factory( $this, $declaration, new MT_Data_Store_Nil() );
+		$this->model_definitions[ $declaration ] = $factory;
+		return $factory;
 	}
 
 	/**

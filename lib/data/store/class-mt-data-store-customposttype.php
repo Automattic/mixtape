@@ -23,12 +23,12 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	/**
 	 * Mixtape_Data_Store_CustomPostType constructor.
 	 *
-	 * @param null|MT_Model_Definition $definition Def.
+	 * @param null|MT_Model_Definition $model_factory Def.
 	 * @param array                    $args Args.
 	 */
-	public function __construct( $definition = null, $args = array() ) {
+	public function __construct( $model_factory = null, $args = array() ) {
 		$this->post_type = isset( $args['post_type'] ) ? $args['post_type'] : 'post';
-		parent::__construct( $definition, $args );
+		parent::__construct( $model_factory, $args );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	 * @throws MT_Exception If something goes wrong.
 	 */
 	private function create_from_post( $post ) {
-		$field_declarations = $this->get_definition()->get_field_declarations();
+		$field_declarations = $this->get_model_factory()->get_fields();
 		$raw_post_data = $post->to_array();
 		$raw_meta_data = get_post_meta( $post->ID ); // assumes we are only ever adding one postmeta per key.
 
@@ -83,9 +83,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			$flattened_meta[ $key ] = $value_arr[0];
 		}
 		$merged_data = array_merge( $raw_post_data, $flattened_meta );
-		$raw_data = $this->get_data_mapper()->raw_data_to_model_data( $merged_data, $field_declarations );
 
-		return $this->get_definition()->create_instance( $raw_data );
+		return $this->get_model_factory()->create( $merged_data, array(
+			'deserialize' => true,
+		) );
 	}
 
 	/**
@@ -131,8 +132,8 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	public function upsert( $model ) {
 		$id = $model->get_id();
 		$updating = ! empty( $id );
-		$fields = $this->get_data_mapper()->model_to_data( $model, MT_Field_Declaration::FIELD );
-		$meta_fields = $this->get_data_mapper()->model_to_data( $model, MT_Field_Declaration::META );
+		$fields = $model->serialize( MT_Field_Declaration::FIELD );
+		$meta_fields = $model->serialize( MT_Field_Declaration::META );
 		if ( ! isset( $fields['post_type'] ) ) {
 			$fields['post_type'] = $this->post_type;
 		}
