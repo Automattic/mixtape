@@ -28,7 +28,6 @@ class Mixtape_Unit_Tests_Bootstrap {
         tests_add_filter( 'init', array( $this, 'register_mixtape_test_cpts' ) );
         // load the WP testing environment
         require_once( $this->wp_tests_dir . '/includes/bootstrap.php' );
-
         $this->includes();
     }
 
@@ -49,8 +48,7 @@ class Mixtape_Unit_Tests_Bootstrap {
     }
 
     public function includes() {
-        MT_Bootstrap::create()->load()->load_testing_classes();
-        include_once( $this->mixtape_example_dir . DIRECTORY_SEPARATOR . 'Casette.php' );
+     	include_once 'includes/class-mt-testing-testcase.php';
     }
 
     public function include_example_classes() {

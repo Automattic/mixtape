@@ -1,6 +1,6 @@
 <?php
 
-class MT_Field_DeclarationTest extends MT_Testing_Model_TestCase {
+class MT_Field_DeclarationTest extends MT_Testing_TestCase {
     function test_exists() {
         $this->assertClassExists( 'MT_Field_Declaration' );
     }
@@ -29,33 +29,36 @@ class MT_Field_DeclarationTest extends MT_Testing_Model_TestCase {
     function test_field_declarations() {
         $registry = $this->environment->get_type_registry();
 
-        $sum_declaration = (new MT_Field_Declaration_Builder())
-            ->with_kind(MT_Field_Declaration::FIELD)
+		$builder = new MT_Field_Declaration_Builder();
+		$builder->with_kind( MT_Field_Declaration::FIELD )
             ->with_name( 'sum' )
             ->with_type( $registry->definition( 'integer' ) )
             ->build();
+		$sum_declaration = $builder->build();
         $this->assertTrue( $sum_declaration->is_kind( MT_Field_Declaration::FIELD ) );
         $this->assertEquals( $sum_declaration->get_default_value(), 0 );
         $this->assertEquals( $sum_declaration->get_map_from(), $sum_declaration->get_name() );
         $this->assertSame( $sum_declaration->cast_value('0'), 0);
         $this->assertSame( $sum_declaration->cast_value( 0.1 ), 0);
 
-        $first_name_declaration = (new MT_Field_Declaration_Builder())
-            ->with_kind(MT_Field_Declaration::FIELD)
+		$builder = new MT_Field_Declaration_Builder();
+		$builder->with_kind(MT_Field_Declaration::FIELD)
             ->with_name( 'first_name' )
             ->with_type( $registry->definition( 'string' ) )
             ->with_default( 'Foobar' )
             ->with_map_from( 'firstName' )
             ->with_required( true )
             ->build();
+		$first_name_declaration =$builder->build();
         $this->assertTrue( $first_name_declaration->is_kind( MT_Field_Declaration::FIELD ) );
         $this->assertTrue( $first_name_declaration->is_required() );
         $this->assertEquals( 'Foobar', $first_name_declaration->get_default_value() );
         $this->assertNotEquals( $first_name_declaration->get_map_from(), $first_name_declaration->get_name() );
         $this->assertSame( '0', $first_name_declaration->cast_value(0) );
 
-        $derived_declaration = (new MT_Field_Declaration_Builder())
-            ->with_kind( MT_Field_Declaration::DERIVED )
+		$builder = new MT_Field_Declaration_Builder();
+        $derived_declaration = $builder
+			->with_kind( MT_Field_Declaration::DERIVED )
             ->with_name( 'derived' )
             ->build();
         $this->assertTrue( $derived_declaration->is_kind( MT_Field_Declaration::DERIVED ) );
@@ -63,8 +66,8 @@ class MT_Field_DeclarationTest extends MT_Testing_Model_TestCase {
     }
 
     function test_get_description_default_to_name() {
-        $field =(new MT_Field_Declaration_Builder())
-            ->with_kind(MT_Field_Declaration::FIELD)
+		$builder = new MT_Field_Declaration_Builder();
+        $field = $builder->with_kind(MT_Field_Declaration::FIELD)
             ->with_name( 'first_name' )->build();
         $this->assertEquals( 'First name', $field->get_description() );
     }

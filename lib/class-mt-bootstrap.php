@@ -48,8 +48,17 @@ class MT_Bootstrap {
 	 *
 	 * @return bool
 	 */
-	public function is_compatible() {
+	public static function is_compatible() {
 		return version_compare( phpversion(), self::MINIMUM_PHP_VERSION, '>=' );
+	}
+
+	/**
+	 * Get Base Dir
+	 *
+	 * @return string
+	 */
+	public static function get_base_dir() {
+		return untrailingslashit( dirname( __FILE__ ) );
 	}
 
 	/**
@@ -63,7 +72,7 @@ class MT_Bootstrap {
 			include_once( 'interfaces/class-mt-interfaces-classloader.php' );
 			include_once( 'class-mt-classloader.php' );
 			$prefix = str_replace( '_Bootstrap', '', __CLASS__ );
-			$base_dir = untrailingslashit( dirname( __FILE__ ) );
+			$base_dir = self::get_base_dir();
 			$class_loader = new MT_Classloader( $prefix, $base_dir );
 		}
 		return new self( $class_loader );

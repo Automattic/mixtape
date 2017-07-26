@@ -1,6 +1,6 @@
 <?php
 
-class MT_Data_Store_CustomPostTypeTest extends MT_Testing_Model_TestCase {
+class MT_Data_Store_CustomPostTypeTest extends MT_Testing_TestCase {
 
     /**
      * @var MT_Model_Factory
@@ -16,7 +16,7 @@ class MT_Data_Store_CustomPostTypeTest extends MT_Testing_Model_TestCase {
 			'post_type' => 'mixtape_casette',
 		) ) );
         $this->model_definition = $this->environment
-            ->model( Casette::class );
+            ->model( 'Casette' );
     }
 
     function test_upsert_inserts_new_entity() {

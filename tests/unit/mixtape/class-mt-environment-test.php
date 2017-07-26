@@ -23,7 +23,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      */
     function test_start_calls_register_in_added_bundles() {
         $a_bundle = $this
-            ->getMockBuilder( MT_Interfaces_Controller_Bundle::class )
+            ->getMockBuilder( 'MT_Interfaces_Controller_Bundle' )
             ->setMethods( array( 'get_prefix', 'start', 'register', 'get_endpoints' ) )
             ->getMock();
 
@@ -65,7 +65,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      * @covers Mixtape_Environment::model_definition
      */
     function test_model_definition_throw_if_no_definition() {
-        $this->bootstrap->environment()->model( MT_Model_Settings::class );
+        $this->bootstrap->environment()->model( 'MT_Model_Settings' );
     }
 
 	function test_define_var_defines_var() {

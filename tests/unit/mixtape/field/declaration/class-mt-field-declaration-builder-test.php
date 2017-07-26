@@ -1,6 +1,6 @@
 <?php
 
-class MT_Field_Declaration_BuilderTest extends MT_Testing_Model_TestCase {
+class MT_Field_Declaration_BuilderTest extends MT_Testing_TestCase {
 	function test_exists() {
 		$this->assertClassExists( 'MT_Field_Declaration_Builder' );
 	}

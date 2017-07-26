@@ -8,7 +8,7 @@
 /**
  * Class MT_Controller_SettingsTest
  */
-class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
+class MT_Controller_SettingsTest extends MT_Testing_TestCase {
 
 	/**
 	 * Set Up.
@@ -17,12 +17,12 @@ class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
 		parent::setUp();
 		$this->mixtape->environment()->define_model( 'Casette' );
 		$env = $this->mixtape->environment();
-		$env->define_model( 'CasetteSettings' )
-			->with_data_store( new MT_Data_Store_Option( $env->model( 'CasetteSettings' ) ) );
+		$env->define_model( 'Casette_Settings' )
+			->with_data_store( new MT_Data_Store_Option( $env->model( 'Casette_Settings' ) ) );
 
 		$bundle = $env->rest_api( 'casette-crud-test/v1' );
 
-		$bundle->add_endpoint( new MT_Controller_Settings( '/settings', 'CasetteSettings' ) );
+		$bundle->add_endpoint( new MT_Controller_Settings( '/settings', 'Casette_Settings' ) );
 		$env->auto_start();
 
 		do_action( 'rest_api_init' );
@@ -102,7 +102,7 @@ class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
 	 * @covers MT_Controller_Settings::create_item
 	 */
 	function test_post_settings_update_value() {
-		$model_def = $this->environment->model( 'CasetteSettings' );
+		$model_def = $this->environment->model( 'Casette_Settings' );
 		$model = $model_def->get_data_store()->get_entity( null );
 		$previous_per_page = $model->get( 'mixtape_casette_per_page' );
 		$request_data = array(
@@ -122,7 +122,7 @@ class MT_Controller_SettingsTest extends MT_Testing_Controller_TestCase {
 	 * @covers MT_Controller_Settings::create_item
 	 */
 	function test_post_settings_update_multiple_values() {
-		$model_def = $this->environment->model( 'CasetteSettings' );
+		$model_def = $this->environment->model( 'Casette_Settings' );
 		$model = $model_def->get_data_store()->get_entity( null );
 		$previous_per_page = $model->get( 'mixtape_casette_per_page' );
 		$previous_enable_private = $model->get( 'mixtape_casette_enable_private' );

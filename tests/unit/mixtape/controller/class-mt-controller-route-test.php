@@ -8,7 +8,7 @@
 /**
  * Class MT_Controller_RouteTest
  */
-class MT_Controller_RouteTest extends MT_Testing_Controller_TestCase {
+class MT_Controller_RouteTest extends MT_Testing_TestCase {
 	/**
 	 * A Controller.
 	 *

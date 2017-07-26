@@ -1,6 +1,6 @@
 <?php
 
-class MT_Type_RegistryTest extends MT_Testing_Model_TestCase {
+class MT_Type_RegistryTest extends MT_Testing_TestCase {
 
     /**
      * @var MT_Type_Registry

@@ -8,7 +8,7 @@
 /**
  * Class MT_Type_ArrayTest
  */
-class MT_Type_StringTest extends MT_Testing_Model_TestCase {
+class MT_Type_StringTest extends MT_Testing_TestCase {
     /**
      * Registry.
      *

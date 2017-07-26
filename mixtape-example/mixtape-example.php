@@ -23,14 +23,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function run_plugin() {
 	$base_path = dirname( __FILE__ );
-	include_once( path_join( $base_path, 'class-casette-post-types.php' ) );
-	CasettePostTypes::register();
+	include_once path_join( $base_path, 'class-casette-post-types.php' );
+	Casette_Post_Types::register();
 
 	$mixtape_path = dirname( $base_path );
 	include_once( path_join( $mixtape_path, 'loader.php' ) );
 	$mixtape = MT_Bootstrap::create()->load();
-	include_once( path_join( $base_path, 'casette.php' ) );
-	CasetteRESTApi::register( $mixtape );
+	include_once path_join( $base_path, 'casette.php' );
+
+	Casette_Api::register( $mixtape );
 }
 
 add_action( 'init', 'run_plugin' );

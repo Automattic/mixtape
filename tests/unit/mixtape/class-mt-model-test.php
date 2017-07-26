@@ -1,34 +1,6 @@
 <?php
 
-class MT_ModelTest_Extend extends MT_Model {
-
-	/**
-	 * Declare the fields of our Model.
-	 *
-	 * @return array list of MT_Field_Declaration
-	 */
-	public static function declare_fields() {
-		$env = self::get_environment();
-		return array(
-			$env->field( 'foo' )
-				->with_type( $env->type( 'int' ) ),
-		);
-	}
-
-	/**
-	 * Get this model's unique identifier
-	 *
-	 * @return mixed a unique identifier
-	 */
-	function get_id() {
-		return 1;
-	}
-}
-
-class MT_ModelTest extends MT_Testing_Model_TestCase {
-    function setUp() {
-        parent::setUp();
-    }
+class MT_ModelTest extends MT_Testing_TestCase {
 
     function test_exists() {
         $this->assertClassExists( 'MT_Model' );
@@ -105,14 +77,14 @@ class MT_ModelTest extends MT_Testing_Model_TestCase {
 			->environment()
 			->define_model( 'Casette' );
 		$casette = $this->mixtape
-			->environment()->model( Casette::class )
+			->environment()->model( 'Casette' )
 			->create( array(
 				'title' => 'Awesome',
 				'songs' => array(1,2,3)
 			) );
 
 		$this->assertNotNull( $casette );
-		$this->assertInstanceOf( MT_Model::class, $casette );
+		$this->assertInstanceOf( 'MT_Model', $casette );
 	}
 
 	function test_find_one_by_id_from_cpt_entity_return_null_when_id_not_in_db() {
@@ -143,7 +115,7 @@ class MT_ModelTest extends MT_Testing_Model_TestCase {
 		$this->assertFalse( is_wp_error( $id ) );
 		$model = $casette_definition->get_data_store()->get_entity( $id );
 		$this->assertNotNull( $model );
-		$this->assertInstanceOf( MT_Model::class, $model );
+		$this->assertInstanceOf( 'MT_Model', $model );
 		$model_id = $model->get( 'id' );
 		$this->assertEquals( $id, $model_id );
 		$model_meta_field = $model->get( 'songs' );

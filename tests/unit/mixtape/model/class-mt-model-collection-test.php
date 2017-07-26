@@ -1,6 +1,6 @@
 <?php
 
-class MT_Model_CollectionTest extends MT_Testing_Model_TestCase {
+class MT_Model_CollectionTest extends MT_Testing_TestCase {
 	function test_exists() {
 		$this->assertClassExists( 'MT_Model_Collection' );
 	}

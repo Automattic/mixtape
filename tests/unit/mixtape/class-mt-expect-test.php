@@ -2,8 +2,6 @@
 
 class MT_ExpectTest extends MT_Testing_TestCase {
 
-    private $mixtape;
-
     function test_exists() {
         $this->assertClassExists( 'MT_Expect' );
     }

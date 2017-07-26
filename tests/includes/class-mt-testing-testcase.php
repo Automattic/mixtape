@@ -1,14 +1,42 @@
 <?php
 /**
- * Controller test case
+ * Testcase
  *
  * @package MT/Testing
  */
 
 /**
- * Class MT_Testing_Controller_TestCase
+ * Class MT_Testing_TestCase
  */
-class MT_Testing_Controller_TestCase extends MT_Testing_Model_TestCase {
+class MT_Testing_TestCase extends WP_UnitTestCase {
+	/**
+	 * Admin
+	 *
+	 * @var int
+	 */
+	protected $admin_id;
+
+	/**
+	 * Default User
+	 *
+	 * @var int
+	 */
+	protected $default_user_id;
+
+	/**
+	 * Environment
+	 *
+	 * @var MT_Environment
+	 */
+	protected $environment;
+
+	/**
+	 * Bootstrap
+	 *
+	 * @var MT_Bootstrap
+	 */
+	protected $mixtape;
+
 	/**
 	 * REST Server
 	 *
@@ -17,10 +45,44 @@ class MT_Testing_Controller_TestCase extends MT_Testing_Model_TestCase {
 	protected $rest_server;
 
 	/**
+	 * Expect a class Exists.
+	 *
+	 * @param string $cls Class Name.
+	 */
+	function assertClassExists( $cls ) {
+		$this->assertTrue( class_exists( $cls ), 'Failed Asserting that class ' . $cls . ' exists.' );
+	}
+
+	/**
 	 * Setup
 	 */
 	function setUp() {
 		parent::setUp();
+		if ( ! MT_Bootstrap::is_compatible() ) {
+			$this->markTestSkipped( 'Incompatible Testing Environment' );
+		}
+
+		$root_path = dirname( MT_Bootstrap::get_base_dir() );
+		$this->mixtape = MT_Bootstrap::create()->load();
+		$this->environment = $this->mixtape->environment();
+
+		if ( ! class_exists( 'Casette' ) ) {
+			include_once( $root_path . DIRECTORY_SEPARATOR . 'mixtape-example' . DIRECTORY_SEPARATOR . 'includes-casette.php' );
+		}
+		include_once 'class-test-extension-model.php';
+		$admin = get_user_by( 'email', 'rest_api_admin_user@test.com' );
+		if ( false === $admin ) {
+			$this->admin_id = wp_create_user(
+				'rest_api_admin_user',
+				'rest_api_admin_user',
+				'rest_api_admin_user@test.com'
+			);
+			$admin = get_user_by( 'ID', $this->admin_id );
+			$admin->set_role( 'administrator' );
+		}
+
+		$this->default_user_id = get_current_user_id();
+		$this->login_as_admin();
 		/**
 		 *The global
 		 *
@@ -30,6 +92,37 @@ class MT_Testing_Controller_TestCase extends MT_Testing_Model_TestCase {
 		$this->rest_server = new WP_REST_Server;
 		$wp_rest_server = $this->rest_server;
 	}
+
+	/**
+	 * Login as admin
+	 *
+	 * @return MT_Testing_TestCase
+	 */
+	function login_as_admin() {
+		return $this->login_as( $this->admin_id );
+	}
+
+	/**
+	 * Login As User
+	 *
+	 * @param int $user_id User ID.
+	 * @return MT_Testing_TestCase $this
+	 */
+	function login_as( $user_id ) {
+		wp_set_current_user( $user_id );
+		return $this;
+	}
+
+	/**
+	 * Expect a model is valid
+	 *
+	 * @param MT_Interfaces_Model $model The model.
+	 */
+	function assertModelValid( $model ) {
+		$this->assertTrue( $model->validate() );
+	}
+
+
 
 	/**
 	 * Assert Status

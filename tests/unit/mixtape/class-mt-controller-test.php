@@ -8,7 +8,7 @@
 /**
  * Class MT_ControllerTest
  */
-class MT_ControllerTest extends MT_Testing_Controller_TestCase {
+class MT_ControllerTest extends MT_Testing_TestCase {
 	/**
 	 * A Controller.
 	 *

@@ -17,7 +17,7 @@
     </php>
     <testsuites>
         <testsuite name="Mixtape Test Suite">
-            <directory suffix="-test.php" phpVersion="5.3.0" phpVersionOperator=">=">./tests/</directory>
+            <directory suffix="-test.php">./tests/</directory>
             <exclude>./tests/unit-testing-classes</exclude>
             <exclude>./tests/bin</exclude>
         </testsuite>
