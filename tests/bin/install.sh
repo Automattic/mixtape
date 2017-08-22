@@ -7,13 +7,13 @@ DB_USER=${DB_USER-'root'}
 DB_PASS=${DB_PASS-''}
 DB_HOST=${DB_HOST-'localhost'}
 
-WP_VERSION=${WP_VERSION-4.8}
-WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
-WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
+WP_VERSION="${WP_VERSION-4.8}"
+WP_TESTS_DIR="${WP_TESTS_DIR-/tmp/wordpress-tests-lib}"
+WP_CORE_DIR="${WP_CORE_DIR-/tmp/wordpress/}"
 
 COMPOSER_SCRIPT=${COMPOSER_SCRIPT-'composer'}
 
-THISDIR=`pwd`
+THISDIR="$(pwd)"
 
 if [[ $WP_VERSION =~ [0-9]+\.[0-9]+(\.[0-9]+)? ]]; then
 	WP_TESTS_TAG="tags/$WP_VERSION"
@@ -29,7 +29,7 @@ else
 fi
 
 install_wp() {
-	mkdir -p $WP_CORE_DIR
+	mkdir -p "$WP_CORE_DIR"
 
 	if [ $WP_VERSION == 'latest' ]; then
 		local ARCHIVE_NAME='latest'
@@ -40,7 +40,7 @@ install_wp() {
 	wget -nv -O /tmp/wordpress.tar.gz https://wordpress.org/${ARCHIVE_NAME}.tar.gz
 	tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C $WP_CORE_DIR
 
-	wget -nv -O $WP_CORE_DIR/wp-content/db.php https://raw.github.com/markoheijnen/wp-mysqli/master/db.php
+	wget -nv -O "$WP_CORE_DIR/wp-content/db.php" https://raw.github.com/markoheijnen/wp-mysqli/master/db.php
 }
 
 install_test_suite() {
@@ -52,8 +52,8 @@ install_test_suite() {
 	fi
 
 	# set up testing suite
-	mkdir -p $WP_TESTS_DIR
-	cd $WP_TESTS_DIR
+	mkdir -p "$WP_TESTS_DIR"
+	cd "$WP_TESTS_DIR"
 	svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/
 	svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/
 
@@ -64,7 +64,7 @@ install_test_suite() {
 	sed $ioption "s/yourpasswordhere/$DB_PASS/" wp-tests-config.php
 	sed $ioption "s|localhost|${DB_HOST}|" wp-tests-config.php
 
-	mkdir -p $WP_TESTS_DIR/data/themedir1
+	mkdir -p "$WP_TESTS_DIR/data/themedir1"
 }
 
 install_db() {
@@ -104,7 +104,7 @@ install_wp_phpcs() {
 }
 
 composer_install() {
-    cd $THISDIR && $COMPOSER_SCRIPT install
+    cd "$THISDIR" && $COMPOSER_SCRIPT install
 }
 
 install_wp

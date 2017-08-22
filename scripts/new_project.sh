@@ -22,7 +22,7 @@ if [ -z "$2" ]; then
   usage
 fi
 
-WORKING_DIR=`pwd`;
+WORKING_DIR="`pwd`";
 
 # echo $WORKING_DIR
 
@@ -35,8 +35,8 @@ if [ ! -d "$destination" ]; then
 fi
 
 cd $destination;
-destination_dir=`pwd`;
-cd $WORKING_DIR;
+destination_dir="`pwd`";
+cd "$WORKING_DIR";
 
 if [ ! -d "$destination_dir" ]; then
   echo "$destination_dir is missing";

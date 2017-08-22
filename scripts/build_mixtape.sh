@@ -86,7 +86,7 @@ fi
 
 expect_directory "$mt_current_destination";
 
-cd $MIXTAPE_PATH;
+cd ""$MIXTAPE_PATH";
 mt_repo_current_sha="$(git rev-parse HEAD)";
 
 if [ "$mt_repo_current_sha" != "$mt_current_sha" ]; then
