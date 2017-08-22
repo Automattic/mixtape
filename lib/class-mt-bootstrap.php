@@ -79,6 +79,20 @@ class MT_Bootstrap {
 	}
 
 	/**
+	 * Run the app
+	 *
+	 * @return bool
+	 */
+	public function run() {
+		if ( ! self::is_compatible() ) {
+			return false;
+		}
+		$this->load()
+			->environment()->start();
+		return true;
+	}
+
+	/**
 	 * Optional: Instead of calling load() you can
 	 * register as an auto-loader
 	 *
