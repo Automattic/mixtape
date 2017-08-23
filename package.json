@@ -1,0 +1,37 @@
+{
+  "name": "mixtape",
+  "version": "1.0.0",
+  "description": "Models and REST API for WordPress",
+  "main": "cli/index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "chalk": "^2.1.0",
+    "commander": "^2.11.0",
+    "jsonfile": "^3.0.1",
+    "shelljs": "^0.7.8"
+  },
+  "bin": {
+    "mixtape": "./cli/index.js"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "./vendor/bin/phpunit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Automattic/mixtape.git"
+  },
+  "keywords": [
+    "wordpress",
+    "library",
+    "generator"
+  ],
+  "author": "Automattic",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/Automattic/mixtape/issues"
+  },
+  "homepage": "https://github.com/Automattic/mixtape#readme"
+}

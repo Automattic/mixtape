@@ -144,7 +144,8 @@ Temporary Items
 # </genignore linux>
 
 
-generated/*
-!generated/.gitkeep
 /vendor/
 tests/bin/codesniffer_rules
+mixtape.json
+your/destination
+tmp
