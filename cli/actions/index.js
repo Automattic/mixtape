@@ -57,8 +57,6 @@ var newProject = function (prefix, destination) {
     return false;
   }
 
-  shell.cd(npmPackageRoot);
-
   util.expectDirectory(destination);
 
   console.log("Generating new project with the following")
@@ -66,7 +64,9 @@ var newProject = function (prefix, destination) {
   console.log("destination_dir = " + destination)
   console.log("prefix          = " + prefix)
 
-  var result = shell.exec('php scripts/new_project.php ' + prefix + ' ' + quote(npmPackageRoot) + ' ' + destination);
+  shell.cd(npmPackageRoot);
+
+  var result = shell.exec('php scripts/new_project.php ' + prefix + ' ' + quote(npmPackageRoot) + ' ' + quote(destination));
   if (result.code !== 0) {
       return false;
   }
@@ -79,16 +79,15 @@ var buildMixtape = function () {
       mixtapeFileName = 'mixtape.json',
       mixtapePath = npmPackageRoot;
 
+  console.log('running from ' + scriptRoot)
   shell.cd(scriptRoot);
 
   util.expectDirectory(mixtapePath);
 
   if (!util.fileExists(mixtapeFileName)) {
     console.log('No ' + mixtapeFileName + ' found. Generating one (using sha from Mixtape HEAD)');
-    shell.cd(mixtapePath);
-    var sha = shell.exec('git rev-parse HEAD').stdout;
+
     var mixtapeFileTemplate = {
-      sha: sha.replace(/^\s+|\s+$/g, ''),
       prefix: 'YOUR_PREFIX',
       destination: 'your/destination',
     }
@@ -107,7 +106,7 @@ var buildMixtape = function () {
 
   var currentSha = mixtapeFile.sha;
   var currentPrefix = mixtapeFile.prefix;
-  var currentDestination = mixtapeFile.destination;
+  var currentDestination = path.resolve(mixtapeFile.destination);
 
   console.log('============= Building Mixtape =============');
   console.log(mixtapeFile);
@@ -120,28 +119,13 @@ var buildMixtape = function () {
 
   shell.cd(mixtapePath);
 
-  // var repoCurrentSha = shell.exec('git rev-parse HEAD').replace(/^\s+|\s+$/g, '');
-  //
-  // if (repoCurrentSha != currentSha) {
-  //   if (shell.exec('git checkout ' + currentSha).code !== 0) {
-  //     logError('Git checkout error');
-  //     shell.exit(1);
-  //   }
-  // }
-  //
-  // if ( shell.exec('git diff-index --quiet --cached HEAD >/dev/null 2>&1').code !== 0) {
-  //   logError('Repository (at $mixtapePath) is dirty. Please commit or stash the changes. Exiting." >&2;');
-  //   shell.exit(1);
-  // }
-
-  console.log("Running project script from " + mixtapePath);
+  console.log("Running project script from " + scriptRoot);
   if (!newProject(currentPrefix, currentDestination)) {
     logError('Something went wrong with file generation, Exiting');
     shell.exit(1);
   } else {
     logSuccess('Generation done!');
     shell.exit(0);
-    // shell.exec('git checkout "' + repoCurrentSha + '" >/dev/null 2>&1');
   }
 }
 

@@ -12,7 +12,7 @@ program.version(version)
   .name(cliAppName)
   .description(appDescription)
 
-program.command('build', 'Build mixtape for development and plugin deployment (Note: Requires git)')
+program.command('build', 'Build mixtape for development and plugin deployment')
   .action(function (options) {
     actions.build(options);
   });
