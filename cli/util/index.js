@@ -1,7 +1,8 @@
 'use strict';
 
 var shell = require('shelljs'),
-    fs = require('fs');
+    fs = require('fs'),
+    chalk = require('chalk');
 
 module.exports = {
   fileExists: function (maybeFile) {
@@ -31,5 +32,13 @@ module.exports = {
 
   quote: function (thing) {
     return '"' + thing + '"';
+  },
+
+  logSuccess: function (thing) {
+    console.log(chalk.green(thing));
+  },
+
+  logError: function (err) {
+    console.log(chalk.red(err));
   }
 }

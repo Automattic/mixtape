@@ -12,15 +12,15 @@ program.version(version)
   .name(cliAppName)
   .description(appDescription)
 
-program.command('build', 'Build mixtape for development and plugin deployment')
-  .action(function (options) {
-    actions.build(options);
-  });
-
 program
-  .command('init [prefix] [folder]', 'Initalize a new mixtape-based project')
-  .action(function (prefix, folder, options) {
-  });
+  .command('build')
+  .description('Build a project')
+  .action(actions.build);
 
+program.command('init <prefix> <folder>')
+  .description('Initalize a new project. Provide a prefix and a relative lib folder.')
+  .action(actions.init);
+
+program.command('gen').action(actions.gen);
 
 program.parse(process.argv);

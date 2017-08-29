@@ -2,22 +2,15 @@
 
 var shell = require('shelljs'),
     jsonfile = require('jsonfile'),
-    chalk = require('chalk'),
     fs = require('fs'),
     path = require('path'),
     util = require('./../util'),
+    logSuccess = util.logSuccess,
+    logError = util.logError,
     dirname = path.dirname,
     quote = util.quote;
 
 var npmPackageRoot = dirname(dirname(dirname(fs.realpathSync(__filename))));
-
-var logSuccess = function (thing) {
-  console.log(chalk.green(thing));
-}
-
-var logError = function (err) {
-  console.log(chalk.red(err));
-}
 
 var doFreshGitCheckout = function () {
   var mixtapeTempPath = 'tmp/mt';
@@ -59,7 +52,7 @@ var newProject = function (prefix, destination) {
 
   util.expectDirectory(destination);
 
-  console.log("Generating new project with the following")
+  console.log("Generating prefixed project using:")
   console.log("lib_dir         = " + npmPackageRoot)
   console.log("destination_dir = " + destination)
   console.log("prefix          = " + prefix)
@@ -73,10 +66,23 @@ var newProject = function (prefix, destination) {
   return true;
 };
 
+var mixtapeFileName = 'mixtape.json';
+
+var initNewProject = function (prefix, destination) {
+  var scriptRoot = shell.pwd().stdout;
+  var mixtapeFileTemplate = {
+    prefix: prefix,
+    destination: destination,
+  }
+  shell.cd(scriptRoot);
+  jsonfile.writeFileSync(mixtapeFileName, mixtapeFileTemplate, {spaces: 2});
+  logSuccess(mixtapeFileName + ' Generated:');
+  shell.exec('cat ' + mixtapeFileName);
+};
+
 var buildMixtape = function () {
   var scriptRoot = shell.pwd().stdout,
       mixtapeTempPath = scriptRoot + '/tmp/mt',
-      mixtapeFileName = 'mixtape.json',
       mixtapePath = npmPackageRoot;
 
   console.log('running from ' + scriptRoot)
@@ -85,19 +91,8 @@ var buildMixtape = function () {
   util.expectDirectory(mixtapePath);
 
   if (!util.fileExists(mixtapeFileName)) {
-    console.log('No ' + mixtapeFileName + ' found. Generating one (using sha from Mixtape HEAD)');
-
-    var mixtapeFileTemplate = {
-      prefix: 'YOUR_PREFIX',
-      destination: 'your/destination',
-    }
-    shell.cd(scriptRoot);
-    jsonfile.writeFileSync(mixtapeFileName, mixtapeFileTemplate, {spaces: 2});
-
-    logError(mixtapeFileName + ' Generated:');
-    shell.exec('cat ' + mixtapeFileName);
-    console.log('Amend it with your prefix, sha and destination and rerun this.');
-    shell.exit(0);
+    console.log('No ' + mixtapeFileName + ' found. Generate one using init');
+    shell.exit(1);
   }
 
   shell.cd(scriptRoot);
@@ -108,7 +103,7 @@ var buildMixtape = function () {
   var currentPrefix = mixtapeFile.prefix;
   var currentDestination = path.resolve(mixtapeFile.destination);
 
-  console.log('============= Building Mixtape =============');
+  logSuccess('============= Building Mixtape =============');
   console.log(mixtapeFile);
 
   if (!util.dirExists(currentDestination)) {
@@ -119,7 +114,7 @@ var buildMixtape = function () {
 
   shell.cd(mixtapePath);
 
-  console.log("Running project script from " + scriptRoot);
+  console.log('Running project script from ' + scriptRoot);
   if (!newProject(currentPrefix, currentDestination)) {
     logError('Something went wrong with file generation, Exiting');
     shell.exit(1);
@@ -130,5 +125,23 @@ var buildMixtape = function () {
 }
 
 module.exports = {
-  build: buildMixtape
+  build: buildMixtape,
+  init: initNewProject,
+  gen: function () {
+    var mixtapeFile = jsonfile.readFileSync(mixtapeFileName);
+    var prefix = mixtapeFile.prefix;
+    var destination = path.resolve(mixtapeFile.destination);
+    var scriptRoot = shell.pwd().stdout;
+    shell.cd(scriptRoot);
+    var files = shell.find('lib').filter(function(file) { return file.match(/\.php$/); });
+    files.forEach(function (f) {
+      console.log(f)
+      var fileContents = fs.readFileSync(f, 'utf8');
+      var prefixedContent = fileContents.replace('MT', prefix);
+      var prefixForFileName = 'class-'+ prefix.toLowerCase().replace('_', '-')+ '-';
+      var ff = f.replace('lib', destination)
+      console.log(ff.replace('class-mt-', prefixForFileName));
+    })
+
+  }
 }
