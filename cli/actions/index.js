@@ -128,6 +128,7 @@ var buildMixtape = function () {
 }
 
 var generatePrefixedMixtapeLibrary = function () {
+  // assume this runs from the script root
   var mixtapeFile = jsonfile.readFileSync(mixtapeFileName),
       prefix = mixtapeFile.prefix,
       prefixForFileName = 'class-'+ prefix.toLowerCase().replace(/_/g, '-')+ '-',
@@ -135,7 +136,7 @@ var generatePrefixedMixtapeLibrary = function () {
       scriptRoot = shell.pwd().stdout,
       mtPrefixRegExp = /MT/g;
 
-  shell.cd(scriptRoot);
+  shell.cd(npmPackageRoot);
   shell.find('lib')
     .filter(function(file) { return file.match(/\.php$/); })
     .forEach(function (classTemplate) {
