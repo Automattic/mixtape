@@ -9,7 +9,6 @@ module.exports = {
     try {
         return fs.statSync(maybeFile).isFile();
     } catch (err) {
-      console.log(err);
       return false;
     }
   },
@@ -18,7 +17,6 @@ module.exports = {
     try {
         return fs.statSync(maybeDir).isDirectory();
     } catch (err) {
-      console.log(err);
       return false;
     }
   },

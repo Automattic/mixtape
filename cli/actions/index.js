@@ -57,13 +57,7 @@ var newProject = function (prefix, destination) {
   console.log("destination_dir = " + destination)
   console.log("prefix          = " + prefix)
 
-  shell.cd(npmPackageRoot);
-
-  var result = shell.exec('php scripts/new_project.php ' + prefix + ' ' + quote(npmPackageRoot) + ' ' + quote(destination));
-  if (result.code !== 0) {
-      return false;
-  }
-  return true;
+  generatePrefixedMixtapeLibrary();
 };
 
 var mixtapeFileName = 'mixtape.json';
@@ -104,44 +98,77 @@ var buildMixtape = function () {
   var currentDestination = path.resolve(mixtapeFile.destination);
 
   logSuccess('============= Building Mixtape =============');
-  console.log(mixtapeFile);
 
   if (!util.dirExists(currentDestination)) {
     shell.mkdir('-p', currentDestination);
   }
 
+  if (!currentPrefix || !currentDestination) {
+    return false;
+  }
+
   util.expectDirectory(currentDestination);
 
-  shell.cd(mixtapePath);
-
   console.log('Running project script from ' + scriptRoot);
-  if (!newProject(currentPrefix, currentDestination)) {
-    logError('Something went wrong with file generation, Exiting');
-    shell.exit(1);
-  } else {
-    logSuccess('Generation done!');
-    shell.exit(0);
-  }
+
+  console.log("Generating prefixed project using:")
+  console.log("lib_dir         = " + npmPackageRoot)
+  console.log("destination_dir = " + currentDestination)
+  console.log("prefix          = " + currentPrefix)
+  generatePrefixedMixtapeLibrary();
+  logSuccess('Generation done!');
+  shell.exit(0);
+  // if (!newProject(currentPrefix, currentDestination)) {
+  //   logError('Something went wrong with file generation, Exiting');
+  //   shell.exit(1);
+  // } else {
+  //   logSuccess('Generation done!');
+  //   shell.exit(0);
+  // }
 }
+
+var generatePrefixedMixtapeLibrary = function () {
+  var mixtapeFile = jsonfile.readFileSync(mixtapeFileName),
+      prefix = mixtapeFile.prefix,
+      prefixForFileName = 'class-'+ prefix.toLowerCase().replace(/_/g, '-')+ '-',
+      destination = path.resolve(mixtapeFile.destination),
+      scriptRoot = shell.pwd().stdout,
+      mtPrefixRegExp = /MT/g;
+
+  shell.cd(scriptRoot);
+  shell.find('lib')
+    .filter(function(file) { return file.match(/\.php$/); })
+    .forEach(function (classTemplate) {
+      var fileContents = fs.readFileSync(path.resolve(classTemplate), 'utf8'),
+          prefixedContent = fileContents.replace(mtPrefixRegExp, prefix),
+          destinationFilePath = classTemplate.replace('lib', destination)
+            .replace('class-mt-', prefixForFileName);
+      if (!util.dirExists(path.dirname(destinationFilePath))) {
+        shell.mkdir('-p', path.dirname(destinationFilePath));
+      }
+      fs.writeFileSync(destinationFilePath, prefixedContent);
+      console.log('- Using Template:  ' + classTemplate)
+      console.log('- Generated:       ' + destinationFilePath)
+      console.log('')
+  });
+};
 
 module.exports = {
   build: buildMixtape,
   init: initNewProject,
-  gen: function () {
-    var mixtapeFile = jsonfile.readFileSync(mixtapeFileName);
-    var prefix = mixtapeFile.prefix;
-    var destination = path.resolve(mixtapeFile.destination);
-    var scriptRoot = shell.pwd().stdout;
-    shell.cd(scriptRoot);
-    var files = shell.find('lib').filter(function(file) { return file.match(/\.php$/); });
-    files.forEach(function (f) {
-      console.log(f)
-      var fileContents = fs.readFileSync(f, 'utf8');
-      var prefixedContent = fileContents.replace('MT', prefix);
-      var prefixForFileName = 'class-'+ prefix.toLowerCase().replace('_', '-')+ '-';
-      var ff = f.replace('lib', destination)
-      console.log(ff.replace('class-mt-', prefixForFileName));
-    })
+  gen: generatePrefixedMixtapeLibrary,
+  clean: function () {
+    var mixtapeFile, destination;
+    try {
+      mixtapeFile = jsonfile.readFileSync(mixtapeFileName);
+    } catch (e) {
+      shell.exit(0);
+    }
 
+    destination = path.resolve(mixtapeFile.destination);
+    if (!util.dirExists(destination)) {
+      shell.exit(0);
+    }
+    shell.rm('-rf', destination);
   }
 }
