@@ -141,7 +141,7 @@ var generatePrefixedMixtapeLibrary = function () {
     .filter(function(file) { return file.match(/\.php$/); })
     .forEach(function (classTemplate) {
       var fileContents = fs.readFileSync(path.resolve(classTemplate), 'utf8'),
-          prefixedContent = fileContents.replace(mtPrefixRegExp, prefix),
+          prefixedContent = fileContents.replace(mtPrefixRegExp, prefix).replace(/class-mt-/g, prefixForFileName),
           destinationFilePath = classTemplate.replace('lib', destination)
             .replace('class-mt-', prefixForFileName);
       if (!util.dirExists(path.dirname(destinationFilePath))) {
