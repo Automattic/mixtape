@@ -6,8 +6,8 @@ class Casette extends MT_Model {
 	 *
 	 * @return array
 	 */
-	public static function declare_fields() {
-		$d = self::get_environment();
+	public function declare_fields() {
+		$d = $this->get_environment();
 		return array(
 			$d->field( 'id' )
 				->with_map_from( 'ID' )
@@ -123,16 +123,5 @@ class Casette extends MT_Model {
 	 */
 	function song_before_save( $value ) {
 		return implode( ',', $value );
-	}
-
-	/**
-	 * Check our permissions
-	 *
-	 * @param WP_REST_Request $request Check permissions.
-	 * @param string          $action Action.
-	 * @return bool
-	 */
-	public static function permissions_check( $request, $action ) {
-		return true;
 	}
 }

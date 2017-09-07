@@ -3,7 +3,7 @@
 class MT_Data_Store_CustomPostTypeTest extends MT_Testing_TestCase {
 
     /**
-     * @var MT_Model_Factory
+     * @var MT_Model
      */
     private $model_definition;
 

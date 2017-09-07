@@ -231,4 +231,10 @@ class MT_Testing_TestCase extends WP_UnitTestCase {
 	function delete( $endpoint, $args = array() ) {
 		return $this->request( $endpoint, 'DELETE', $args );
 	}
+
+	function requires_php_53_or_greater() {
+		if ( version_compare( phpversion(), '5.3', '<' ) ) {
+			$this->markTestSkipped( 'Some Mock Fatals issues on php 5.2' );
+		}
+	}
 }

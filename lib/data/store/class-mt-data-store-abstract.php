@@ -18,9 +18,9 @@ abstract class MT_Data_Store_Abstract implements MT_Interfaces_Data_Store {
 	/**
 	 * Definition
 	 *
-	 * @var MT_Model_Factory
+	 * @var MT_Model
 	 */
-	protected $model_factory;
+	protected $model_prototype;
 
 	/**
 	 * Type Serializers
@@ -32,26 +32,25 @@ abstract class MT_Data_Store_Abstract implements MT_Interfaces_Data_Store {
 	/**
 	 * MT_Data_Store_Abstract constructor.
 	 *
-	 * @param null|MT_Model_Factory $model_factory Def.
-	 * @param array                 $args Args.
+	 * @param null|MT_Model $model_prototype Def.
+	 * @param array         $args Args.
 	 */
-	public function __construct( $model_factory = null, $args = array() ) {
+	public function __construct( $model_prototype = null, $args = array() ) {
 		$this->type_serializers = array();
 		$this->args = $args;
-		if ( is_a( $model_factory, 'MT_Model_Factory' ) ) {
-			$this->set_model_factory( $model_factory );
-		}
+		MT_Expect::is_a( $model_prototype, 'MT_Interfaces_Model' );
+		$this->set_model_factory( $model_prototype );
 	}
 
 	/**
 	 * Set Definition
 	 *
-	 * @param MT_Model_Factory $factory Def.
+	 * @param MT_Model $factory Def.
 	 *
 	 * @return MT_Interfaces_Data_Store $this
 	 */
 	private function set_model_factory( $factory ) {
-		$this->model_factory = $factory;
+		$this->model_prototype = $factory;
 		$this->configure();
 		return $this;
 	}
@@ -65,9 +64,9 @@ abstract class MT_Data_Store_Abstract implements MT_Interfaces_Data_Store {
 	/**
 	 * Get Definition
 	 *
-	 * @return MT_Model_Factory
+	 * @return MT_Model
 	 */
-	public function get_model_factory() {
-		return $this->model_factory;
+	public function get_model_prototype() {
+		return $this->model_prototype;
 	}
 }

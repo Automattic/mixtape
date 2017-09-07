@@ -16,5 +16,5 @@ interface MT_Interfaces_Permissions_Provider {
 	 * @param string          $action The action (e.g. index, create update etc).
 	 * @return bool
 	 */
-	public static function permissions_check( $request, $action );
+	public function permissions_check( $request, $action );
 }

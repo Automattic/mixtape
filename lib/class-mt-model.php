@@ -31,11 +31,18 @@ class MT_Model implements
 	private static $data_stores_by_class_name = array();
 
 	/**
-	 * The Single Environment instance all children models access
+	 * The Environment the model exists in
 	 *
 	 * @var MT_Environment
 	 */
-	private static $environment = null;
+	private static $environments_by_class_name = array();
+
+	/**
+	 * Permissions Providers by class Name
+	 *
+	 * @var array
+	 */
+	private static $permissions_providers_by_class_name = array();
 
 	/**
 	 * Our data
@@ -86,7 +93,7 @@ class MT_Model implements
 	 */
 	public function get( $field_name, $args = array() ) {
 		MT_Expect::that( $this->has( $field_name ), 'Field ' . $field_name . 'is not defined' );
-		$fields = self::get_fields();
+		$fields = $this->get_fields();
 		$field_declaration = $fields[ $field_name ];
 		$this->set_field_if_unset( $field_declaration );
 
@@ -130,7 +137,7 @@ class MT_Model implements
 	 * @return bool
 	 */
 	public function has( $field ) {
-		$fields = self::get_fields();
+		$fields = $this->get_fields();
 		return isset( $fields[ $field ] );
 	}
 
@@ -263,10 +270,16 @@ class MT_Model implements
 	 * @param null|string $filter_by_type Filter.
 	 * @return array
 	 */
-	public static function get_fields( $filter_by_type = null ) {
-		$class_name = get_called_class();
+	public function get_fields( $filter_by_type = null ) {
+		$class_name = get_class( $this );
+		/**
+		 * Out model
+		 *
+		 * @var MT_Interfaces_Model $instance
+		 */
+		$instance = new $class_name();
 		if ( ! isset( self::$fields_by_class_name[ $class_name ] ) ) {
-			$fields = static::declare_fields();
+			$fields = $instance->declare_fields();
 			self::$fields_by_class_name[ $class_name ] = self::initialize_field_map( $fields );
 		}
 
@@ -315,8 +328,8 @@ class MT_Model implements
 	 *
 	 * @return MT_Interfaces_Data_Store
 	 */
-	public static function get_data_store() {
-		$class_name = get_called_class();
+	public function get_data_store() {
+		$class_name = get_class( $this );
 		if ( ! isset( self::$data_stores_by_class_name[ $class_name ] ) ) {
 			self::$data_stores_by_class_name[ $class_name ] = new MT_Data_Store_Nil();
 		}
@@ -329,20 +342,24 @@ class MT_Model implements
 	 * @param MT_Interfaces_Data_Store $data_store A builder or a Data store.
 	 * @throws MT_Exception Throws when Data Store Invalid.
 	 */
-	public static function with_data_store( $data_store ) {
-		$class_name = get_called_class();
+	public function with_data_store( $data_store ) {
+		$class_name = get_class( $this );
 		// at this point we should have a data store.
 		MT_Expect::is_a( $data_store, 'MT_Interfaces_Data_Store' );
 		self::$data_stores_by_class_name[ $class_name ] = $data_store;
 	}
 
 	/**
-	 * Get this model's data store
+	 * Get this model's environment
 	 *
-	 * @return MT_Environment
+	 * @return MT_Environment|null
 	 */
-	public static function get_environment() {
-		return self::$environment;
+	public function get_environment() {
+		$class_name = get_class( $this );
+		if ( isset( self::$environments_by_class_name[ $class_name ] ) ) {
+			return self::$environments_by_class_name[ $class_name ];
+		}
+		return null;
 	}
 
 	/**
@@ -350,11 +367,15 @@ class MT_Model implements
 	 *
 	 * @param MT_Environment $environment The Environment.
 	 *
+	 * @return MT_Interfaces_Model
+	 *
 	 * @throws MT_Exception If an MT_Environment is not provided.
 	 */
-	public static function with_environment( $environment ) {
+	public function with_environment( $environment ) {
 		MT_Expect::is_a( $environment, 'MT_Environment' );
-		self::$environment = $environment;
+		$class_name = get_class( $this );
+		self::$environments_by_class_name[ $class_name ] = $environment;
+		return $this;
 	}
 
 	/**
@@ -366,10 +387,10 @@ class MT_Model implements
 	 * @return MT_Interfaces_Model
 	 * @throws MT_Exception Throws if data not an array.
 	 */
-	public static function create( $data, $args = array() ) {
+	public function create( $data, $args = array() ) {
 		MT_Expect::that( is_array( $data ), '$data should be an array' );
 		MT_Expect::that( is_array( $args ), '$args should be an array' );
-		$class_name = get_called_class();
+		$class_name = get_class( $this );
 		return new $class_name( $data, $args );
 	}
 
@@ -398,9 +419,9 @@ class MT_Model implements
 	 *
 	 * @return MT_Model|WP_Error
 	 */
-	public static function new_from_array( $data ) {
-		$field_data = self::map_data( $data, false );
-		return self::create( $field_data )->sanitize();
+	public function new_from_array( $data ) {
+		$field_data = $this->map_data( $data, false );
+		return $this->create( $field_data )->sanitize();
 	}
 
 	/**
@@ -410,7 +431,7 @@ class MT_Model implements
 	 */
 	public function get_dto_field_mappings() {
 		$mappings = array();
-		foreach ( self::get_fields() as $field_declaration ) {
+		foreach ( $this->get_fields() as $field_declaration ) {
 			/**
 			 * Declaration
 			 *
@@ -431,7 +452,7 @@ class MT_Model implements
 	 */
 	function to_dto() {
 		$result = array();
-		foreach ( self::get_dto_field_mappings() as $mapping_name => $field_name ) {
+		foreach ( $this->get_dto_field_mappings() as $mapping_name => $field_name ) {
 			$value = $this->get( $field_name );
 			$result[ $mapping_name ] = $value;
 		}
@@ -446,9 +467,9 @@ class MT_Model implements
 	 * @param bool  $updating Are we Updating.
 	 * @return array
 	 */
-	private static function map_data( $data, $updating = false ) {
+	private function map_data( $data, $updating = false ) {
 		$request_data = array();
-		$fields = self::get_fields();
+		$fields = $this->get_fields();
 		foreach ( $fields as $field ) {
 			/**
 			 * Field
@@ -499,7 +520,7 @@ class MT_Model implements
 	 *
 	 * @return array
 	 */
-	public static function declare_fields() {
+	public function declare_fields() {
 		MT_Expect::should_override( __METHOD__ );
 		return array();
 	}
@@ -522,17 +543,6 @@ class MT_Model implements
 	 */
 	function set_id( $new_id ) {
 		return $this->set( 'id', $new_id );
-	}
-
-	/**
-	 * Handle Permissions for a REST Controller Action
-	 *
-	 * @param WP_REST_Request $request The request.
-	 * @param string          $action The action (e.g. index, create update etc).
-	 * @return bool
-	 */
-	public static function permissions_check( $request, $action ) {
-		return true;
 	}
 
 	/**
@@ -564,7 +574,7 @@ class MT_Model implements
 	 * @return array
 	 */
 	public function deserialize( $data ) {
-		$field_declarations = self::get_fields();
+		$field_declarations = $this->get_fields();
 		$raw_data = array();
 		$post_array_keys = array_keys( $data );
 		foreach ( $field_declarations as $declaration ) {
@@ -580,8 +590,10 @@ class MT_Model implements
 				// simplest case: we got a $key for this, so just map it.
 				$value = $this->deserialize_field( $declaration, $data[ $key ] );
 			} elseif ( in_array( $mapping, $post_array_keys, true ) ) {
+				// other case: we got a mapping.
 				$value = $this->deserialize_field( $declaration, $data[ $mapping ] );
 			} else {
+				// just provide a default.
 				$value = $declaration->get_default_value();
 			}
 			$raw_data[ $key ] = $declaration->cast_value( $value );
@@ -598,7 +610,7 @@ class MT_Model implements
 	 */
 	function serialize( $field_type = null ) {
 		$field_values_to_insert = array();
-		foreach ( self::get_fields( $field_type ) as $field_declaration ) {
+		foreach ( $this->get_fields( $field_type ) as $field_declaration ) {
 			/**
 			 * Declaration
 			 *
@@ -641,5 +653,34 @@ class MT_Model implements
 			return $this->call( $serializer, array( $value ) );
 		}
 		return $value;
+	}
+
+	/**
+	 * Handle Permissions for a REST Controller Action
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @param string          $action The action (e.g. index, create update etc).
+	 * @return bool
+	 */
+	public function permissions_check( $request, $action ) {
+		$class_name = get_class( $this );
+		if ( isset( self::$permissions_providers_by_class_name[ $class_name ] ) ) {
+			$permissions_provider = self::$permissions_providers_by_class_name[ $class_name ];
+			return call_user_func_array( array( $permissions_provider, 'permissions_check' ), array( $request, $action ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Set a Proxy Permission Provider for this class
+	 *
+	 * @param MT_Interfaces_Permissions_Provider $permissions_provider PP.
+	 * @return MT_Model $this
+	 */
+	public function with_permissions_provider( $permissions_provider ) {
+		MT_Expect::is_a( $permissions_provider, 'MT_Interfaces_Permissions_Provider' );
+		$class_name = get_class( $this );
+		self::$permissions_providers_by_class_name[ $class_name ] = $permissions_provider;
+		return $this;
 	}
 }

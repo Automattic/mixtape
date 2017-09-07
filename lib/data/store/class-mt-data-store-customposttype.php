@@ -23,12 +23,12 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	/**
 	 * Mixtape_Data_Store_CustomPostType constructor.
 	 *
-	 * @param null|MT_Model_Definition $model_factory Def.
+	 * @param null|MT_Model_Definition $model_prototype Def.
 	 * @param array                    $args Args.
 	 */
-	public function __construct( $model_factory = null, $args = array() ) {
+	public function __construct( $model_prototype = null, $args = array() ) {
 		$this->post_type = isset( $args['post_type'] ) ? $args['post_type'] : 'post';
-		parent::__construct( $model_factory, $args );
+		parent::__construct( $model_prototype, $args );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	 * @throws MT_Exception If something goes wrong.
 	 */
 	private function create_from_post( $post ) {
-		$field_declarations = $this->get_model_factory()->get_fields();
+		$field_declarations = $this->get_model_prototype()->get_fields();
 		$raw_post_data = $post->to_array();
 		$raw_meta_data = get_post_meta( $post->ID ); // assumes we are only ever adding one postmeta per key.
 
@@ -84,7 +84,7 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 		}
 		$merged_data = array_merge( $raw_post_data, $flattened_meta );
 
-		return $this->get_model_factory()->create( $merged_data, array(
+		return $this->get_model_prototype()->create( $merged_data, array(
 			'deserialize' => true,
 		) );
 	}

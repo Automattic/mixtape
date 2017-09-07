@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This is the entry point for.
  */
 class MT_Bootstrap {
-	const MINIMUM_PHP_VERSION = '5.3.0';
+	const MINIMUM_PHP_VERSION = '5.2.0';
 
 	/**
 	 * The Environment we will use
@@ -142,7 +142,6 @@ class MT_Bootstrap {
 			->load_class( 'Field_Declaration' )
 			->load_class( 'Field_Declaration_Builder' )
 			->load_class( 'Model' )
-			->load_class( 'Model_Factory' )
 			->load_class( 'Model_Settings' )
 			->load_class( 'Model_Collection' )
 			->load_class( 'Controller' )

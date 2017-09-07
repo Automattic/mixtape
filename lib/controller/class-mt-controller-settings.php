@@ -30,7 +30,7 @@ class MT_Controller_Settings extends MT_Controller_Model {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$model = $this->model_factory->get_data_store()->get_entity( null );
+		$model = $this->model_prototype->get_data_store()->get_entity( null );
 		if ( empty( $model ) ) {
 			return $this->not_found( __( 'Settings not found' ) );
 		}
@@ -56,7 +56,7 @@ class MT_Controller_Settings extends MT_Controller_Model {
 	 */
 	protected function create_or_update( $request ) {
 		$is_update = $request->get_method() !== 'POST';
-		$model_to_update = $this->model_factory->get_data_store()->get_entity( null );
+		$model_to_update = $this->model_prototype->get_data_store()->get_entity( null );
 		if ( empty( $model_to_update ) ) {
 			return $this->not_found( 'Model does not exist' );
 		}
@@ -78,7 +78,7 @@ class MT_Controller_Settings extends MT_Controller_Model {
 			return $this->bad_request( $id_or_error );
 		}
 
-		$model = $this->model_factory->get_data_store()->get_entity( null );
+		$model = $this->model_prototype->get_data_store()->get_entity( null );
 		$dto = $this->prepare_dto( $model );
 
 		return $is_update ? $this->ok( $dto ) : $this->created( $dto );

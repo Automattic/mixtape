@@ -56,8 +56,8 @@ class MT_ModelTest extends MT_Testing_TestCase {
 			->environment();
 		$env->define_model( 'Casette' );
 		$model_definition = $env->model( 'Casette' );
-		$this->assertInstanceOf( 'MT_Model_Factory', $model_definition );
-		$this->assertEquals( get_class( $model_definition ), 'MT_Model_Factory' );
+		$this->assertInstanceOf( 'MT_Model', $model_definition );
+		$this->assertEquals( get_class( $model_definition ), 'Casette' );
 		$this->assertInstanceOf( 'MT_Data_Store_Nil', $model_definition->get_data_store() );
 	}
 

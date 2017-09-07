@@ -28,6 +28,7 @@ class MT_Controller_CRUDTest extends MT_Testing_TestCase {
     }
 
     function test_get_item_not_found_if_entity_null() {
+		$this->requires_php_53_or_greater();
         $failing_mock_data_store = $this->getMockBuilder( 'MT_Interfaces_Data_Store' )
             ->setMethods( get_class_methods( 'MT_Interfaces_Data_Store' ) )
             ->getMock();
@@ -123,6 +124,7 @@ class MT_Controller_CRUDTest extends MT_Testing_TestCase {
     }
 
     function build_mock_casette_data_store() {
+		$this->requires_php_53_or_greater();
 		$env = $this->mixtape->environment();
 		$env->define_model( 'Casette' );
         $this->casettes = array();

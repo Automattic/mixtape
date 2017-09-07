@@ -22,6 +22,7 @@ class MT_EnvironmentTest extends MT_Testing_TestCase {
      * @covers Mixtape_Environment::start
      */
     function test_start_calls_register_in_added_bundles() {
+		$this->requires_php_53_or_greater();
         $a_bundle = $this
             ->getMockBuilder( 'MT_Interfaces_Controller_Bundle' )
             ->setMethods( array( 'get_prefix', 'start', 'register', 'get_endpoints' ) )

@@ -106,10 +106,10 @@ class MT_Environment {
 	}
 
 	/**
-	 * Retrieve a previously defined Mixtape_Model_Definition
+	 * Retrieve a previously defined MT_Model
 	 *
 	 * @param string $class the class name.
-	 * @return MT_Model_Factory the definition.
+	 * @return MT_Model the definition.
 	 * @throws MT_Exception Throws in case the model is not registered.
 	 */
 	public function model( $class ) {
@@ -373,12 +373,21 @@ class MT_Environment {
 	 *
 	 * @param string $declaration A Model class string.
 	 *
-	 * @return MT_Model_Factory
+	 * @return MT_Model
 	 */
 	function define_model( $declaration ) {
 		MT_Expect::that( class_exists( $declaration ), '$declaration string should be an existing class' );
 		MT_Expect::that( in_array( 'MT_Interfaces_Model', class_implements( $declaration ), true ), '$declaration does not implement MT_Interfaces_Model' );
-		$factory = new MT_Model_Factory( $this, $declaration, new MT_Data_Store_Nil() );
+
+		/**
+		 * Create an empty Model to act as our factory (I know this is weird, see php5.2)
+		 *
+		 * @var MT_Model $factory
+		 */
+		$factory = new $declaration();
+		$factory->with_environment( $this );
+		$factory->with_data_store( new MT_Data_Store_Nil() );
+		$factory->with_permissions_provider( new MT_Permissions_Any() );
 		$this->model_definitions[ $declaration ] = $factory;
 		return $factory;
 	}

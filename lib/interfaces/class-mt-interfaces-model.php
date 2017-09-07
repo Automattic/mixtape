@@ -84,29 +84,29 @@ interface MT_Interfaces_Model {
 	 * @param null|string $filter_by_type The field type.
 	 * @return array
 	 */
-	public static function get_fields( $filter_by_type = null );
+	public function get_fields( $filter_by_type = null );
 
 	/**
 	 * Get this model's data store
 	 *
 	 * @return array
 	 */
-	public static function get_data_store();
+	public function get_data_store();
 
 	/**
-	 * Set this model's data store
+	 * Set this model's data store (statically, all models of that class get the same one)
 	 *
 	 * @param MT_Interfaces_Data_Store $data_store A builder or a Data store.
 	 * @throws MT_Exception Throws when Data Store Invalid.
 	 */
-	public static function with_data_store( $data_store );
+	public function with_data_store( $data_store );
 
 	/**
-	 * Get this model's data store
+	 * Get this model's environment
 	 *
 	 * @return array
 	 */
-	public static function get_environment();
+	public function get_environment();
 
 	/**
 	 * Set this model's environment
@@ -114,14 +114,14 @@ interface MT_Interfaces_Model {
 	 * @param MT_Environment $environment The Environment.
 	 * @throws MT_Exception If an MT_Environment is not provided.
 	 */
-	public static function with_environment( $environment );
+	public function with_environment( $environment );
 
 	/**
 	 * Declare the fields of our Model.
 	 *
 	 * @return array list of MT_Field_Declaration
 	 */
-	public static function declare_fields();
+	public function declare_fields();
 
 	/**
 	 * Prepare this for data transfer
