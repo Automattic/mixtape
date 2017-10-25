@@ -70,11 +70,19 @@ class MT_Environment {
 	private $type_registry;
 
 	/**
+     * Events
+     *
+     * @var MT_Events
+     */
+    private $event_dispatcher;
+
+    /**
 	 * Mixtape_Environment constructor.
 	 *
 	 * @param MT_Bootstrap $bootstrap The bootstrap.
 	 */
 	public function __construct( $bootstrap ) {
+	    $this->event_dispatcher = new MT_Events();
 		$this->bootstrap = $bootstrap;
 		$this->has_started = false;
 		$this->rest_apis = array();
@@ -87,6 +95,13 @@ class MT_Environment {
 			->array_var( self::REGISTRABLE )
 			->array_var( self::BUNDLES );
 	}
+
+    /**
+     * @return MT_Events
+     */
+    public function get_event_dispatcher() {
+        return $this->event_dispatcher;
+    }
 
 	/**
 	 * Push a Builder to the Environment.
@@ -162,7 +177,7 @@ class MT_Environment {
 		}
 
 		if ( false === $this->has_started ) {
-			do_action( 'mt_environment_before_start', $this, get_class( $this ) );
+			$this->get_event_dispatcher()->do_action( 'environment_before_start', $this, get_class( $this ) );
 			$this->load_pending_builders( self::MODELS );
 			$this->load_pending_builders( self::BUNDLES );
 			$registrables = $this->get( self::REGISTRABLE ) ? $this->get( self::REGISTRABLE ) : array();
@@ -181,7 +196,7 @@ class MT_Environment {
 			 * @param array          $rest_apis The existing rest apis.
 			 * @param MT_Environment $this The Environment.
 			 */
-			$rest_apis = (array) apply_filters( 'mt_environment_get_rest_apis', $this->rest_apis, $this );
+			$rest_apis = (array) $this->get_event_dispatcher()->apply_filters( 'environment_get_rest_apis', $this->rest_apis, $this );
 
 			foreach ( $rest_apis as $k => $bundle ) {
 				/**
@@ -192,7 +207,7 @@ class MT_Environment {
 				$bundle->register( $this );
 			}
 			$this->has_started = true;
-			do_action( 'mt_environment_after_start', $this );
+            $this->get_event_dispatcher()->do_action( 'environment_after_start', $this );
 		}
 
 		return $this;
@@ -252,7 +267,7 @@ class MT_Environment {
 		 *
 		 * @return mixed
 		 */
-		return apply_filters( 'mt_variable_get', $value, $this, $name );
+		return $this->get_event_dispatcher()->apply_filters( 'variable_get', $value, $this, $name );
 	}
 
 	/**

@@ -69,8 +69,8 @@ class MT_Controller_Bundle implements MT_Interfaces_Controller_Bundle {
 		 *
 		 * @return array
 		 */
-		$endpoints = (array) apply_filters(
-			'mt_rest_api_controller_bundle_get_endpoints',
+		$endpoints = (array) $this->environment->get_event_dispatcher()->apply_filters(
+			'rest_api_controller_bundle_get_endpoints',
 			$this->endpoints,
 			$this
 		);

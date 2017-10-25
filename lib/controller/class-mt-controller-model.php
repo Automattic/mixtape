@@ -101,7 +101,7 @@ class MT_Controller_Model extends MT_Controller implements MT_Interfaces_Control
 			'$schema' => 'http://json-schema.org/schema#',
 			'title' => $model_definition->get_name(),
 			'type' => 'object',
-			'properties' => (array) apply_filters( 'mixtape_rest_api_schema_properties', $properties, $this->get_model_prototype() ),
+			'properties' => (array) $this->environment()->get_event_dispatcher()->apply_filters( 'rest_api_schema_properties', $properties, $this->get_model_prototype() ),
 		);
 
 		if ( ! empty( $required ) ) {

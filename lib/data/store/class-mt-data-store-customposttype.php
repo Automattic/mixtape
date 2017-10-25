@@ -23,7 +23,7 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	/**
 	 * Mixtape_Data_Store_CustomPostType constructor.
 	 *
-	 * @param null|MT_Model_Definition $model_prototype Def.
+	 * @param null|MT_Interfaces_Model $model_prototype Def.
 	 * @param array                    $args Args.
 	 */
 	public function __construct( $model_prototype = null, $args = array() ) {
@@ -55,7 +55,7 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	 * Get Entity
 	 *
 	 * @param int $id The id of the entity.
-	 * @return MT_Model|null
+	 * @return MT_Interfaces_Model|null
 	 */
 	public function get_entity( $id ) {
 		$post = get_post( absint( $id ) );
@@ -70,7 +70,7 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 	 * Create from Post.
 	 *
 	 * @param WP_Post $post Post.
-	 * @return MT_Model
+	 * @return MT_Interfaces_Model
 	 * @throws MT_Exception If something goes wrong.
 	 */
 	private function create_from_post( $post ) {
@@ -103,20 +103,32 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			'force_delete' => false,
 		) );
 
-		do_action( 'mixtape_data_store_delete_model_before', $model, $id );
+        $this->get_model_prototype()
+            ->get_environment()
+            ->get_event_dispatcher()
+            ->do_action( 'data_store_delete_model_before', $model, $id );
 
 		if ( $args['force_delete'] ) {
 			$result = wp_delete_post( $model->get_id() );
 			$model->set( 'id', 0 );
-			do_action( 'mixtape_data_store_delete_model', $model, $id );
+            $this->get_model_prototype()
+                ->get_environment()
+                ->get_event_dispatcher()
+                ->do_action( 'data_store_delete_model', $model, $id );
 		} else {
 			$result = wp_trash_post( $model->get_id() );
 			$model->set( 'status', 'trash' );
-			do_action( 'mixtape_data_store_trash_model', $model, $id );
+            $this->get_model_prototype()
+                ->get_environment()
+                ->get_event_dispatcher()
+                ->do_action( 'data_store_trash_model', $model, $id );
 		}
 
 		if ( false === $result ) {
-			do_action( 'mixtape_data_store_delete_model_fail', $model, $id );
+            $this->get_model_prototype()
+                ->get_environment()
+                ->get_event_dispatcher()
+                ->do_action( 'data_store_delete_model_fail', $model, $id );
 			return new WP_Error( 'delete-failed', 'delete-failed' );
 		}
 		return $result;
@@ -142,11 +154,17 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			unset( $fields['ID'] );
 		}
 
-		do_action( 'mixtape_data_store_model_upsert_before', $model );
+        $this->get_model_prototype()
+            ->get_environment()
+            ->get_event_dispatcher()
+            ->do_action( 'data_store_model_upsert_before', $model );
 
 		$id_or_error = wp_insert_post( $fields, true );
 		if ( is_wp_error( $id_or_error ) ) {
-			do_action( 'mixtape_data_store_model_upsert_error', $model );
+            $this->get_model_prototype()
+                ->get_environment()
+                ->get_event_dispatcher()
+                ->do_action( 'data_store_model_upsert_error', $model );
 			return $id_or_error;
 		}
 		$model->set( 'id', absint( $id_or_error ) );
@@ -158,7 +176,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			}
 
 			if ( false === $id_or_bool ) {
-				do_action( 'mixtape_data_store_model_upsert_error', $model );
+                $this->get_model_prototype()
+                    ->get_environment()
+                    ->get_event_dispatcher()
+                    ->do_action( 'data_store_model_upsert_error', $model );
 				// Something was wrong with this update/create. TODO: Should we stop mid create/update?
 				return new WP_Error(
 					'mixtape-error-creating-meta',
@@ -171,7 +192,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			}
 		}
 
-		do_action( 'mixtape_data_store_model_upsert_after', $model );
+        $this->get_model_prototype()
+            ->get_environment()
+            ->get_event_dispatcher()
+            ->do_action( 'data_store_model_upsert_after', $model );
 
 		return absint( $id_or_error );
 	}
