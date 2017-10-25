@@ -28,6 +28,18 @@ class MT_Expect {
 		self::that( is_a( $thing, $class_name ), 'Expected ' . $class_name . ', got ' . get_class( $thing ) );
 	}
 
+    /**
+     * Expect that something implements an interface.
+     *
+     * @param object|string|mixed $thing The thing to check.
+     * @param string $interface_name The interface name.
+     */
+	static function implements_interface( $thing, $interface_name ) {
+	    $thing_class = is_object( $thing ) ? get_class( $thing ) : (string)$thing;
+        $interfaces = class_implements( $thing );
+        self::that( in_array( $interface_name, $interfaces ), 'Class ' . $thing_class . ' does not implement interface ' . $interface_name );
+    }
+
 	/**
 	 * Expect that thing is an object
 	 *
