@@ -35,10 +35,15 @@ class MT_Events {
 	 * @return $this
 	 */
 	public function add_filter( $event, $func, $priority = 10, $accepted_args = 1 ) {
-		MT_Expect::that( is_callable( $func ), sprintf( '%s is not callable', $func ) );
+		MT_Expect::that( is_callable( $func ), sprintf( '$func is not callable' ) );
 		if ( ! isset( $this->events[ $event ] ) ) {
 			$this->events[ $event ] = new WP_Hook();
 		}
+		/**
+		 * The hook.
+		 *
+		 * @var WP_Hook $hook
+		 */
 		$hook = $this->events[ $event ];
 		$hook->add_filter( $event, $func, $priority, $accepted_args );
 		return $this;
@@ -71,8 +76,14 @@ class MT_Events {
 		if ( ! isset( $this->events[ $event ] ) ) {
 			return $value;
 		}
+		/**
+		 * The hook.
+		 *
+		 * @var WP_Hook $hook
+		 */
 		$hook = $this->events[ $event ];
-		return $hook->apply_filters( $func_args );
+		$func_args = array_slice( $func_args, 1 );
+		return $hook->apply_filters( $value, $func_args );
 
 	}
 
