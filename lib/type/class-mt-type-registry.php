@@ -25,7 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * 'array:<type>' (typed array)
  * 'nullable:<type>' (nullable type)
  * 'model:<class>' (a model type)
- *
  */
 class MT_Type_Registry {
 	/**
@@ -36,7 +35,7 @@ class MT_Type_Registry {
 	private $container_types = array(
 		'array',
 		'nullable',
-        'model',
+		'model',
 	);
 
 	/**
@@ -46,10 +45,11 @@ class MT_Type_Registry {
 	 */
 	private $types = null;
 
-    /**
-     *
-     * @var null|MT_Environment
-     */
+	/**
+	 * Environment
+	 *
+	 * @var null|MT_Environment
+	 */
 	private $environment = null;
 
 	/**
@@ -94,21 +94,21 @@ class MT_Type_Registry {
 				}
 
 				if ( 'array' === $container_type ) {
-                    $item_type_definition = $this->definition( $item_type );
+					$item_type_definition = $this->definition( $item_type );
 					$this->define( $type, new MT_Type_TypedArray( $item_type_definition ) );
 					$types = $this->get_types();
 				}
 
 				if ( 'nullable' === $container_type ) {
-                    $item_type_definition = $this->definition( $item_type );
+					$item_type_definition = $this->definition( $item_type );
 					$this->define( $type, new MT_Type_Nullable( $item_type_definition ) );
 					$types = $this->get_types();
 				}
 
-                if ( 'model' === $container_type ) {
-                    $this->define( $type, new MT_Type_Model( $item_type ) );
-                    $types = $this->get_types();
-                }
+				if ( 'model' === $container_type ) {
+					$this->define( $type, new MT_Type_Model( $item_type ) );
+					$types = $this->get_types();
+				}
 			}
 		}
 
@@ -124,8 +124,8 @@ class MT_Type_Registry {
 	 */
 	private function get_types() {
 		return (array) $this->environment
-            ->get_event_dispatcher()
-            ->apply_filters( 'type_registry_get_types', $this->types, $this );
+			->get_event_dispatcher()
+			->apply_filters( 'type_registry_get_types', $this->types, $this );
 	}
 
 	/**

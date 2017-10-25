@@ -70,19 +70,19 @@ class MT_Environment {
 	private $type_registry;
 
 	/**
-     * Events
-     *
-     * @var MT_Events
-     */
-    private $event_dispatcher;
+	 * Events
+	 *
+	 * @var MT_Events
+	 */
+	private $event_dispatcher;
 
-    /**
+	/**
 	 * Mixtape_Environment constructor.
 	 *
 	 * @param MT_Bootstrap $bootstrap The bootstrap.
 	 */
 	public function __construct( $bootstrap ) {
-	    $this->event_dispatcher = new MT_Events();
+		$this->event_dispatcher = new MT_Events();
 		$this->bootstrap = $bootstrap;
 		$this->has_started = false;
 		$this->rest_apis = array();
@@ -96,12 +96,14 @@ class MT_Environment {
 			->array_var( self::BUNDLES );
 	}
 
-    /**
-     * @return MT_Events
-     */
-    public function get_event_dispatcher() {
-        return $this->event_dispatcher;
-    }
+	/**
+	 * Get Event Dispacher
+	 *
+	 * @return MT_Events
+	 */
+	public function get_event_dispatcher() {
+		return $this->event_dispatcher;
+	}
 
 	/**
 	 * Push a Builder to the Environment.
@@ -207,7 +209,7 @@ class MT_Environment {
 				$bundle->register( $this );
 			}
 			$this->has_started = true;
-            $this->get_event_dispatcher()->do_action( 'environment_after_start', $this );
+			$this->get_event_dispatcher()->do_action( 'environment_after_start', $this );
 		}
 
 		return $this;

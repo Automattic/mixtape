@@ -103,32 +103,32 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			'force_delete' => false,
 		) );
 
-        $this->get_model_prototype()
-            ->get_environment()
-            ->get_event_dispatcher()
-            ->do_action( 'data_store_delete_model_before', $model, $id );
+		$this->get_model_prototype()
+			->get_environment()
+			->get_event_dispatcher()
+			->do_action( 'data_store_delete_model_before', $model, $id );
 
 		if ( $args['force_delete'] ) {
 			$result = wp_delete_post( $model->get_id() );
 			$model->set( 'id', 0 );
-            $this->get_model_prototype()
-                ->get_environment()
-                ->get_event_dispatcher()
-                ->do_action( 'data_store_delete_model', $model, $id );
+			$this->get_model_prototype()
+				->get_environment()
+				->get_event_dispatcher()
+				->do_action( 'data_store_delete_model', $model, $id );
 		} else {
 			$result = wp_trash_post( $model->get_id() );
 			$model->set( 'status', 'trash' );
-            $this->get_model_prototype()
-                ->get_environment()
-                ->get_event_dispatcher()
-                ->do_action( 'data_store_trash_model', $model, $id );
+			$this->get_model_prototype()
+				->get_environment()
+				->get_event_dispatcher()
+				->do_action( 'data_store_trash_model', $model, $id );
 		}
 
 		if ( false === $result ) {
-            $this->get_model_prototype()
-                ->get_environment()
-                ->get_event_dispatcher()
-                ->do_action( 'data_store_delete_model_fail', $model, $id );
+			$this->get_model_prototype()
+				->get_environment()
+				->get_event_dispatcher()
+				->do_action( 'data_store_delete_model_fail', $model, $id );
 			return new WP_Error( 'delete-failed', 'delete-failed' );
 		}
 		return $result;
@@ -154,17 +154,17 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			unset( $fields['ID'] );
 		}
 
-        $this->get_model_prototype()
-            ->get_environment()
-            ->get_event_dispatcher()
-            ->do_action( 'data_store_model_upsert_before', $model );
+		$this->get_model_prototype()
+			->get_environment()
+			->get_event_dispatcher()
+			->do_action( 'data_store_model_upsert_before', $model );
 
 		$id_or_error = wp_insert_post( $fields, true );
 		if ( is_wp_error( $id_or_error ) ) {
-            $this->get_model_prototype()
-                ->get_environment()
-                ->get_event_dispatcher()
-                ->do_action( 'data_store_model_upsert_error', $model );
+			$this->get_model_prototype()
+				->get_environment()
+				->get_event_dispatcher()
+				->do_action( 'data_store_model_upsert_error', $model );
 			return $id_or_error;
 		}
 		$model->set( 'id', absint( $id_or_error ) );
@@ -176,10 +176,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			}
 
 			if ( false === $id_or_bool ) {
-                $this->get_model_prototype()
-                    ->get_environment()
-                    ->get_event_dispatcher()
-                    ->do_action( 'data_store_model_upsert_error', $model );
+				$this->get_model_prototype()
+					->get_environment()
+					->get_event_dispatcher()
+					->do_action( 'data_store_model_upsert_error', $model );
 				// Something was wrong with this update/create. TODO: Should we stop mid create/update?
 				return new WP_Error(
 					'mixtape-error-creating-meta',
@@ -192,10 +192,10 @@ class MT_Data_Store_CustomPostType extends MT_Data_Store_Abstract {
 			}
 		}
 
-        $this->get_model_prototype()
-            ->get_environment()
-            ->get_event_dispatcher()
-            ->do_action( 'data_store_model_upsert_after', $model );
+		$this->get_model_prototype()
+			->get_environment()
+			->get_event_dispatcher()
+			->do_action( 'data_store_model_upsert_after', $model );
 
 		return absint( $id_or_error );
 	}
