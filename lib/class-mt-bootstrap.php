@@ -188,6 +188,7 @@ class MT_Bootstrap {
 	 */
 	public function environment() {
 		if ( null === $this->environment ) {
+			$this->load();
 			$this->environment = new MT_Environment( $this );
 		}
 		return $this->environment;
